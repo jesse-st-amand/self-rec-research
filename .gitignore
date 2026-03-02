@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+.venv/
+
+# External repos (managed separately via git)
+_external/
+_research/
+_archive/
+
+# IDE
+.vscode/
+.idea/
+
+# Data (large experiment input/output)
+data/
+
+# Environment variables
+.env
+
+# OS
+.DS_Store
+
+# uv
+uv.lock
