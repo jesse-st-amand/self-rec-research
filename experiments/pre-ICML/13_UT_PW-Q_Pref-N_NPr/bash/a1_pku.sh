@@ -1,5 +1,5 @@
 #!/bin/bash
 # Sweep experiment: Compare models against each other
 
-uv run experiments/_scripts/analysis/recognition_accuracy.py \
+uv run srf-recognition-accuracy \
         --results_dir data/results/pku_saferlhf/mismatch_1-20/13_UT_PW-Q_Pref-N_NPr

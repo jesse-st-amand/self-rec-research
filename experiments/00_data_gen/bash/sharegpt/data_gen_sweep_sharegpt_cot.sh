@@ -1,7 +1,7 @@
 #!/bin/bash
 # Example sweep data generation script for multiple models
 
-uv run experiments/_scripts/gen/generate_data_sweep.py \
+uv run srf-generate-sweep \
     --model_names gpt-oss-20b-thinking gpt-oss-120b-thinking \
                 sonnet-3.7-thinking \
                 grok-3-mini-thinking \

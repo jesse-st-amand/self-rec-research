@@ -1,7 +1,7 @@
 #!/bin/bash
 # Sweep experiment: Compare models against each other
 
-uv run experiments/_scripts/eval/run_experiment_sweep.py \
+uv run srf-eval-sweep \
     --model_names -set test_dr \
     --treatment_type other_models \
     --dataset_dir_path data/input/wikisum/training_set_1-20 \

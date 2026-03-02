@@ -11,6 +11,6 @@ DATASET_PATHS=(
     "data/results/wikisum/debug/$EXP_DIR"
 )
 
-uv run experiments/_scripts/analysis/recognition_accuracy.py \
+uv run srf-recognition-accuracy \
         --results_dir "${DATASET_PATHS[@]}" \
         --model_names -set test

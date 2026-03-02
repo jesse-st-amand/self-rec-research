@@ -1,3 +1,3 @@
-uv run experiments/_scripts/analysis/_deprecated/compare_experiments.py \
+uv run python -m self_rec_framework.scripts.analysis._deprecated.compare_experiments \
     --experiment1 data/results/pku_saferlhf/mismatch_1-20/13_UT_PW-Q_Pref-N_NPr \
     --experiment2 data/results/pku_saferlhf/mismatch_1-20/15_UT_PW-Q_Pref-S_NPr

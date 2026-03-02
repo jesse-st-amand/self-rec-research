@@ -4,7 +4,7 @@
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-uv run experiments/_scripts/eval/run_experiment_sweep.py \
+uv run srf-eval-sweep \
     --model_names -set test \
     --treatment_type other_models \
     --dataset_dir_path data/input/wikisum/debug \

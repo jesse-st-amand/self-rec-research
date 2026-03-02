@@ -1,7 +1,7 @@
 #!/bin/bash
 # Sweep experiment: Compare models against each other
 
-uv run experiments/_scripts/eval/run_experiment_sweep.py \
+uv run srf-eval-sweep \
     --model_names gpt-4o gpt-4.1-mini gpt-4.1 gpt-4o-mini \
                   sonnet-4.5 haiku-3.5 sonnet-3.7 opus-4.1 \
                   ll-3.1-8b ll-3.1-70b ll-3.1-405b \

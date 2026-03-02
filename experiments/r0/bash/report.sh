@@ -1,6 +1,6 @@
 #!/bin/bash
 
-uv run experiments/_scripts/analysis/_deprecated/generate_report_figures.py \
+uv run python -m self_rec_framework.scripts.analysis._deprecated.generate_report_figures \
         --recognition_pivot data/analysis/pku_saferlhf/mismatch_1-20/11_UT_PW-Q_Rec_NPr/accuracy_pivot.csv \
         --preference_pivot data/analysis/pku_saferlhf/mismatch_1-20/14_UT_PW-Q_Pref-Q_NPr/accuracy_pivot.csv \
         --preference_results data/results/pku_saferlhf/mismatch_1-20/14_UT_PW-Q_Pref-Q_NPr \

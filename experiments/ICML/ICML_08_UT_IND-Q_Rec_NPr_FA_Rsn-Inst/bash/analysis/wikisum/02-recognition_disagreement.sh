@@ -13,7 +13,7 @@ SCRIPT_NAME="${SCRIPT_NAME%.sh}"  # Remove ".sh" extension
 
 
 # Default: assume script_name matches Python file name
-ANALYSIS_SCRIPT="${SCRIPT_NAME}.py"
+ENTRY_POINT="srf-${SCRIPT_NAME//_/-}"
 
 # Auto-detect experiment directory name
 # Path structure: experiments/{EXP_DIR}/bash/analysis/{dataset_name}/
@@ -69,7 +69,7 @@ fi
 # Run analysis script
 # ============================================================================
 
-uv run "experiments/_scripts/analysis/$ANALYSIS_SCRIPT" \
+uv run "$ENTRY_POINT" \
         "${EXTRA_OUTPUT_ARGS[@]}" \
         --results_dir "${FULL_DATASET_PATHS[@]}" \
         --model_names "${MODEL_NAMES[@]}"

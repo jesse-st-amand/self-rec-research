@@ -1,7 +1,7 @@
 #!/bin/bash
 # Sweep experiment: Compare models against their caps treatments
 
-uv run experiments/_scripts/eval/run_experiment_sweep.py \
+uv run srf-eval-sweep \
     --model_names gpt-4o-mini gpt-4.1 haiku-3.5 \
     --treatment_type caps \
     --dataset_dir_path data/input/wikisum/training_set_1-20 \

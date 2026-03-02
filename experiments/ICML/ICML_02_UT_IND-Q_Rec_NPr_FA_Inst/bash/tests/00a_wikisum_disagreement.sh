@@ -11,6 +11,6 @@ DATASET_PATHS=(
     "data/results/wikisum/debug/$EXP_DIR"
 )
 
-uv run experiments/_scripts/analysis/recognition_disagreement.py \
+uv run srf-recognition-disagreement \
         --results_dir "${DATASET_PATHS[@]}" \
         --model_names -set test

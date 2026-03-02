@@ -1,7 +1,7 @@
 #!/bin/bash
 # Sweep experiment: Compare models against each other
 
-uv run experiments/_scripts/eval/run_experiment_sweep.py \
+uv run srf-eval-sweep \
     --model_names gemini-2.0-flash gemini-2.0-flash-lite gemini-2.5-flash gemini-2.5-pro \
     --treatment_type other_models \
     --dataset_dir_path data/input/pku_saferlhf/mismatch_1-20 \

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Sweep experiment: Compare models against each other
 
-uv run experiments/_scripts/eval/run_experiment_sweep.py \
+uv run srf-eval-sweep \
     --model_names gpt-oss-20b-thinking gpt-oss-120b-thinking \
                 sonnet-3.7-thinking \
                 grok-3-mini-thinking \
