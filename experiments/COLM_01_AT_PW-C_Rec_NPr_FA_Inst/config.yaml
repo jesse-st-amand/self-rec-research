@@ -1,8 +1,8 @@
-temperature: 0.3
+temperature: 1.0
 max_final_answer_tokens: null
 
 tags: "AT"
-format: "IND-C"
+format: "PW-C"
 task: "Rec"
 priming: False
 generator_output: "FA"
