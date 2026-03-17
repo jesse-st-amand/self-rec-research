@@ -1,0 +1,17 @@
+#!/bin/bash
+# Shared configuration for analysis scripts in this directory
+# This file is sourced by all analysis scripts to get dataset subsets and model names
+
+# Dataset subsets to combine (relative to data/results/{dataset_name}/)
+# Each subset adds more datapoints to the same evaluations
+DATASET_SUBSETS=(
+    "mismatch_1-20"
+    "test_mismatch_1-20"
+    "test-mismatch_10_100-200"
+)
+
+# Model names to include in analysis (overrides root config.yaml)
+MODEL_NAMES=(
+    "-set"
+    "eval_cot-r_and_dr"
+)

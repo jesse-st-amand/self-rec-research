@@ -1,0 +1,2 @@
+model_names: ['-set', 'eval_cot-r_and_dr']
+reasoning_vs_instruct: false

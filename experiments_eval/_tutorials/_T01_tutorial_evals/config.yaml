@@ -1,0 +1,12 @@
+temperature: 0.3
+max_final_answer_tokens: null
+
+tags: "AT"
+format: "IND-C"
+task: "Rec"
+priming: False
+generator_output: "FA"
+evaluator_reasoning: "DR"
+
+model_names: ['-set', 'tutorial']
+generator_models: ['-set', 'tutorial']

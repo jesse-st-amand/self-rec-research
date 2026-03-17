@@ -2,7 +2,7 @@
 # Run all bash scripts in one or more directories consecutively
 #
 # Usage: ./scripts/run.sh <directory1> [directory2] ...
-# Example: ./scripts/run.sh experiments/ICML_01/bash/analysis/bigcodebench experiments/ICML_01/bash/analysis/_inter-dataset
+# Example: ./scripts/run.sh experiments_eval/ICML/ICML_01_UT_PW-Q_Rec_NPr_FA_Inst/bash/analysis_dr/bigcodebench
 #
 # Note: Continues running subsequent scripts even if one fails.
 # Failed scripts are reported in the summary at the end.
@@ -12,7 +12,7 @@
 
 if [ -z "$1" ]; then
     echo "Usage: $0 <directory1> [directory2] ..."
-    echo "Example: $0 experiments/ICML_01_UT_PW-Q_Rec_NPr_FA_Inst/bash"
+    echo "Example: $0 experiments_eval/ICML/ICML_01_UT_PW-Q_Rec_NPr_FA_Inst/bash/analysis_dr/bigcodebench"
     exit 1
 fi
 
