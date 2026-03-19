@@ -1,0 +1,34 @@
+# Tutorial: minimal RunPod + W&B SFT run for pipeline testing.
+# Same tiny dataset as config.yaml but enables W&B logging and runs on RunPod.
+# Expected cost: ~$0.30 on RunPod A100 (~3-5 min GPU time, including model download).
+
+experiment_name: tutorial_sft_pw_runpod
+description: >
+  Minimal SFT run on RunPod with W&B logging to verify remote deployment.
+  PW recognition, ll-3.1-8b evaluator vs qwen-2.5-7b, ShareGPT only.
+
+algorithm: sft
+wandb_project: sgtr-rl
+
+data:
+  generator_models: [qwen-2.5-7b]
+  dataset: sharegpt
+  train_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/train.jsonl
+  val_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/val.jsonl
+
+model:
+  name: meta-llama/Llama-3.1-8B-Instruct
+  lora_rank: 16
+
+hyperparameters:
+  learning_rate: 5.0e-5
+  num_epochs: 2
+  batch_size: 8
+  seed: 42
+
+benchmark_evals:
+  # Cross-dataset eval — verify benchmark runner works
+  xeval_dataset_pku:
+    type: sgtr
+    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_pku_saferlhf/val.jsonl
+    schedule: end_only

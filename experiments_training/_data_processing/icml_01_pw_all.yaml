@@ -1,0 +1,8 @@
+source_dir: data/results
+output_dir: data/training_data
+evaluator: ll-3.1-8b
+experiments:
+  - ICML_01_UT_PW-Q_Rec_NPr_FA_Inst
+cot: false
+train_ratio: 0.8
+seed: 42

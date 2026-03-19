@@ -1,0 +1,14 @@
+# Tutorial: extract a small training set for pipeline testing.
+# Uses ICML_01 PW format, ll-3.1-8b evaluator, single dataset + single generator.
+source_dir: data/results
+output_dir: data/training_data
+evaluator: ll-3.1-8b
+experiments:
+  - ICML_01_UT_PW-Q_Rec_NPr_FA_Inst
+datasets:
+  - sharegpt
+generators:
+  - qwen-2.5-7b
+cot: false
+train_ratio: 0.8
+seed: 42

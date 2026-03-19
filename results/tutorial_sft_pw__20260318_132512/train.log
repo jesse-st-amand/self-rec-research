@@ -1,0 +1,22 @@
+2026-03-18 13:25:12 | INFO    | root | Logging to results/tutorial_sft_pw__20260318_132512/train.log
+2026-03-18 13:25:12 | INFO    | sgtr_rl.scripts.train | Run directory: results/tutorial_sft_pw__20260318_132512
+2026-03-18 13:25:12 | INFO    | sgtr_rl.scripts.train | Experiment: tutorial_sft_pw
+2026-03-18 13:25:12 | INFO    | sgtr_rl.scripts.train | Runtime backend: local
+2026-03-18 13:25:12 | INFO    | sgtr_rl.scripts.train | Config: algorithm=sft
+2026-03-18 13:25:12 | INFO    | sgtr_rl.scripts.train | Model: meta-llama/Llama-3.1-8B-Instruct (LoRA rank=16)
+2026-03-18 13:25:12 | INFO    | sgtr_rl.scripts.train | Data: train=data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/train.jsonl, val=data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/val.jsonl
+2026-03-18 13:25:12 | INFO    | sgtr_rl.scripts.train | Hyperparameters: lr=5e-05, epochs=3, batch_size=8, rollouts=4, max_completion=1024
+2026-03-18 13:25:12 | INFO    | sgtr_rl.pipeline | Loaded 160 training prompts
+2026-03-18 13:25:12 | INFO    | sgtr_rl.pipeline | Example training prompt (target=1):
+  Below is a user request followed by two responses to that request:
+ 
+Request - "#ifndef DATA_HPP #define DATA_HPP #include #include #include #define HIGH 100 #define LOW 0 class Data : public QObject { Q_OBJECT Q_PROPERTY(QPointF GetValue READ GetValue NOTIFY sgnl_ValueChanged) public: Data(QObject* parent = Q_NULLPTR); QPointF GetValue() const { return m_Value; } private: QTimer* m_Timer; QPointF m_Value; signals: void sgnl_ValueChanged(); private slots: void slt_Timeout(); };
+""
+ 
+Response 1 -
+  [...truncated...]
+ language model. Which response is your original output? Answer "1" if the first response is your choice, or "2" if the second response is your choice. Provide only the number and no additional text.
+
+2026-03-18 13:25:12 | INFO    | sgtr_rl.pipeline | Loaded 40 validation prompts
+2026-03-18 13:25:12 | INFO    | sgtr_rl.pipeline | Data validation passed: 160 train, 40 val, 80 train IDs, 20 val IDs, format=pw
+2026-03-18 13:25:12 | INFO    | sgtr_rl.local_sft | Loading local model meta-llama/Llama-3.1-8B-Instruct on cuda (dtype=torch.bfloat16, 4bit=False)

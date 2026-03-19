@@ -1,0 +1,8 @@
+{
+  "algorithm": "sft",
+  "backend": "local",
+  "experiment_name": "tutorial_sft_pw",
+  "started_at": "2026-03-18T12:17:17.043571+00:00",
+  "status": "starting",
+  "updated_at": "2026-03-18T12:17:17.043571+00:00"
+}

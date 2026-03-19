@@ -1,0 +1,23 @@
+{
+  "evaluator": "ll-3.1-8b",
+  "experiment": "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst",
+  "opponent": "qwen-2.5-7b",
+  "dataset": "sharegpt",
+  "format": "pw",
+  "extraction": {
+    "cot": false,
+    "train_ratio": 0.8,
+    "seed": 42,
+    "split_by": "id",
+    "total_raw": 200,
+    "total_dedup": 200,
+    "train_ids": 80,
+    "val_ids": 20,
+    "train_size": 160,
+    "val_size": 40,
+    "eval_dirs": [
+      "/tmp/sgtr_prep_ce367w8l/sharegpt/english2_74/ICML_01_UT_PW-Q_Rec_NPr_FA_Inst/2026-01-21T14-26-18+00-00_ll-3.1-8b-eval-on-ll-3.1-8b-vs-qwen-2.5-7b_VR62kDdqZdxTWwRA2qPq7z",
+      "/tmp/sgtr_prep_ce367w8l/sharegpt/english_26/ICML_01_UT_PW-Q_Rec_NPr_FA_Inst/2026-01-21T11-51-30+00-00_ll-3.1-8b-eval-on-ll-3.1-8b-vs-qwen-2.5-7b_6oXzTTjKCcDbxSWhwPgpgB"
+    ]
+  }
+}
