@@ -105,16 +105,20 @@ def pull():
 
 
 def push():
-    """Stage all changes in data/ (except analysis/) and push to HF."""
+    """Stage all changes in data/ (except analysis/) and push to HF.
+    Always pulls first to avoid overwriting remote changes."""
     if not _is_initialized():
         print("data/ not initialized. Run with --init first.")
         sys.exit(1)
 
-    # Ensure .gitignore excludes analysis/
+    # Ensure .gitignore excludes analysis/ and figures/
     gitignore = LOCAL_DIR / ".gitignore"
-    if not gitignore.exists() or "analysis/" not in gitignore.read_text():
-        with open(gitignore, "a") as f:
-            f.write("\nanalysis/\n")
+    ignore_entries = ["analysis/", "figures/"]
+    existing = gitignore.read_text() if gitignore.exists() else ""
+    with open(gitignore, "a") as f:
+        for entry in ignore_entries:
+            if entry not in existing:
+                f.write(f"\n{entry}\n")
 
     print(f"Staging and pushing to {REPO_ID}...")
     _run_git("add", "-A")
@@ -129,6 +133,12 @@ def push():
         return
 
     _run_git("commit", "-m", "Update data")
+
+    # Fetch + rebase before pushing to avoid overwriting remote changes
+    print("Fetching remote to check for new commits...")
+    _run_git("fetch", "origin")
+    _run_git("rebase", "origin/main")
+
     _run_git("push", "origin", "HEAD:main")
     print("✓ Push complete\n")
 

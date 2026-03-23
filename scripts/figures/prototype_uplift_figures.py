@@ -626,6 +626,176 @@ def fig_delta_matrix(pair_data):
     print(f"  ✓ Saved: {path}")
 
 
+# ============================================================================
+# FIGURE 6: Task OP transfer heatmap — one per model
+# y = trained-on task OP, x = tested-on task OP, cell = delta accuracy
+# ============================================================================
+def fig_task_transfer_heatmap(pair_data):
+    """
+    One heatmap per model. Rows = trained-on task OP, cols = tested-on task OP.
+    Cell = accuracy delta (post − pre), averaged across datasets.
+    """
+    # Train OPs (rows) — recognition only, no preference
+    train_ops = ["PW-Rec (UT)", "IND-Rec (UT)", "PW-Rec (AT)", "IND-Rec (AT)"]
+    train_labels = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)"]
+
+    # Test OPs (cols) — includes preference
+    test_ops = ["PW-Rec (UT)", "IND-Rec (UT)", "PW-Rec (AT)", "IND-Rec (AT)",
+                "PW-Pref (UT)", "IND-Pref (UT)"]
+    test_labels = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)",
+                   "PW Pref", "IND Pref"]
+
+    size_labels = list(pair_data.keys())
+    n_models = len(size_labels)
+    n_train = len(train_ops)
+    n_test = len(test_ops)
+
+    norm = TwoSlopeNorm(vmin=-0.3, vcenter=0, vmax=0.3)
+
+    fig, axes = plt.subplots(1, n_models, figsize=(4.2 * n_models + 1, 4),
+                             gridspec_kw={"wspace": 0.15})
+    if n_models == 1:
+        axes = [axes]
+
+    for m_idx, size in enumerate(size_labels):
+        ax = axes[m_idx]
+        pre_m, post_m = MODEL_PAIRS[size]
+        pre = pair_data[size]["pre"]
+        post = pair_data[size]["post"]
+
+        matrix = np.full((n_train, n_test), np.nan)
+        for i, train_op in enumerate(train_ops):
+            for j, test_op in enumerate(test_ops):
+                pre_val = pre.get(test_op)
+                post_val = post.get(test_op)
+                if pre_val is not None and post_val is not None:
+                    matrix[i, j] = post_val - pre_val
+
+        im = ax.imshow(matrix, cmap="RdYlGn", norm=norm, aspect="auto")
+
+        for i in range(n_train):
+            for j in range(n_test):
+                val = matrix[i, j]
+                if not np.isnan(val):
+                    color = "white" if abs(val) > 0.2 else "black"
+                    ax.text(j, i, f"{val:+.2f}", ha="center", va="center",
+                            fontsize=8, fontweight="bold", color=color)
+
+        # Highlight diagonal where train == test (first 4 cols only)
+        for k in range(min(n_train, n_test)):
+            if train_ops[k] == test_ops[k]:
+                ax.add_patch(plt.Rectangle((k - 0.5, k - 0.5), 1, 1,
+                                            fill=False, edgecolor="black", linewidth=2))
+
+        # Vertical separator before preference columns
+        ax.axvline(x=n_train - 0.5, color="black", linewidth=1.2, linestyle="--", alpha=0.5)
+
+        ax.set_xticks(range(n_test))
+        ax.set_xticklabels(test_labels, fontsize=8, rotation=35, ha="right")
+        ax.set_yticks(range(n_train))
+        ax.set_yticklabels(train_labels if m_idx == 0 else [], fontsize=8)
+        if m_idx == 0:
+            ax.set_ylabel("Trained on", fontsize=10, fontweight="bold")
+        ax.set_xlabel("Tested on", fontsize=10, fontweight="bold")
+        ax.set_title(f"{size} ({pre_m} → {post_m})", fontsize=9, fontweight="bold")
+
+    cbar = fig.colorbar(im, ax=axes, shrink=0.8, pad=0.03, aspect=20)
+    cbar.set_label("Accuracy Δ", fontsize=9)
+
+    fig.suptitle("Task Operationalization Transfer", fontsize=12, fontweight="bold")
+    plt.tight_layout(rect=[0, 0, 0.95, 0.95])
+    path = OUT_DIR / "heatmap_task_transfer.png"
+    fig.savefig(path, dpi=200, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+# ============================================================================
+# FIGURE 7: Dataset transfer heatmap — one per model
+# y = trained-on dataset, x = tested-on dataset, cell = delta accuracy
+# (averaged across the 4 recognition task OPs)
+# ============================================================================
+def fig_dataset_transfer_heatmap(pair_data):
+    """
+    One heatmap per model. Rows = trained-on dataset, cols = tested-on dataset.
+    Cell = accuracy delta averaged across 4 recognition task OPs.
+    """
+    datasets = ["WikiSum", "ShareGPT", "PKU", "BigCode"]
+    rec_ops = ["PW-Rec (UT)", "IND-Rec (UT)", "PW-Rec (AT)", "IND-Rec (AT)"]
+
+    size_labels = list(pair_data.keys())
+    n_models = len(size_labels)
+
+    # Load per-dataset data
+    all_per_ds = {}
+    for size_label, (pre_model, post_model) in MODEL_PAIRS.items():
+        pre_ds = load_per_dataset_performance(pre_model)
+        post_ds = load_per_dataset_performance(post_model)
+        all_per_ds[size_label] = {"pre": pre_ds, "post": post_ds}
+
+    fig, axes = plt.subplots(1, n_models, figsize=(5.5 * n_models, 4.5))
+    if n_models == 1:
+        axes = [axes]
+
+    norm = TwoSlopeNorm(vmin=-0.3, vcenter=0, vmax=0.3)
+
+    for m_idx, size in enumerate(size_labels):
+        ax = axes[m_idx]
+        pre_m, post_m = MODEL_PAIRS[size]
+        pre_ds = all_per_ds[size]["pre"]
+        post_ds = all_per_ds[size]["post"]
+
+        n = len(datasets)
+        matrix = np.full((n, n), np.nan)
+
+        for i, train_ds in enumerate(datasets):
+            for j, test_ds in enumerate(datasets):
+                # Average delta across rec_ops for this dataset pair
+                deltas = []
+                for op in rec_ops:
+                    pre_val = pre_ds.get(op, {}).get(test_ds)
+                    post_val = post_ds.get(op, {}).get(test_ds)
+                    if pre_val is not None and post_val is not None:
+                        deltas.append(post_val - pre_val)
+                if deltas:
+                    matrix[i, j] = np.mean(deltas)
+
+        im = ax.imshow(matrix, cmap="RdYlGn", norm=norm, aspect="equal")
+
+        for i in range(n):
+            for j in range(n):
+                val = matrix[i, j]
+                if not np.isnan(val):
+                    color = "white" if abs(val) > 0.2 else "black"
+                    ax.text(j, i, f"{val:+.2f}", ha="center", va="center",
+                            fontsize=9, fontweight="bold", color=color)
+
+        # Highlight diagonal
+        for k in range(n):
+            ax.add_patch(plt.Rectangle((k - 0.5, k - 0.5), 1, 1,
+                                        fill=False, edgecolor="black", linewidth=2))
+
+        ax.set_xticks(range(n))
+        ax.set_xticklabels(datasets, fontsize=9, rotation=35, ha="right")
+        ax.set_yticks(range(n))
+        ax.set_yticklabels(datasets if m_idx == 0 else [], fontsize=9)
+        if m_idx == 0:
+            ax.set_ylabel("Trained on", fontsize=10, fontweight="bold")
+        ax.set_xlabel("Tested on", fontsize=10, fontweight="bold")
+        ax.set_title(f"{size} ({pre_m} → {post_m})", fontsize=10, fontweight="bold")
+
+    cbar = fig.colorbar(im, ax=axes, shrink=0.7, pad=0.02)
+    cbar.set_label("Accuracy Δ (post − pre)", fontsize=10)
+
+    fig.suptitle("Dataset Domain Transfer (avg over 4 recognition OPs)",
+                 fontsize=13, fontweight="bold", y=1.02)
+    plt.tight_layout()
+    path = OUT_DIR / "heatmap_dataset_transfer.png"
+    fig.savefig(path, dpi=200, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
 def main():
     print("Loading model pair data...")
     pair_data = load_all_model_pairs()
@@ -653,6 +823,12 @@ def main():
 
     print("\n5. Delta matrix (per OP × per dataset)")
     fig_delta_matrix(pair_data)
+
+    print("\n6. Task OP transfer heatmap (one per model)")
+    fig_task_transfer_heatmap(pair_data)
+
+    print("\n7. Dataset transfer heatmap (one per model)")
+    fig_dataset_transfer_heatmap(pair_data)
 
     print(f"\nAll uplift prototypes saved to: {OUT_DIR}/")
 
