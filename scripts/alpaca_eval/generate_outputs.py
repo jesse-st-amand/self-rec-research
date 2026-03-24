@@ -297,7 +297,7 @@ def generate_tinker(instructions, model, max_tokens, temperature, **kwargs):
     """
     import tinker
     from tinker_cookbook import renderers as r
-    from tinker_cookbook.model_info import get_model_info
+    from tinker_cookbook.model_info import get_recommended_renderer_name
 
     sampler_path = kwargs.get("sampler_path")
 
@@ -312,8 +312,8 @@ def generate_tinker(instructions, model, max_tokens, temperature, **kwargs):
         sampling_client = client.create_sampling_client(base_model=model)
 
     # Set up renderer for chat template
-    model_info = get_model_info(model)
-    renderer = r.get_renderer(model_info.renderer_name)
+    renderer_name = get_recommended_renderer_name(model)
+    renderer = r.get_renderer(renderer_name)
 
     sampling_params = tinker.types.SamplingParams(
         max_tokens=max_tokens,
