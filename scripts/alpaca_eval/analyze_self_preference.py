@@ -51,9 +51,14 @@ def load_win_rates(results_dir: Path, judges: list[str], generators: list[str] |
             # preference=1 means judge's output (output_1) preferred
             # preference=2 means generator's output preferred
             # preference=1.5 means tie (count as 0.5 win for each)
-            wins = sum(1 for p in prefs if p == 1)
-            ties = sum(0.5 for p in prefs if p == 1.5)
-            total = len(prefs)
+            # None/NaN = failed to parse
+            valid = [p for p in prefs if p is not None and not (isinstance(p, float) and np.isnan(p))]
+            wins = sum(1 for p in valid if p == 1)
+            ties = sum(0.5 for p in valid if p == 1.5)
+            total = len(valid)
+            null_count = len(prefs) - total
+            if null_count > 0:
+                print(f"  ⚠ {judge} vs {generator}: {null_count}/{len(prefs)} unparseable preferences")
             win_rate = (wins + ties) / total if total > 0 else float("nan")
             matrix.loc[judge, generator] = win_rate
 
@@ -194,7 +199,7 @@ def main():
     print(f"Overall mean deviation: {summary['deviation_from_chance'].mean():.3f}")
 
     # Generate figures
-    if len(models) >= 2:
+    if len(judges) >= 2:
         plot_heatmap(matrix, output_dir / "self_preference_heatmap.png")
         plot_deviation_bars(summary, output_dir / "self_preference_deviation.png")
 

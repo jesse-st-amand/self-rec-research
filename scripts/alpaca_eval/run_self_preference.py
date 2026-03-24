@@ -45,6 +45,7 @@ def resolve_base_model(short_name: str) -> str:
 # Prompt template (same as alpaca_eval_gpt4/alpaca_eval.txt)
 # ---------------------------------------------------------------------------
 
+# Standard alpaca_eval prompt (works well with GPT-4 class models)
 JUDGE_SYSTEM_PROMPT = (
     "You are a helpful assistant, that ranks models by the quality of their answers."
 )
@@ -77,6 +78,22 @@ Now please rank the models by the quality of their answers, so that the model wi
 
 Your response must be a valid Python dictionary and should contain nothing else because we will directly execute it in Python. Please provide the ranking that the majority of humans would give."""
 
+# Simple prompt for smaller models that struggle with the structured format
+JUDGE_SIMPLE_SYSTEM = "You are a helpful and precise assistant for checking the quality of answers."
+
+JUDGE_SIMPLE_USER = """\
+[Question]
+{instruction}
+
+[Response A]
+{output_1}
+
+[Response B]
+{output_2}
+
+[Task]
+Which response better answers the question? Reply with ONLY "A" or "B" (nothing else)."""
+
 
 def is_local_model(short_name: str) -> bool:
     """Check if a model requires local GPU inference."""
@@ -108,16 +125,46 @@ def parse_provider(short_name: str) -> tuple[str, str, dict]:
 def parse_ranking(completion: str) -> float:
     """Parse model ranking from completion text.
 
-    Returns 1 if model_1 preferred, 2 if model_2 preferred, nan on failure.
+    Handles multiple formats:
+    - Python list of dicts: [{'model': 'model_1', 'rank': 1}, ...]
+    - Simple "A" or "B" response (maps A->1, B->2)
+    - "1" or "2" response
+    - "model_1" or "model_2" mentioned first
+
+    Returns 1.0 if model_1/A preferred, 2.0 if model_2/B preferred, nan on failure.
     """
+    import re
     import numpy as np
+
+    text = completion.strip()
+
+    # Try structured Python dict format (alpaca_eval standard)
     try:
-        parsed = ast.literal_eval(completion.strip())
+        parsed = ast.literal_eval(text)
         rank = [c for c in parsed if c["model"] == "model_1"][0]["rank"]
         if rank in (1, 2):
             return float(rank)
     except Exception:
         pass
+
+    # Try simple A/B format
+    clean = text.strip().upper()
+    if clean in ("A", "RESPONSE A", "A.", "A)"):
+        return 1.0
+    if clean in ("B", "RESPONSE B", "B.", "B)"):
+        return 2.0
+
+    # Try leading A or B in longer responses
+    m = re.match(r"^(?:response\s+)?([AB])\b", text.strip(), re.IGNORECASE)
+    if m:
+        return 1.0 if m.group(1).upper() == "A" else 2.0
+
+    # Try "1" or "2"
+    if clean in ("1", "1."):
+        return 1.0
+    if clean in ("2", "2."):
+        return 2.0
+
     return float(np.nan)
 
 
@@ -156,14 +203,14 @@ def judge_local_hf(
         else:
             out_1, out_2 = j_out["output"], o_out["output"]
 
-        user_msg = JUDGE_USER_TEMPLATE.format(
+        user_msg = JUDGE_SIMPLE_USER.format(
             instruction=j_out["instruction"],
             output_1=out_1,
             output_2=out_2,
         )
 
         messages = [
-            {"role": "system", "content": JUDGE_SYSTEM_PROMPT},
+            {"role": "system", "content": JUDGE_SIMPLE_SYSTEM},
             {"role": "user", "content": user_msg},
         ]
 
@@ -172,7 +219,7 @@ def judge_local_hf(
                 messages, tokenize=False, add_generation_prompt=True,
             )
         else:
-            prompt_text = f"SYSTEM: {JUDGE_SYSTEM_PROMPT}\n\nUSER: {user_msg}\n\nASSISTANT:"
+            prompt_text = f"SYSTEM: {JUDGE_SIMPLE_SYSTEM}\n\nUSER: {user_msg}\n\nASSISTANT:"
 
         encoded = tokenizer(
             prompt_text, return_tensors="pt", truncation=True, max_length=4096,
@@ -268,14 +315,14 @@ def judge_tinker(
         else:
             out_1, out_2 = s_out["output"], o_out["output"]
 
-        user_msg = JUDGE_USER_TEMPLATE.format(
+        user_msg = JUDGE_SIMPLE_USER.format(
             instruction=s_out["instruction"],
             output_1=out_1,
             output_2=out_2,
         )
 
         convo = [
-            {"role": "system", "content": JUDGE_SYSTEM_PROMPT},
+            {"role": "system", "content": JUDGE_SIMPLE_SYSTEM},
             {"role": "user", "content": user_msg},
         ]
         model_input = renderer.build_generation_prompt(convo)
