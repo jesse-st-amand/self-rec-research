@@ -26,6 +26,21 @@ from self_rec_framework.src.helpers.model_names import INSPECT_MODEL_NAMES
 from self_rec_framework.scripts.utils import expand_model_names
 
 
+def resolve_base_model(short_name: str) -> str:
+    """Resolve the base model for a potentially trained model name.
+
+    'll-3.1-8b-01_sft_pw_vs_qwen' -> 'll-3.1-8b'
+    'll-3.1-8b' -> 'll-3.1-8b'
+    """
+    if short_name in INSPECT_MODEL_NAMES:
+        return short_name
+    # Try to match {base_model}-{training_run} pattern
+    for base_name in sorted(INSPECT_MODEL_NAMES.keys(), key=len, reverse=True):
+        if short_name.startswith(base_name + "-"):
+            return base_name
+    return short_name
+
+
 # ---------------------------------------------------------------------------
 # Prompt template (same as alpaca_eval_gpt4/alpaca_eval.txt)
 # ---------------------------------------------------------------------------
@@ -206,6 +221,104 @@ def judge_local_hf(
 
 
 # ---------------------------------------------------------------------------
+# Tinker-based judging
+# ---------------------------------------------------------------------------
+
+def judge_tinker(
+    self_outputs: list[dict],
+    opponent_outputs: list[dict],
+    hf_model_id: str,
+    sampler_path: str | None = None,
+) -> pd.DataFrame:
+    """Run pairwise judging via Tinker's sampling API."""
+    import tinker
+    from tinker_cookbook import renderers as r
+    from tinker_cookbook.model_info import get_recommended_renderer_name
+    from tinker_cookbook.tokenizer_utils import get_tokenizer
+
+    print(f"  Connecting to Tinker for judging...")
+    client = tinker.ServiceClient()
+
+    if sampler_path:
+        print(f"  Loading trained judge from: {sampler_path}")
+        sampling_client = client.create_sampling_client(model_path=sampler_path)
+    else:
+        print(f"  Loading base judge: {hf_model_id}")
+        sampling_client = client.create_sampling_client(base_model=hf_model_id)
+
+    renderer_name = get_recommended_renderer_name(hf_model_id)
+    tokenizer = get_tokenizer(hf_model_id)
+    renderer = r.get_renderer(renderer_name, tokenizer)
+
+    sampling_params = tinker.types.SamplingParams(
+        max_tokens=100,
+        temperature=0,
+    )
+
+    # Fire all requests asynchronously
+    print(f"  Submitting {len(self_outputs)} judge requests...")
+    futures = []
+    flip_flags = []
+    for s_out, o_out in zip(self_outputs, opponent_outputs):
+        flip = random.random() < 0.5
+        flip_flags.append(flip)
+
+        if flip:
+            out_1, out_2 = o_out["output"], s_out["output"]
+        else:
+            out_1, out_2 = s_out["output"], o_out["output"]
+
+        user_msg = JUDGE_USER_TEMPLATE.format(
+            instruction=s_out["instruction"],
+            output_1=out_1,
+            output_2=out_2,
+        )
+
+        convo = [
+            {"role": "system", "content": JUDGE_SYSTEM_PROMPT},
+            {"role": "user", "content": user_msg},
+        ]
+        model_input = renderer.build_generation_prompt(convo)
+        futures.append(sampling_client.sample(
+            prompt=model_input, num_samples=1, sampling_params=sampling_params,
+        ))
+
+    # Collect results
+    results = []
+    for i, (future, flip) in enumerate(zip(futures, flip_flags)):
+        if (i + 1) % 50 == 0 or i == len(futures) - 1:
+            print(f"  [{i+1}/{len(futures)}] Collecting judge results...", flush=True)
+
+        result = future.result()
+        seq = result.sequences[0]
+        parsed_msg, _ = renderer.parse_response(seq.tokens)
+        completion = r.get_text_content(parsed_msg)
+
+        raw_pref = parse_ranking(completion)
+        if flip and raw_pref in (1.0, 2.0):
+            pref = 3.0 - raw_pref
+        else:
+            pref = raw_pref
+
+        s_out = self_outputs[i]
+        o_out = opponent_outputs[i]
+        results.append({
+            "instruction": s_out["instruction"],
+            "output_1": s_out["output"],
+            "generator_1": s_out["generator"],
+            "dataset": s_out.get("dataset", "helpful_base"),
+            "output_2": o_out["output"],
+            "generator_2": o_out["generator"],
+            "preference": pref,
+            "preference_raw_completion": completion,
+            "order_flipped": flip,
+        })
+
+    print(f"  ✓ Completed {len(results)} judgments via Tinker")
+    return pd.DataFrame(results)
+
+
+# ---------------------------------------------------------------------------
 # API-based judging (via alpaca_eval PairwiseAnnotator)
 # ---------------------------------------------------------------------------
 
@@ -285,35 +398,49 @@ def run_pairwise_evaluation(
     outputs_dir: Path,
     output_dir: Path,
     config_dir: Path,
+    gpu_dispatch: str = "runpod",
 ):
-    """Run pairwise evaluation: judge compares its outputs vs opponent's outputs."""
+    """Run pairwise evaluation: judge compares base model outputs vs opponent outputs.
+
+    For trained models (e.g., ll-3.1-8b-01_sft_pw_vs_qwen), the "self" outputs
+    come from the base model (ll-3.1-8b), not the trained model.
+    """
+    base_model = resolve_base_model(judge_name)
     result_path = output_dir / judge_name / f"vs_{opponent_name}.json"
     if result_path.exists():
         print(f"  ⊘ {judge_name} vs {opponent_name}: already exists, skipping")
         return
 
-    judge_outputs_path = outputs_dir / f"{judge_name}.json"
+    # "Self" outputs come from the base model
+    self_outputs_path = outputs_dir / f"{base_model}.json"
     opponent_outputs_path = outputs_dir / f"{opponent_name}.json"
 
-    if not judge_outputs_path.exists():
-        print(f"  ⚠ Missing outputs for judge {judge_name}, skipping")
+    if not self_outputs_path.exists():
+        print(f"  ⚠ Missing outputs for base model {base_model}, skipping")
         return
     if not opponent_outputs_path.exists():
         print(f"  ⚠ Missing outputs for opponent {opponent_name}, skipping")
         return
 
-    with open(judge_outputs_path) as f:
-        judge_outputs = json.load(f)
+    with open(self_outputs_path) as f:
+        self_outputs = json.load(f)
     with open(opponent_outputs_path) as f:
         opponent_outputs = json.load(f)
 
-    print(f"  Running {judge_name} judging: self vs {opponent_name} ({len(judge_outputs)} pairs)...")
+    is_trained = judge_name != base_model
+    label = f"{judge_name} (trained)" if is_trained else judge_name
+    print(f"  Running {label} judging: {base_model} vs {opponent_name} ({len(self_outputs)} pairs)...")
 
-    if is_local_model(judge_name):
+    # Route to appropriate judge backend
+    if gpu_dispatch == "tinker" and (is_trained or is_local_model(judge_name)):
+        from scripts.alpaca_eval.generate_outputs import resolve_tinker_checkpoint
+        hf_model, sampler_path = resolve_tinker_checkpoint(judge_name)
+        annotations = judge_tinker(self_outputs, opponent_outputs, hf_model, sampler_path)
+    elif is_local_model(judge_name):
         hf_model_id = INSPECT_MODEL_NAMES[judge_name].removeprefix("hf/")
-        annotations = judge_local_hf(judge_outputs, opponent_outputs, hf_model_id)
+        annotations = judge_local_hf(self_outputs, opponent_outputs, hf_model_id)
     else:
-        annotations = judge_api(judge_name, judge_outputs, opponent_outputs, config_dir)
+        annotations = judge_api(judge_name, self_outputs, opponent_outputs, config_dir)
 
     # Save results
     result_path.parent.mkdir(parents=True, exist_ok=True)
@@ -397,9 +524,23 @@ def main():
     print(f"Setup: Each judge compares its own outputs vs each generator's outputs.")
     print(f"       Skipping when judge == generator (all three models identical).")
 
-    # Split judges into API (inline) and RunPod (dispatch)
-    api_judges = [j for j in judges if not is_local_model(j) or args.local]
-    runpod_judges = [j for j in judges if is_local_model(j) and not args.local]
+    # Resolve gpu_dispatch for splitting judges
+    _gpu_dispatch = "runpod"
+    if args.config:
+        _gpu_dispatch = config.get("gpu_dispatch", _gpu_dispatch)
+
+    # Split judges into API/Tinker (inline) and RunPod (dispatch to GPU pod)
+    # With tinker dispatch, all hf/ and trained models run inline via Tinker API
+    api_judges = []
+    runpod_judges = []
+    for j in judges:
+        is_trained = j not in INSPECT_MODEL_NAMES
+        if _gpu_dispatch == "tinker" and (is_trained or is_local_model(j)):
+            api_judges.append(j)
+        elif is_local_model(j) and not args.local:
+            runpod_judges.append(j)
+        else:
+            api_judges.append(j)
 
     # Filter based on run_mode
     if args.run_mode == "api":
@@ -477,17 +618,24 @@ def main():
                 print(f"  ⚠ Failed to launch pod for {judge}: {e}")
                 print(f"    Skipping — try again later or check GPU availability.")
 
+    # Resolve gpu_dispatch from config
+    gpu_dispatch = "runpod"
+    if args.config:
+        gpu_dispatch = config.get("gpu_dispatch", gpu_dispatch)
+
     # Run API judges (parallel if max_workers > 1)
     def _run_judge(judge):
+        base_model = resolve_base_model(judge)
+        label = f"{judge} (trained, base={base_model})" if judge != base_model else judge
         print(f"\n{'='*70}")
-        print(f"Judge: {judge} [API]")
-        print(f"  Comparing {judge}'s outputs vs each generator's outputs")
+        print(f"Judge: {label} [API]")
+        print(f"  Comparing {base_model}'s outputs vs each generator's outputs")
         print(f"{'='*70}")
         for generator in opponents:
-            if generator == judge:
-                print(f"  ⊘ {judge} vs {generator}: skipping (judge == generator)")
+            if generator == base_model:
+                print(f"  ⊘ {judge} vs {generator}: skipping (base model == generator)")
                 continue
-            run_pairwise_evaluation(judge, generator, outputs_dir, output_dir, config_dir)
+            run_pairwise_evaluation(judge, generator, outputs_dir, output_dir, config_dir, gpu_dispatch)
 
     if api_judges and args.max_workers > 1:
         from concurrent.futures import ThreadPoolExecutor, as_completed
