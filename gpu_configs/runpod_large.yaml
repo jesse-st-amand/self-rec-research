@@ -17,7 +17,7 @@ local:
   target_modules: all-linear
 
 runpod:
-  image_name: runpod/pytorch:2.8.0-py3.11-cuda12.8.1-cudnn-devel-ubuntu22.04
+  image_name: runpod/pytorch:2.4.1-py3.11-cuda12.4.1-devel-ubuntu22.04
   gpu_type_ids:
     - NVIDIA A100 80GB PCIe
     - NVIDIA A100-SXM4-80GB
