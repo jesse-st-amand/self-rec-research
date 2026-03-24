@@ -92,10 +92,13 @@ def compute_self_preference_summary(matrix: pd.DataFrame) -> pd.DataFrame:
 
 def plot_heatmap(matrix: pd.DataFrame, output_path: Path):
     """Plot a judge × opponent win-rate heatmap."""
-    fig, ax = plt.subplots(figsize=(12, 10))
+    n_judges, n_gens = matrix.shape
+    fig_w = max(6, n_gens * 1.5 + 3)
+    fig_h = max(4, n_judges * 0.8 + 2)
+    fig, ax = plt.subplots(figsize=(fig_w, fig_h))
 
-    # Mask diagonal (self vs self)
-    mask = np.eye(len(matrix), dtype=bool)
+    # Mask cells where judge's base model == generator (NaN in the matrix)
+    mask = matrix.astype(float).isna()
 
     sns.heatmap(
         matrix.astype(float),
@@ -111,10 +114,10 @@ def plot_heatmap(matrix: pd.DataFrame, output_path: Path):
         linewidths=0.5,
     )
 
-    ax.set_xlabel("Opponent (generator of output_2)", fontsize=12)
-    ax.set_ylabel("Judge (also generator of output_1)", fontsize=12)
+    ax.set_xlabel("Opponent (generator)", fontsize=12)
+    ax.set_ylabel("Judge", fontsize=12)
     ax.set_title("Self-Preference Win Rate Matrix\n"
-                 "(Value = fraction of times judge preferred its own output)",
+                 "(Value = fraction of times judge preferred its base model's output)",
                  fontsize=13)
 
     plt.tight_layout()
@@ -199,7 +202,7 @@ def main():
     print(f"Overall mean deviation: {summary['deviation_from_chance'].mean():.3f}")
 
     # Generate figures
-    if len(judges) >= 2:
+    if not summary.empty:
         plot_heatmap(matrix, output_dir / "self_preference_heatmap.png")
         plot_deviation_bars(summary, output_dir / "self_preference_deviation.png")
 
