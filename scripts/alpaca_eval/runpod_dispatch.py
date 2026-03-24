@@ -100,14 +100,14 @@ def _build_startup_script(
                 f"git -C {shlex.quote(dep.path)} checkout {shlex.quote(dep.ref)}"
             )
 
-    # Set up HF cache
-    if cache_dir:
-        lines.extend([
-            f"mkdir -p {shlex.quote(cache_dir)}",
-            f"export HF_HOME={shlex.quote(cache_dir)}",
-            f"export TRANSFORMERS_CACHE={shlex.quote(cache_dir)}",
-            f"export HF_HUB_CACHE={shlex.quote(cache_dir)}",
-        ])
+    # Set up HF cache — use network volume if available, otherwise container disk
+    hf_cache = cache_dir or "/root/workspace/.hf_cache"
+    lines.extend([
+        f"mkdir -p {shlex.quote(hf_cache)}",
+        f"export HF_HOME={shlex.quote(hf_cache)}",
+        f"export TRANSFORMERS_CACHE={shlex.quote(hf_cache)}",
+        f"export HF_HUB_CACHE={shlex.quote(hf_cache)}",
+    ])
 
     # Install and run
     lines.extend([
