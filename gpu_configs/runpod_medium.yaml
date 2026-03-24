@@ -1,35 +1,43 @@
+# GPU config for medium models (27B-35B parameters, ~60GB VRAM in bf16)
 backend: local
 
 artifacts:
-  root_dir: /runpod-volume/sgtr-rl/results
+  root_dir: results
 
 local:
   device: cuda
   dtype: bfloat16
   max_seq_length: 4096
-  eval_batch_size: 8
+  eval_batch_size: 4
   gradient_checkpointing: true
   load_in_4bit: false
   attention_implementation: sdpa
-  cache_dir: /runpod-volume/sgtr-rl/hf-cache
+  cache_dir: null
   lora_dropout: 0.0
   target_modules: all-linear
 
 runpod:
   image_name: runpod/pytorch:2.8.0-py3.11-cuda12.8.1-cudnn-devel-ubuntu22.04
   gpu_type_ids:
+    # 80GB+ GPUs (can fit 27B bf16) — names must match RunPod API enum exactly
     - NVIDIA A100 80GB PCIe
     - NVIDIA A100-SXM4-80GB
-    - NVIDIA L40S
-    - NVIDIA A40
-    - NVIDIA GeForce RTX 4090
+    - NVIDIA H100 80GB HBM3
+    - NVIDIA H100 PCIe
+    - NVIDIA H100 NVL
+    - NVIDIA H200 NVL
+    - NVIDIA B200
+    - AMD Instinct MI300X OAM
+    - NVIDIA RTX PRO 6000 Blackwell Server Edition
+    - NVIDIA RTX PRO 6000 Blackwell Workstation Edition
+    - NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition
   gpu_count: 1
   cloud_type: COMMUNITY
   container_disk_gb: 80
   volume_mount_path: /runpod-volume
-  network_volume_id: null  # resolved from $RUNPOD_NETWORK_VOLUME_ID at launch time
+  network_volume_id: none  # disabled — results uploaded to HF instead
   repo_url: https://github.com/jesse-st-amand/self-rec-research.git
-  repo_ref: training
+  repo_ref: alpaca_eval
   workspace_subdir: self-rec-research
   editable_deps:
     - repo_url: https://github.com/jesse-st-amand/SGTR-RL.git
@@ -39,3 +47,6 @@ runpod:
   env_passthrough:
     - HF_TOKEN
     - WANDB_API_KEY
+    - TOGETHER_API_KEY
+  poll_interval_seconds: 30
+  terminate_on_exit: true

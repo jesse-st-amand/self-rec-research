@@ -2,7 +2,10 @@ temperature: 1.0
 max_final_answer_tokens: null
 max_thinking_tokens: null
 
-model_names: [-set, gen_cot]
+model_names: ["qwen-3.5-27b"]
+
+# Where to dispatch hf/ models that need GPU: "runpod" or null (skip)
+gpu_dispatch: runpod
 
 treatments:
   caps: [S2, S4]
