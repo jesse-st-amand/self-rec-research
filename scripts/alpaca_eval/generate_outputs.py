@@ -298,6 +298,7 @@ def generate_tinker(instructions, model, max_tokens, temperature, **kwargs):
     import tinker
     from tinker_cookbook import renderers as r
     from tinker_cookbook.model_info import get_recommended_renderer_name
+    from tinker_cookbook.tokenizer_utils import get_tokenizer
 
     sampler_path = kwargs.get("sampler_path")
 
@@ -313,7 +314,8 @@ def generate_tinker(instructions, model, max_tokens, temperature, **kwargs):
 
     # Set up renderer for chat template
     renderer_name = get_recommended_renderer_name(model)
-    renderer = r.get_renderer(renderer_name)
+    tokenizer = get_tokenizer(model)
+    renderer = r.get_renderer(renderer_name, tokenizer)
 
     sampling_params = tinker.types.SamplingParams(
         max_tokens=max_tokens,
@@ -424,27 +426,32 @@ def main():
         import yaml as _yaml
         with open(args.config) as f:
             config = _yaml.safe_load(f)
-        # Generation needs outputs for all models that will participate
-        # (both evaluators and generators). Use generator_models as primary,
-        # fall back to evaluator_models, then model_names for backwards compat.
+        # Generation needs outputs for:
+        # 1. All generator_models (opponents in pairwise eval)
+        # 2. Base models of evaluator_models (the "self" outputs judges compare against)
+        # Trained evaluators (ll-3.1-8b-01_sft_pw_vs_qwen) use their base model's
+        # outputs (ll-3.1-8b), so we resolve base models and deduplicate.
+        from scripts.alpaca_eval.run_self_preference import resolve_base_model
         raw_gen = config.get("generator_models", [])
         raw_eval = config.get("evaluator_models", [])
         raw_legacy = config.get("model_names", [])
-        # Union of evaluator + generator models (both need outputs generated)
-        all_raw = raw_gen or raw_legacy
+
+        gen_models = expand_model_names(raw_gen or raw_legacy)
+        # Add base models of evaluators (for "self" outputs)
+        eval_base_models = []
         if raw_eval:
-            # Expand both sets and merge (preserve order, deduplicate)
-            gen_models = expand_model_names(all_raw) if all_raw else []
-            eval_models = expand_model_names(raw_eval)
-            seen = set()
-            raw_expanded = []
-            for m in gen_models + eval_models:
-                if m not in seen:
-                    seen.add(m)
-                    raw_expanded.append(m)
-            models = raw_expanded
-        else:
-            models = expand_model_names(all_raw)
+            for m in expand_model_names(raw_eval):
+                base = resolve_base_model(m)
+                if base not in eval_base_models:
+                    eval_base_models.append(base)
+
+        # Merge: generators + evaluator base models, deduplicated
+        seen = set()
+        models = []
+        for m in gen_models + eval_base_models:
+            if m not in seen:
+                seen.add(m)
+                models.append(m)
         if args.max_tokens == 2048:
             args.max_tokens = config.get("max_tokens", args.max_tokens)
         if args.temperature == 0.7:
