@@ -45,8 +45,10 @@ runpod:
   editable_deps:
     - repo_url: https://github.com/jesse-st-amand/SGTR-RL.git
       path: _external/SGTR-RL
+      ref: js/local_editable
     - repo_url: https://github.com/MARS-3-0-self-recognition/self-rec-framework.git
       path: _external/self-rec-framework
+      ref: public
   env_passthrough:
     - HF_TOKEN
     - WANDB_API_KEY
