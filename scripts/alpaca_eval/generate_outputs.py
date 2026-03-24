@@ -287,6 +287,8 @@ def main():
                         help="Number of API models to generate in parallel (default: 1)")
     parser.add_argument("--run_mode", default="both", choices=["both", "api", "runpod"],
                         help="Which models to run: 'both' (default), 'api' only, or 'runpod' only")
+    parser.add_argument("--local", action="store_true",
+                        help="Run hf/ models locally instead of dispatching to RunPod (use when already on a GPU pod)")
     parser.add_argument("--dry_run", action="store_true",
                         help="Print RunPod payload without launching")
     args = parser.parse_args()
@@ -356,7 +358,7 @@ def main():
             print(f"⊘ {model}: already exists, skipping")
             continue
         inspect_name = INSPECT_MODEL_NAMES[model]
-        if inspect_name.startswith("hf/"):
+        if inspect_name.startswith("hf/") and not args.local:
             runpod_models.append(model)
         else:
             api_models.append(model)
@@ -420,6 +422,7 @@ def main():
                 f"--output_dir {local_out} "
                 f"--max_tokens {args.max_tokens} "
                 f"--temperature {args.temperature} "
+                f"--local "
                 f"&& python -c \""
                 f"from huggingface_hub import upload_file; "
                 f"upload_file("

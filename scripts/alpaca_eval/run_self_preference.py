@@ -352,6 +352,8 @@ def main():
                         help="Number of API judges to run in parallel (default: 1)")
     parser.add_argument("--run_mode", default="both", choices=["both", "api", "runpod"],
                         help="Which judges to run: 'both' (default), 'api' only, or 'runpod' only")
+    parser.add_argument("--local", action="store_true",
+                        help="Run hf/ models locally instead of dispatching to RunPod (use when already on a GPU pod)")
     parser.add_argument("--dry_run", action="store_true",
                         help="Print RunPod payload without launching")
     args = parser.parse_args()
@@ -396,8 +398,8 @@ def main():
     print(f"       Skipping when judge == generator (all three models identical).")
 
     # Split judges into API (inline) and RunPod (dispatch)
-    api_judges = [j for j in judges if not is_local_model(j)]
-    runpod_judges = [j for j in judges if is_local_model(j)]
+    api_judges = [j for j in judges if not is_local_model(j) or args.local]
+    runpod_judges = [j for j in judges if is_local_model(j) and not args.local]
 
     # Filter based on run_mode
     if args.run_mode == "api":
@@ -444,6 +446,7 @@ def main():
                 f"--judges {judge} --opponents {opponent_str} "
                 f"--outputs_dir data/alpaca_eval/outputs "
                 f"--output_dir {local_results} "
+                f"--local "
                 f"&& mkdir -p {pod_result_dir} "
                 f"&& cp -r {local_results}/{judge} {pod_result_dir}/ "
                 f"&& python -c \""
