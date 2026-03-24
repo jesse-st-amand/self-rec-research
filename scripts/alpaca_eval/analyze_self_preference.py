@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 from self_rec_framework.scripts.utils import expand_model_names
 
 
-def load_win_rates(results_dir: Path, judges: list[str], generators: list[str] | None = None) -> pd.DataFrame:
+def load_self_selection_rates(results_dir: Path, judges: list[str], generators: list[str] | None = None) -> pd.DataFrame:
     """Load pairwise results and compute win-rate matrix.
 
     Returns a DataFrame where rows = judges, columns = generators,
@@ -59,8 +59,8 @@ def load_win_rates(results_dir: Path, judges: list[str], generators: list[str] |
             null_count = len(prefs) - total
             if null_count > 0:
                 print(f"  ⚠ {judge} vs {generator}: {null_count}/{len(prefs)} unparseable preferences")
-            win_rate = (wins + ties) / total if total > 0 else float("nan")
-            matrix.loc[judge, generator] = win_rate
+            self_selection_rate = (wins + ties) / total if total > 0 else float("nan")
+            matrix.loc[judge, generator] = self_selection_rate
 
     return matrix
 
@@ -69,9 +69,9 @@ def compute_self_preference_summary(matrix: pd.DataFrame) -> pd.DataFrame:
     """Compute per-judge self-preference metrics.
 
     For each judge:
-    - avg_self_win_rate: average win rate across all generators
-      (how often judge prefers its own output over the generator's)
-    - deviation_from_chance: avg_self_win_rate - 0.5 (positive = self-preference bias)
+    - avg_self_selection_rate: average self-selection rate across all generators
+      (how often judge selects its base model's output over the generator's)
+    - deviation_from_chance: avg_self_selection_rate - 0.5 (positive = self-preference bias)
     """
     rows = []
     for judge in matrix.index:
@@ -81,13 +81,13 @@ def compute_self_preference_summary(matrix: pd.DataFrame) -> pd.DataFrame:
         avg_wr = rates.mean()
         rows.append({
             "judge": judge,
-            "avg_self_win_rate": avg_wr,
+            "avg_self_selection_rate": avg_wr,
             "deviation_from_chance": avg_wr - 0.5,
             "n_generators": len(rates),
-            "min_win_rate": rates.min(),
-            "max_win_rate": rates.max(),
+            "min_self_selection_rate": rates.min(),
+            "max_self_selection_rate": rates.max(),
         })
-    return pd.DataFrame(rows).sort_values("avg_self_win_rate", ascending=False)
+    return pd.DataFrame(rows).sort_values("avg_self_selection_rate", ascending=False)
 
 
 def plot_heatmap(matrix: pd.DataFrame, output_path: Path):
@@ -110,14 +110,14 @@ def plot_heatmap(matrix: pd.DataFrame, output_path: Path):
         vmin=0,
         vmax=1,
         ax=ax,
-        cbar_kws={"label": "Judge Win Rate (self-preference)"},
+        cbar_kws={"label": "Judge Self-Selection Rate"},
         linewidths=0.5,
     )
 
     ax.set_xlabel("Opponent (generator)", fontsize=12)
     ax.set_ylabel("Judge", fontsize=12)
-    ax.set_title("Self-Preference Win Rate Matrix\n"
-                 "(Value = fraction of times judge preferred its base model's output)",
+    ax.set_title("Judge Self-Selection Rate Matrix\n"
+                 "(Value = fraction of times judge selected its base model's output)",
                  fontsize=13)
 
     plt.tight_layout()
@@ -183,12 +183,12 @@ def main():
     print(f"Output dir: {output_dir}")
 
     # Load and compute — matrix rows = judges, columns = generators
-    matrix = load_win_rates(results_dir, judges, generators)
+    matrix = load_self_selection_rates(results_dir, judges, generators)
     summary = compute_self_preference_summary(matrix)
 
     # Save CSVs
     matrix.to_csv(output_dir / "self_preference_matrix.csv")
-    print(f"✓ Saved win-rate matrix to {output_dir / 'self_preference_matrix.csv'}")
+    print(f"✓ Saved self-selection rate matrix to {output_dir / 'self_preference_matrix.csv'}")
 
     summary.to_csv(output_dir / "self_preference_summary.csv", index=False)
     print(f"✓ Saved summary to {output_dir / 'self_preference_summary.csv'}")
@@ -198,7 +198,7 @@ def main():
     print("SELF-PREFERENCE SUMMARY")
     print(f"{'='*70}")
     print(summary.to_string(index=False))
-    print(f"\nOverall mean self-preference: {summary['avg_self_win_rate'].mean():.3f}")
+    print(f"\nOverall mean self-preference: {summary['avg_self_selection_rate'].mean():.3f}")
     print(f"Overall mean deviation: {summary['deviation_from_chance'].mean():.3f}")
 
     # Generate figures
