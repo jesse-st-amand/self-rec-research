@@ -1,9 +1,7 @@
-evaluator_models: [ll-3.1-8b]
-generator_models: [ll-3.1-8b]
+evaluator_models: [ll-3.1-8b-01_sft_pw_vs_qwen]
+generator_models: [ll-3.1-8b-01_sft_pw_vs_qwen]
 temperature: 1.0
-max_tokens: 2048
+max_tokens: 6000
 max_workers: 3
 dataset: alpaca_eval
-
-# Where to dispatch hf/ models that need GPU: "runpod" or null (skip)
-gpu_dispatch: runpod
+gpu_dispatch: tinker

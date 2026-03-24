@@ -31,14 +31,81 @@ def load_alpaca_eval_instructions() -> list[dict]:
         return json.load(f)
 
 
-def parse_provider(short_name: str) -> tuple[str, str, dict]:
+def resolve_tinker_checkpoint(short_name: str) -> tuple[str, str | None]:
+    """Resolve a model name that may include a training run suffix.
+
+    Names like 'll-3.1-8b-01_sft_pw_vs_qwen' split into:
+      base model 'll-3.1-8b' + training run '01_sft_pw_vs_qwen'
+
+    Returns (hf_base_model_id, tinker_sampler_path_or_None).
+    """
+    from pathlib import Path
+    import glob
+
+    training_dir = Path("data/training")
+
+    # Try to match {base_model}-{training_run} pattern
+    if training_dir.exists():
+        for base_name in sorted(INSPECT_MODEL_NAMES.keys(), key=len, reverse=True):
+            if not short_name.startswith(base_name + "-"):
+                continue
+            run_suffix = short_name[len(base_name) + 1:]
+            matches = glob.glob(str(training_dir / f"{run_suffix}__*"))
+            if not matches:
+                print(f"  ⚠ No training run matching '{run_suffix}' in data/training/")
+                break
+            run_dir = sorted(matches)[-1]  # latest timestamp
+            ckpt_file = Path(run_dir) / "checkpoints" / "checkpoints.jsonl"
+            if not ckpt_file.exists():
+                print(f"  ⚠ No checkpoints.jsonl in {run_dir}")
+                break
+            # Read last checkpoint entry
+            with open(ckpt_file) as f:
+                last_line = [l.strip() for l in f if l.strip()][-1]
+            ckpt = json.loads(last_line)
+            sampler_path = ckpt.get("sampler_path")
+            if not sampler_path:
+                print(f"  ⚠ No sampler_path in checkpoint for {run_suffix}")
+                break
+            # Resolve base model HF ID
+            inspect_name = INSPECT_MODEL_NAMES[base_name]
+            hf_model = inspect_name.removeprefix("hf/").removeprefix("together/").removeprefix("openai/")
+            return hf_model, sampler_path
+
+    # No training suffix — base model only
+    if short_name in INSPECT_MODEL_NAMES:
+        inspect_name = INSPECT_MODEL_NAMES[short_name]
+        # Strip any provider prefix to get the HF model ID
+        for prefix in ("hf/", "together/", "openai/", "anthropic/", "google/"):
+            if inspect_name.startswith(prefix):
+                return inspect_name.removeprefix(prefix), None
+    raise ValueError(f"Cannot resolve Tinker model for '{short_name}'")
+
+
+def parse_provider(short_name: str, gpu_dispatch: str = "runpod") -> tuple[str, str, dict]:
     """Map shorthand model name to (provider, api_model_name, extra_kwargs).
 
+    When gpu_dispatch='tinker', hf/ models and trained model names route
+    through Tinker's sampling API instead of RunPod/local.
+
     Returns:
-        provider: "openai", "anthropic", "google", or "together"
+        provider: "openai", "anthropic", "google", "together", "local_hf", or "tinker"
         api_model: The model ID to pass to the API
-        extra_kwargs: Additional kwargs (e.g., base_url for Together)
+        extra_kwargs: Additional kwargs
     """
+    # Tinker dispatch: handles both trained models (ll-3.1-8b-01_sft_pw_vs_qwen)
+    # and base hf/ models (ll-3.1-8b) via Tinker's sampling API
+    if gpu_dispatch == "tinker":
+        # Check if it's a trained model name or a base hf/ model
+        is_trained = short_name not in INSPECT_MODEL_NAMES
+        is_hf = (not is_trained and INSPECT_MODEL_NAMES[short_name].startswith("hf/"))
+        if is_trained or is_hf:
+            hf_model, sampler_path = resolve_tinker_checkpoint(short_name)
+            return "tinker", hf_model, {"sampler_path": sampler_path}
+
+    if short_name not in INSPECT_MODEL_NAMES:
+        raise ValueError(f"Unknown model: {short_name}")
+
     inspect_name = INSPECT_MODEL_NAMES[short_name]
     if inspect_name.startswith("hf/"):
         hf_model = inspect_name.removeprefix("hf/")
@@ -221,12 +288,70 @@ def generate_local_hf(instructions, model, max_tokens, temperature, **kwargs):
     return outputs
 
 
+def generate_tinker(instructions, model, max_tokens, temperature, **kwargs):
+    """Generate outputs using Tinker's sampling API.
+
+    Args:
+        model: HuggingFace model ID (e.g., 'meta-llama/Llama-3.1-8B-Instruct')
+        kwargs['sampler_path']: Tinker checkpoint path for trained models, or None for base model
+    """
+    import tinker
+    from tinker_cookbook import renderers as r
+    from tinker_cookbook.model_info import get_model_info
+
+    sampler_path = kwargs.get("sampler_path")
+
+    print(f"  Connecting to Tinker...")
+    client = tinker.ServiceClient()
+
+    if sampler_path:
+        print(f"  Loading trained model from: {sampler_path}")
+        sampling_client = client.create_sampling_client(model_path=sampler_path)
+    else:
+        print(f"  Loading base model: {model}")
+        sampling_client = client.create_sampling_client(base_model=model)
+
+    # Set up renderer for chat template
+    model_info = get_model_info(model)
+    renderer = r.get_renderer(model_info.renderer_name)
+
+    sampling_params = tinker.types.SamplingParams(
+        max_tokens=max_tokens,
+        temperature=temperature,
+    )
+
+    # Fire all requests asynchronously
+    print(f"  Submitting {len(instructions)} generation requests...")
+    futures = []
+    for inst in instructions:
+        convo = [{"role": "user", "content": inst["instruction"]}]
+        model_input = renderer.build_generation_prompt(convo)
+        futures.append(sampling_client.sample(
+            prompt=model_input, num_samples=1, sampling_params=sampling_params,
+        ))
+
+    # Collect results
+    outputs = []
+    for i, future in enumerate(futures):
+        if (i + 1) % 50 == 0 or i == len(futures) - 1:
+            print(f"  [{i+1}/{len(futures)}] Collecting results...", flush=True)
+        result = future.result()
+        seq = result.sequences[0]
+        parsed_msg, _ = renderer.parse_response(seq.tokens)
+        content = r.get_text_content(parsed_msg)
+        outputs.append(content)
+
+    print(f"  ✓ Generated {len(outputs)} outputs via Tinker")
+    return outputs
+
+
 GENERATORS = {
     "openai": generate_openai,
     "together": generate_openai,  # Together uses OpenAI-compatible API
     "anthropic": generate_anthropic,
     "google": generate_google,
     "local_hf": generate_local_hf,
+    "tinker": generate_tinker,
 }
 
 
@@ -236,6 +361,7 @@ def generate_for_model(
     output_dir: Path,
     max_tokens: int,
     temperature: float,
+    gpu_dispatch: str = "runpod",
 ):
     """Generate outputs for a single model and save to JSON."""
     output_path = output_dir / f"{short_name}.json"
@@ -243,7 +369,7 @@ def generate_for_model(
         print(f"⊘ {short_name}: already exists at {output_path}, skipping")
         return
 
-    provider, api_model, extra_kwargs = parse_provider(short_name)
+    provider, api_model, extra_kwargs = parse_provider(short_name, gpu_dispatch=gpu_dispatch)
     gen_fn = GENERATORS[provider]
 
     print(f"\n{'='*70}")
@@ -347,16 +473,29 @@ def main():
 
     output_dir = Path(args.output_dir)
 
-    # Split models into API (run inline) and RunPod (dispatch to GPU pod)
+    # Resolve gpu_dispatch from config
+    gpu_dispatch = "runpod"
+    if args.config:
+        gpu_dispatch = config.get("gpu_dispatch", gpu_dispatch)
+
+    # Split models into API/Tinker (run inline) and RunPod (dispatch to GPU pod)
     api_models = []
     runpod_models = []
     for model in models:
-        if model not in INSPECT_MODEL_NAMES:
-            print(f"⚠ {model}: not found in INSPECT_MODEL_NAMES, skipping")
-            continue
         if output_dir.joinpath(f"{model}.json").exists():
             print(f"⊘ {model}: already exists, skipping")
             continue
+
+        # Tinker dispatch: all hf/ and trained models run inline via Tinker API
+        if gpu_dispatch == "tinker":
+            api_models.append(model)
+            continue
+
+        # Check if it's a trained model name (not in INSPECT_MODEL_NAMES)
+        if model not in INSPECT_MODEL_NAMES:
+            print(f"⚠ {model}: not found in INSPECT_MODEL_NAMES, skipping")
+            continue
+
         inspect_name = INSPECT_MODEL_NAMES[model]
         if inspect_name.startswith("hf/") and not args.local:
             runpod_models.append(model)
@@ -566,7 +705,7 @@ def main():
             futures = {
                 executor.submit(
                     generate_for_model, model, instructions, output_dir,
-                    args.max_tokens, args.temperature
+                    args.max_tokens, args.temperature, gpu_dispatch
                 ): model
                 for model in api_models
             }
@@ -578,7 +717,7 @@ def main():
                     print(f"⚠ {model}: generation failed: {e}")
     else:
         for model in api_models:
-            generate_for_model(model, instructions, output_dir, args.max_tokens, args.temperature)
+            generate_for_model(model, instructions, output_dir, args.max_tokens, args.temperature, gpu_dispatch)
 
     # ── Collect RunPod results ──
     if runpod_futures:
