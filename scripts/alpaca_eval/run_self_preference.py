@@ -41,6 +41,83 @@ def resolve_base_model(short_name: str) -> str:
     return short_name
 
 
+def discover_trained_models(base_models: list[str],
+                            training_dir: str = "data/training") -> list[str]:
+    """Discover all trained model names for a set of base models.
+
+    Scans data/training/ for runs matching each base model and returns
+    the trained model names (e.g., 'll-3.1-8b-01_sft_pw_vs_qwen').
+
+    The mapping from training run directories to base models:
+    - Runs starting with a model prefix before 'vs' use that model
+      (e.g., '01_sft_pw_ll_3_3_70b_vs_...' → base 'll-3.3-70b')
+    - Other runs default to 'll-3.1-8b' as the base model
+
+    Returns the list of trained model names (not including base models).
+    """
+    training_path = Path(training_dir)
+    if not training_path.exists():
+        return []
+
+    # Map shorthand base model names to the prefixes used in training dir names
+    BASE_PREFIXES = {
+        "ll-3.3-70b": "ll_3_3_70b",
+        "qwen-3.0-30b": "qwen3_30b",
+    }
+
+    base_set = set(base_models)
+    trained = []
+
+    for run_path in sorted(training_path.iterdir()):
+        if not run_path.is_dir():
+            continue
+        run_name = run_path.name.split("__")[0]
+
+        # Determine which base model this run belongs to
+        run_base = "ll-3.1-8b"  # default
+        for base_model, prefix in BASE_PREFIXES.items():
+            # Check if run starts with a SFT prefix containing this model's prefix before 'vs'
+            # e.g., '01_sft_pw_ll_3_3_70b_vs_...' or '01_sft_pw_qwen3_30b_vs_...'
+            parts = run_name.split("_vs_")
+            if len(parts) >= 2:
+                before_vs = parts[0]
+                # Check if the model prefix appears in the part before 'vs'
+                # but NOT after a 'vs_' (which indicates the opponent)
+                if prefix in before_vs and before_vs != f"01_sft_pw" and before_vs != f"02_sft_ind":
+                    run_base = base_model
+                    break
+
+        # Only include if this base model is in our requested set
+        if run_base not in base_set:
+            continue
+
+        # Strip _tinker_small for the trained name
+        clean_name = run_name.replace("_tinker_small", "")
+        trained_name = f"{run_base}-{clean_name}"
+        trained.append(trained_name)
+
+    return trained
+
+
+def expand_evaluators_with_trained(evaluator_models: list[str],
+                                   training_dir: str = "data/training") -> list[str]:
+    """Expand a list of evaluator models by adding all trained versions.
+
+    Given ['ll-3.1-8b', 'qwen-3.0-30b'], returns:
+    ['ll-3.1-8b', 'qwen-3.0-30b',
+     'll-3.1-8b-01_sft_pw_vs_qwen', 'll-3.1-8b-02_sft_ind_vs_qwen', ...]
+    """
+    trained = discover_trained_models(evaluator_models, training_dir)
+    # Combine: base models first, then trained versions, deduplicated
+    seen = set()
+    result = []
+    for m in evaluator_models + trained:
+        if m not in seen:
+            seen.add(m)
+            result.append(m)
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Prompt template (same as alpaca_eval_gpt4/alpaca_eval.txt)
 # ---------------------------------------------------------------------------
@@ -122,6 +199,33 @@ def parse_provider(short_name: str) -> tuple[str, str, dict]:
         raise ValueError(f"Unknown provider for {short_name}: {inspect_name}")
 
 
+def _strip_thinking(text: str) -> str:
+    """Strip thinking/reasoning content from model output.
+
+    Handles:
+    - gpt-oss: <|channel|>analysis<|message|>...<|channel|>response<|message|>
+    - Qwen3.5: <think>...</think>
+    - DeepSeek: <think>...</think>
+    """
+    import re
+    # gpt-oss channel tokens: extract content after last <|channel|>response<|message|>
+    if "<|channel|>" in text:
+        parts = text.split("<|channel|>response<|message|>")
+        if len(parts) > 1:
+            return parts[-1].strip()
+        # If no response channel, strip all channel tokens and take last segment
+        parts = text.split("<|message|>")
+        if len(parts) > 1:
+            return parts[-1].strip()
+
+    # <think>...</think> blocks (Qwen3.5, DeepSeek)
+    cleaned = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+    if cleaned:
+        return cleaned
+
+    return text
+
+
 def parse_ranking(completion: str) -> float:
     """Parse model ranking from completion text.
 
@@ -131,12 +235,16 @@ def parse_ranking(completion: str) -> float:
     - "1" or "2" response
     - "model_1" or "model_2" mentioned first
 
+    For thinking models, strips reasoning content first and looks at the
+    final answer. Also checks the last line as a fallback.
+
     Returns 1.0 if model_1/A preferred, 2.0 if model_2/B preferred, nan on failure.
     """
     import re
     import numpy as np
 
-    text = completion.strip()
+    # Strip thinking content first
+    text = _strip_thinking(completion).strip()
 
     # Try structured Python dict format (alpaca_eval standard)
     try:
@@ -147,7 +255,7 @@ def parse_ranking(completion: str) -> float:
     except Exception:
         pass
 
-    # Try simple A/B format
+    # Try simple A/B format (exact match)
     clean = text.strip().upper()
     if clean in ("A", "RESPONSE A", "A.", "A)"):
         return 1.0
@@ -164,6 +272,23 @@ def parse_ranking(completion: str) -> float:
         return 1.0
     if clean in ("2", "2."):
         return 2.0
+
+    # Fallback: check the LAST line of the response (thinking models often
+    # reason first and give the answer at the end)
+    last_line = text.strip().split("\n")[-1].strip().upper()
+    if last_line in ("A", "RESPONSE A", "A.", "A)", "**A**", "**RESPONSE A**"):
+        return 1.0
+    if last_line in ("B", "RESPONSE B", "B.", "B)", "**B**", "**RESPONSE B**"):
+        return 2.0
+    m = re.match(r"^(?:\*\*)?(?:response\s+)?([AB])(?:\*\*)?\s*\.?$", last_line, re.IGNORECASE)
+    if m:
+        return 1.0 if m.group(1).upper() == "A" else 2.0
+
+    # Last resort: find the last standalone A or B in the text
+    matches = re.findall(r"\b(?:response\s+)?([AB])\b", text, re.IGNORECASE)
+    if matches:
+        last = matches[-1].upper()
+        return 1.0 if last == "A" else 2.0
 
     return float(np.nan)
 
@@ -293,13 +418,31 @@ def judge_tinker(
         print(f"  Loading base judge: {hf_model_id}")
         sampling_client = client.create_sampling_client(base_model=hf_model_id)
 
-    renderer_name = get_recommended_renderer_name(hf_model_id)
     tokenizer = get_tokenizer(hf_model_id)
+    try:
+        renderer_name = get_recommended_renderer_name(hf_model_id)
+    except (KeyError, ValueError):
+        raise RuntimeError(
+            f"Model '{hf_model_id}' not recognized by tinker_cookbook. "
+            f"Check the HuggingFace model ID or update tinker_cookbook."
+        )
     renderer = r.get_renderer(renderer_name, tokenizer)
+    stop_sequences = renderer.get_stop_sequences()
+
+    # Thinking/reasoning models need more tokens for their reasoning trace + answer
+    model_lower = hf_model_id.lower()
+    is_thinking = (
+        "oss" in model_lower  # gpt-oss models
+        or "thinking" in renderer_name.lower()
+        or "qwen3.5" in model_lower  # Qwen 3.5 always thinks
+        or "qwen-3.5" in model_lower
+    )
+    judge_max_tokens = 4096 if is_thinking else 100
 
     sampling_params = tinker.types.SamplingParams(
-        max_tokens=100,
+        max_tokens=judge_max_tokens,
         temperature=0,
+        stop=stop_sequences,
     )
 
     # Fire all requests asynchronously
@@ -537,10 +680,14 @@ def main():
         import yaml as _yaml
         with open(args.config) as f:
             config = _yaml.safe_load(f)
-        # evaluator_models = judges, generator_models = opponents
+        # evaluator_models = judges (auto-expand with trained versions)
         raw_eval = config.get("evaluator_models", config.get("model_names", []))
         raw_gen = config.get("generator_models", config.get("model_names", []))
-        judges = expand_model_names(raw_eval)
+        base_judges = expand_model_names(raw_eval)
+        judges = expand_evaluators_with_trained(base_judges)
+        if len(judges) > len(base_judges):
+            trained_count = len(judges) - len(base_judges)
+            print(f"  Auto-discovered {trained_count} trained models from data/training/")
         opponents = expand_model_names(args.opponents) if args.opponents else expand_model_names(raw_gen)
         if args.max_workers == 1:
             args.max_workers = config.get("max_workers", args.max_workers)

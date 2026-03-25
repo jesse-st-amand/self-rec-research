@@ -163,9 +163,11 @@ def main():
         import yaml as _yaml
         with open(args.config) as f:
             config = _yaml.safe_load(f)
+        from scripts.alpaca_eval.run_self_preference import expand_evaluators_with_trained
         raw_eval = config.get("evaluator_models", config.get("model_names", []))
         raw_gen = config.get("generator_models", config.get("model_names", []))
-        judges = expand_model_names(raw_eval)
+        base_judges = expand_model_names(raw_eval)
+        judges = expand_evaluators_with_trained(base_judges)
         generators = expand_model_names(raw_gen)
     elif args.model_names:
         judges = expand_model_names(args.model_names)

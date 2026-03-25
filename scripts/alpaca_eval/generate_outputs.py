@@ -50,7 +50,16 @@ def resolve_tinker_checkpoint(short_name: str) -> tuple[str, str | None]:
             if not short_name.startswith(base_name + "-"):
                 continue
             run_suffix = short_name[len(base_name) + 1:]
+            # Try exact match first, then with extra suffixes, then substring
             matches = glob.glob(str(training_dir / f"{run_suffix}__*"))
+            if not matches:
+                matches = glob.glob(str(training_dir / f"{run_suffix}*__*"))
+            if not matches:
+                # Substring search: find dirs containing the run_suffix
+                matches = [
+                    str(d) for d in training_dir.iterdir()
+                    if d.is_dir() and run_suffix in d.name and "__" in d.name
+                ]
             if not matches:
                 print(f"  ⚠ No training run matching '{run_suffix}' in data/training/")
                 break
@@ -288,6 +297,21 @@ def generate_local_hf(instructions, model, max_tokens, temperature, **kwargs):
     return outputs
 
 
+def _resolve_renderer_name(model: str) -> str:
+    """Resolve tinker_cookbook renderer name for a model.
+
+    Raises RuntimeError if the model is not recognized.
+    """
+    from tinker_cookbook.model_info import get_recommended_renderer_name
+    try:
+        return get_recommended_renderer_name(model)
+    except (KeyError, ValueError):
+        raise RuntimeError(
+            f"Model '{model}' not recognized by tinker_cookbook. "
+            f"Check the HuggingFace model ID or update tinker_cookbook."
+        )
+
+
 def generate_tinker(instructions, model, max_tokens, temperature, **kwargs):
     """Generate outputs using Tinker's sampling API.
 
@@ -313,13 +337,15 @@ def generate_tinker(instructions, model, max_tokens, temperature, **kwargs):
         sampling_client = client.create_sampling_client(base_model=model)
 
     # Set up renderer for chat template
-    renderer_name = get_recommended_renderer_name(model)
     tokenizer = get_tokenizer(model)
+    renderer_name = _resolve_renderer_name(model)
     renderer = r.get_renderer(renderer_name, tokenizer)
+    stop_sequences = renderer.get_stop_sequences()
 
     sampling_params = tinker.types.SamplingParams(
         max_tokens=max_tokens,
         temperature=temperature,
+        stop=stop_sequences,
     )
 
     # Fire all requests asynchronously
@@ -431,16 +457,21 @@ def main():
         # 2. Base models of evaluator_models (the "self" outputs judges compare against)
         # Trained evaluators (ll-3.1-8b-01_sft_pw_vs_qwen) use their base model's
         # outputs (ll-3.1-8b), so we resolve base models and deduplicate.
-        from scripts.alpaca_eval.run_self_preference import resolve_base_model
+        from scripts.alpaca_eval.run_self_preference import resolve_base_model, expand_evaluators_with_trained
         raw_gen = config.get("generator_models", [])
         raw_eval = config.get("evaluator_models", [])
         raw_legacy = config.get("model_names", [])
 
         gen_models = expand_model_names(raw_gen or raw_legacy)
-        # Add base models of evaluators (for "self" outputs)
+        # Expand evaluators: base models + all trained versions found in data/training/
         eval_base_models = []
         if raw_eval:
-            for m in expand_model_names(raw_eval):
+            base_evals = expand_model_names(raw_eval)
+            all_evals = expand_evaluators_with_trained(base_evals)
+            if len(all_evals) > len(base_evals):
+                trained_count = len(all_evals) - len(base_evals)
+                print(f"  Auto-discovered {trained_count} trained models from data/training/")
+            for m in all_evals:
                 base = resolve_base_model(m)
                 if base not in eval_base_models:
                     eval_base_models.append(base)
