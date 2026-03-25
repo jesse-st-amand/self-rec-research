@@ -1,7 +1,7 @@
-evaluator_models: [ll-3.1-8b-01_sft_pw_vs_qwen]
-generator_models: [ll-3.1-8b-01_sft_pw_vs_qwen]
+evaluator_models: [ll-3.1-8b,qwen-3.5-27b,qwen-3.0-30b,ll-3.3-70b,gpt-oss-20b]
+generator_models: [qwen-3.0-30b,gpt-4o,opus-4.1,ll-3.1-8b,ll-3.3-70b,qwen-3.5-27b,gpt-oss-20b]
 temperature: 1.0
 max_tokens: 6000
-max_workers: 3
+max_workers: 16
 dataset: alpaca_eval
 gpu_dispatch: tinker
