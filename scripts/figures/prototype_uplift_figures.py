@@ -630,81 +630,511 @@ def fig_delta_matrix(pair_data):
 # FIGURE 6: Task OP transfer heatmap — one per model
 # y = trained-on task OP, x = tested-on task OP, cell = delta accuracy
 # ============================================================================
+
 def fig_task_transfer_heatmap(pair_data):
     """
     One heatmap per model. Rows = trained-on task OP, cols = tested-on task OP.
     Cell = accuracy delta (post − pre), averaged across datasets.
+    Columns split into groups separated by whitespace: Rec | Pref
     """
-    # Train OPs (rows) — recognition only, no preference
     train_ops = ["PW-Rec (UT)", "IND-Rec (UT)", "PW-Rec (AT)", "IND-Rec (AT)"]
     train_labels = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)"]
 
-    # Test OPs (cols) — includes preference
-    test_ops = ["PW-Rec (UT)", "IND-Rec (UT)", "PW-Rec (AT)", "IND-Rec (AT)",
-                "PW-Pref (UT)", "IND-Pref (UT)"]
-    test_labels = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)",
-                   "PW Pref", "IND Pref"]
+    # Column groups: recognition block, then preference block
+    rec_ops = ["PW-Rec (UT)", "IND-Rec (UT)", "PW-Rec (AT)", "IND-Rec (AT)"]
+    rec_labels = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)"]
+    pref_ops = ["PW-Pref (UT)", "IND-Pref (UT)"]
+    pref_labels = ["PW Pref", "IND Pref"]
 
     size_labels = list(pair_data.keys())
     n_models = len(size_labels)
     n_train = len(train_ops)
-    n_test = len(test_ops)
-
     norm = TwoSlopeNorm(vmin=-0.3, vcenter=0, vmax=0.3)
 
-    fig, axes = plt.subplots(1, n_models, figsize=(4.2 * n_models + 1, 4),
-                             gridspec_kw={"wspace": 0.15})
-    if n_models == 1:
-        axes = [axes]
+    # Each model gets 2 sub-axes (rec block + pref block) plus gaps
+    # width_ratios: [rec, gap, pref] per model, with model gaps between
+    ratios = []
+    for m in range(n_models):
+        if m > 0:
+            ratios.append(0.3)  # gap between models
+        ratios.extend([len(rec_ops), 0.15, len(pref_ops)])
 
+    fig, all_axes = plt.subplots(1, len(ratios), figsize=(2.2 * n_models * 3 + 1, 4),
+                                  gridspec_kw={"width_ratios": ratios, "wspace": 0.0})
+    if len(ratios) == 1:
+        all_axes = [all_axes]
+
+    last_im = None
     for m_idx, size in enumerate(size_labels):
-        ax = axes[m_idx]
         pre_m, post_m = MODEL_PAIRS[size]
         pre = pair_data[size]["pre"]
         post = pair_data[size]["post"]
 
-        matrix = np.full((n_train, n_test), np.nan)
+        # Build rec and pref matrices
+        rec_matrix = np.full((n_train, len(rec_ops)), np.nan)
         for i, train_op in enumerate(train_ops):
-            for j, test_op in enumerate(test_ops):
+            for j, test_op in enumerate(rec_ops):
                 pre_val = pre.get(test_op)
                 post_val = post.get(test_op)
                 if pre_val is not None and post_val is not None:
-                    matrix[i, j] = post_val - pre_val
+                    rec_matrix[i, j] = post_val - pre_val
 
-        im = ax.imshow(matrix, cmap="RdYlGn", norm=norm, aspect="auto")
+        pref_matrix = np.full((n_train, len(pref_ops)), np.nan)
+        for i, train_op in enumerate(train_ops):
+            for j, test_op in enumerate(pref_ops):
+                pre_val = pre.get(test_op)
+                post_val = post.get(test_op)
+                if pre_val is not None and post_val is not None:
+                    pref_matrix[i, j] = post_val - pre_val
 
+        # Axes indices for this model
+        base = m_idx * 3 + (m_idx)  # account for inter-model gaps
+        ax_rec = all_axes[base]
+        ax_gap = all_axes[base + 1]
+        ax_pref = all_axes[base + 2]
+
+        # Hide gap axis
+        ax_gap.set_axis_off()
+
+        # Draw rec block
+        last_im = ax_rec.imshow(rec_matrix, cmap="RdYlGn", norm=norm, aspect="auto")
         for i in range(n_train):
-            for j in range(n_test):
-                val = matrix[i, j]
+            for j in range(len(rec_ops)):
+                val = rec_matrix[i, j]
                 if not np.isnan(val):
                     color = "white" if abs(val) > 0.2 else "black"
-                    ax.text(j, i, f"{val:+.2f}", ha="center", va="center",
-                            fontsize=8, fontweight="bold", color=color)
+                    ax_rec.text(j, i, f"{val:+.2f}", ha="center", va="center",
+                                fontsize=8, fontweight="bold", color=color)
 
-        # Highlight diagonal where train == test (first 4 cols only)
-        for k in range(min(n_train, n_test)):
-            if train_ops[k] == test_ops[k]:
-                ax.add_patch(plt.Rectangle((k - 0.5, k - 0.5), 1, 1,
-                                            fill=False, edgecolor="black", linewidth=2))
-
-        # Vertical separator before preference columns
-        ax.axvline(x=n_train - 0.5, color="black", linewidth=1.2, linestyle="--", alpha=0.5)
-
-        ax.set_xticks(range(n_test))
-        ax.set_xticklabels(test_labels, fontsize=8, rotation=35, ha="right")
-        ax.set_yticks(range(n_train))
-        ax.set_yticklabels(train_labels if m_idx == 0 else [], fontsize=8)
+        ax_rec.set_xticks(range(len(rec_ops)))
+        ax_rec.set_xticklabels(rec_labels, fontsize=8, rotation=35, ha="right")
+        ax_rec.set_yticks(range(n_train))
+        ax_rec.set_yticklabels(train_labels if m_idx == 0 else [], fontsize=8)
         if m_idx == 0:
-            ax.set_ylabel("Trained on", fontsize=10, fontweight="bold")
-        ax.set_xlabel("Tested on", fontsize=10, fontweight="bold")
-        ax.set_title(f"{size} ({pre_m} → {post_m})", fontsize=9, fontweight="bold")
+            ax_rec.set_ylabel("Trained on", fontsize=10, fontweight="bold")
+        ax_rec.set_title(f"{size} ({pre_m} → {post_m})", fontsize=9, fontweight="bold",
+                         loc="left")
 
-    cbar = fig.colorbar(im, ax=axes, shrink=0.8, pad=0.03, aspect=20)
+        # Draw pref block
+        ax_pref.imshow(pref_matrix, cmap="RdYlGn", norm=norm, aspect="auto")
+        for i in range(n_train):
+            for j in range(len(pref_ops)):
+                val = pref_matrix[i, j]
+                if not np.isnan(val):
+                    color = "white" if abs(val) > 0.2 else "black"
+                    ax_pref.text(j, i, f"{val:+.2f}", ha="center", va="center",
+                                 fontsize=8, fontweight="bold", color=color)
+
+        ax_pref.set_xticks(range(len(pref_ops)))
+        ax_pref.set_xticklabels(pref_labels, fontsize=8, rotation=35, ha="right")
+        ax_pref.set_yticks([])
+
+    # Hide any inter-model gap axes
+    for m_idx in range(1, n_models):
+        gap_idx = m_idx * 4 - 1  # gap axis before each model after the first
+        if gap_idx < len(all_axes):
+            all_axes[gap_idx].set_axis_off()
+
+    cbar = fig.colorbar(last_im, ax=all_axes, shrink=0.8, pad=0.03, aspect=20)
     cbar.set_label("Accuracy Δ", fontsize=9)
 
     fig.suptitle("Task Operationalization Transfer", fontsize=12, fontweight="bold")
     plt.tight_layout(rect=[0, 0, 0.95, 0.95])
     path = OUT_DIR / "heatmap_task_transfer.png"
+    fig.savefig(path, dpi=200, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+# ============================================================================
+# FIGURE 6b: Task transfer heatmap WITH AlpacaEval column (proxy data)
+# Same as fig_task_transfer_heatmap but with a 7th column for AlpacaEval
+# self-selection rate. Uses opus-4.1 as post-trained proxy.
+# ============================================================================
+def load_alpaca_eval_self_selection(model_name, opponent="qwen-2.5-7b"):
+    """Load AlpacaEval self-selection rate for a model vs an opponent."""
+    result_path = Path(f"data/alpaca_eval/results/{model_name}/vs_{opponent}.json")
+    if not result_path.exists():
+        return None
+    import json
+    with open(result_path) as f:
+        data = json.load(f)
+    valid = [d["preference"] for d in data
+             if d["preference"] is not None and d["preference"] == d["preference"]]
+    if not valid:
+        return None
+    wins = sum(1 for p in valid if p == 1.0)
+    return wins / len(valid)
+
+
+def load_real_training_metrics(run_name):
+    """Load pre/post training metrics from data/training/{run}__*/."""
+    import json as _json
+    import glob
+    training_dir = Path("data/training")
+    matches = glob.glob(str(training_dir / f"{run_name}__*"))
+    if not matches:
+        return None, None
+    run_dir = Path(sorted(matches)[-1])
+
+    pre_file = run_dir / "posthoc_benchmarks" / "check_configured_pre" / "metrics" / "metrics.jsonl"
+    post_file = run_dir / "posthoc_benchmarks" / "check_configured_post" / "metrics" / "metrics.jsonl"
+
+    def _load(path):
+        if not path.exists():
+            return {}
+        with open(path) as f:
+            lines = [l.strip() for l in f if l.strip()]
+        if not lines:
+            return {}
+        return _json.loads(lines[-1])
+
+    return _load(pre_file), _load(post_file)
+
+
+# Map benchmark metric keys to our OP labels
+BENCHMARK_TO_OP = {
+    "benchmark/xeval_dataset_wikisum/accuracy": "xeval_wikisum",  # dataset xeval
+    "benchmark/xeval_dataset_bigcodebench/accuracy": "xeval_bigcode",
+    "benchmark/xeval_dataset_pku/accuracy": "xeval_pku",
+    "benchmark/xeval_task_pref_pw/accuracy": "PW-Pref (UT)",
+    "benchmark/xeval_tag_at_pw/accuracy": "PW-Rec (AT)",
+    "benchmark/xeval_source_numbered/accuracy": "xeval_source",
+}
+
+
+def fig_task_transfer_heatmap_with_ae(pair_data):
+    """
+    Same as fig_task_transfer_heatmap but with AlpacaEval self-selection column.
+    Uses proxy data (opus-4.1 as post-trained).
+    Three column groups separated by whitespace: Rec | Pref | AE
+    """
+    train_ops = ["PW-Rec (UT)", "IND-Rec (UT)", "PW-Rec (AT)", "IND-Rec (AT)"]
+    train_labels = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)"]
+
+    rec_ops = ["PW-Rec (UT)", "IND-Rec (UT)", "PW-Rec (AT)", "IND-Rec (AT)"]
+    rec_labels = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)"]
+    pref_ops = ["PW-Pref (UT)", "IND-Pref (UT)"]
+    pref_labels = ["PW Pref", "IND Pref"]
+    ae_ops = ["AE Self-Pref"]
+    ae_labels = ["AlpacaEval"]
+
+    size_labels = list(pair_data.keys())
+    n_models = len(size_labels)
+    n_train = len(train_ops)
+    norm = TwoSlopeNorm(vmin=-0.3, vcenter=0, vmax=0.3)
+
+    # Per model: [rec, gap, pref, gap, ae]; between models: [gap]
+    ratios = []
+    for m in range(n_models):
+        if m > 0:
+            ratios.append(0.3)  # gap between models
+        ratios.extend([len(rec_ops), 0.15, len(pref_ops), 0.15, len(ae_ops)])
+
+    fig, all_axes = plt.subplots(1, len(ratios), figsize=(2.2 * n_models * 3.5 + 1, 4),
+                                  gridspec_kw={"width_ratios": ratios, "wspace": 0.0})
+
+    last_im = None
+    for m_idx, size in enumerate(size_labels):
+        pre_m, post_m = MODEL_PAIRS[size]
+        pre = pair_data[size]["pre"]
+        post = pair_data[size]["post"]
+
+        def _build_matrix(ops):
+            mat = np.full((n_train, len(ops)), np.nan)
+            for i, train_op in enumerate(train_ops):
+                for j, test_op in enumerate(ops):
+                    if test_op == "AE Self-Pref":
+                        continue  # no AE data for proxy
+                    pre_val = pre.get(test_op)
+                    post_val = post.get(test_op)
+                    if pre_val is not None and post_val is not None:
+                        mat[i, j] = post_val - pre_val
+            return mat
+
+        rec_mat = _build_matrix(rec_ops)
+        pref_mat = _build_matrix(pref_ops)
+        ae_mat = _build_matrix(ae_ops)
+
+        # Axis indices: each model uses 5 slots (rec, gap, pref, gap, ae)
+        base = m_idx * 5 + m_idx  # +m_idx for inter-model gaps
+        ax_rec = all_axes[base]
+        ax_gap1 = all_axes[base + 1]
+        ax_pref = all_axes[base + 2]
+        ax_gap2 = all_axes[base + 3]
+        ax_ae = all_axes[base + 4]
+
+        ax_gap1.set_axis_off()
+        ax_gap2.set_axis_off()
+
+        def _draw_block(ax, mat, labels, show_yticks=False):
+            nonlocal last_im
+            last_im = ax.imshow(mat, cmap="RdYlGn", norm=norm, aspect="auto")
+            for i in range(mat.shape[0]):
+                for j in range(mat.shape[1]):
+                    val = mat[i, j]
+                    if not np.isnan(val):
+                        color = "white" if abs(val) > 0.2 else "black"
+                        ax.text(j, i, f"{val:+.2f}", ha="center", va="center",
+                                fontsize=8, fontweight="bold", color=color)
+            ax.set_xticks(range(len(labels)))
+            ax.set_xticklabels(labels, fontsize=7, rotation=35, ha="right")
+            ax.set_yticks(range(n_train) if show_yticks else [])
+            if show_yticks:
+                ax.set_yticklabels(train_labels, fontsize=8)
+
+        _draw_block(ax_rec, rec_mat, rec_labels, show_yticks=(m_idx == 0))
+        _draw_block(ax_pref, pref_mat, pref_labels)
+        _draw_block(ax_ae, ae_mat, ae_labels)
+
+        if m_idx == 0:
+            ax_rec.set_ylabel("Trained on", fontsize=10, fontweight="bold")
+        ax_rec.set_title(f"{size} ({pre_m} → {post_m})", fontsize=9, fontweight="bold", loc="left")
+
+    # Hide inter-model gap axes
+    for m_idx in range(1, n_models):
+        gap_idx = m_idx * 6 - 1
+        if gap_idx < len(all_axes):
+            all_axes[gap_idx].set_axis_off()
+
+    cbar = fig.colorbar(last_im, ax=list(all_axes), shrink=0.8, pad=0.03, aspect=20)
+    cbar.set_label("Accuracy Δ", fontsize=9)
+
+    fig.suptitle("Task OP Transfer (with AlpacaEval)", fontsize=12, fontweight="bold")
+    plt.tight_layout(rect=[0, 0, 0.95, 0.95])
+    path = OUT_DIR / "heatmap_task_transfer_with_ae_proxy.png"
+    fig.savefig(path, dpi=200, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+# ============================================================================
+# FIGURE 6c: Task transfer heatmap WITH AlpacaEval — REAL DATA
+# Uses actual training metrics from data/training/ and AlpacaEval results.
+# Only ll-3.1-8b has real data currently.
+# ============================================================================
+def _load_benchmark_accuracies(run_dir):
+    """Load epoch 0 (pre) and max epoch (post) accuracies from benchmark_predictions/.
+
+    Returns dict mapping benchmark_name → (pre_acc, post_acc).
+    """
+    import json as _json
+    bp_dir = Path(run_dir) / "benchmark_predictions"
+    if not bp_dir.exists():
+        return {}
+    results = {}
+    for bench_dir in sorted(bp_dir.iterdir()):
+        if not bench_dir.is_dir() or "mmlu" in bench_dir.name or "_full" in bench_dir.name:
+            continue
+        epochs = {}
+        for ef in bench_dir.glob("epoch_*.json"):
+            ep = int(ef.stem.replace("epoch_", ""))
+            with open(ef) as f:
+                data = _json.load(f)
+            acc = data.get("accuracy")
+            if acc is not None:
+                epochs[ep] = acc
+        if epochs:
+            pre = epochs.get(0)
+            post = epochs.get(max(epochs.keys()))
+            results[bench_dir.name] = (pre, post)
+    return results
+
+
+def _load_alpaca_eval_avg_self_selection(model_name):
+    """Load average AlpacaEval self-selection rate across all opponents.
+
+    Tries exact name first, then strips _tinker_small suffix for matching.
+    """
+    import json as _json
+    # Try exact name first, then without _tinker_small
+    candidates = [model_name]
+    stripped = model_name.replace("_tinker_small", "")
+    if stripped != model_name:
+        candidates.append(stripped)
+
+    for name in candidates:
+        results_dir = Path(f"data/alpaca_eval/results/{name}")
+        if not results_dir.exists():
+            continue
+        rates = []
+        for f in results_dir.glob("vs_*.json"):
+            with open(f) as fh:
+                data = _json.load(fh)
+            valid = [d["preference"] for d in data
+                     if d.get("preference") is not None and d["preference"] == d["preference"]]
+            if valid:
+                rates.append(sum(1 for p in valid if p == 1.0) / len(valid))
+        if rates:
+            return np.mean(rates)
+    return None
+
+
+def fig_task_transfer_heatmap_real():
+    """
+    Task transfer heatmap using actual training data from all available runs.
+    Uses benchmark_predictions epoch_0 (pre) and final epoch (post).
+    AlpacaEval column averaged across all available opponents.
+    """
+    import glob as _glob
+
+    # Discover all training runs and their metadata
+    RUNS = []
+    training_dir = Path("data/training")
+    for run_path in sorted(training_dir.iterdir()):
+        if not run_path.is_dir():
+            continue
+        run_name = run_path.name.split("__")[0]
+
+        # Clean opponent names for display
+        OPPONENT_DISPLAY = {
+            "qwen": "Qwen 2.5 7B",
+            "gpt_4o": "GPT-4o",
+            "haiku_3_5": "Haiku 3.5",
+            "opus_4_1": "Opus 4.1",
+            "ll_3_1_70b": "Llama 3.1 70B",
+            "ll_3_3_70b": "Llama 3.3 70B",
+            "ll_3_1_8b": "Llama 3.1 8B",
+            "qwen3_30b": "Qwen 3.0 30B",
+            "multi_model_holdout_ll_3_1_70b": "Multi (holdout 70B)",
+        }
+
+        def _clean_opponent(raw):
+            raw = raw.replace("_tinker_small", "")
+            return OPPONENT_DISPLAY.get(raw, raw)
+
+        # Determine base model from directory name conventions
+        if run_name.startswith("01_sft_pw_ll_3_3_70b_vs"):
+            base = "ll-3.3-70b"
+            opp = _clean_opponent(run_name.split("vs_")[1])
+            label = f"Llama 3.3 70B (PW → {opp})"
+            trained_name = f"ll-3.3-70b-{run_name}"
+        elif run_name.startswith("01_sft_pw_qwen3_30b_vs"):
+            base = "qwen-3.0-30b"
+            opp = _clean_opponent(run_name.split("vs_")[1])
+            label = f"Qwen 3.0 30B (PW → {opp})"
+            trained_name = f"qwen-3.0-30b-{run_name}"
+        elif run_name.startswith("02_sft_ind_"):
+            base = "ll-3.1-8b"
+            opp = _clean_opponent(run_name.split("vs_")[1]) if "vs_" in run_name else "?"
+            label = f"Llama 3.1 8B (IND → {opp})"
+            trained_name = f"ll-3.1-8b-{run_name}"
+        elif run_name.startswith("03_sft_pw_"):
+            base = "ll-3.1-8b"
+            opp = _clean_opponent(run_name.split("vs_")[1]) if "vs_" in run_name else "multi"
+            label = f"Llama 3.1 8B (PW → {opp})"
+            trained_name = f"ll-3.1-8b-{run_name}"
+        else:
+            base = "ll-3.1-8b"
+            opp = _clean_opponent(run_name.split("vs_")[1]) if "vs_" in run_name else "?"
+            label = f"Llama 3.1 8B (PW → {opp})"
+            trained_name = f"ll-3.1-8b-{run_name}"
+
+        RUNS.append({
+            "run_dir": str(run_path),
+            "run_name": run_name,
+            "label": label,
+            "base_model": base,
+            "trained_name": trained_name,
+        })
+
+    # Columns: task transfer OPs + dataset xevals + AlpacaEval
+    # Using benchmark_predictions directory names as keys
+    TASK_COLS = [
+        ("xeval_tag_at_pw", "PW Rec\n(AT)"),
+        ("xeval_tag_at_ind", "IND Rec\n(AT)"),
+        ("xeval_format_ind", "IND Rec\n(UT)"),
+        ("xeval_format_pw", "PW Rec\n(UT)"),
+        ("xeval_task_pref_pw", "PW Pref\n(UT)"),
+        ("xeval_task_pref_ind", "IND Pref\n(UT)"),
+    ]
+    DATASET_COLS = [
+        ("xeval_dataset_wikisum", "WikiSum"),
+        ("xeval_dataset_bigcodebench", "BigCode"),
+        ("xeval_dataset_pku", "PKU"),
+    ]
+    AE_COL = ("alpaca_eval", "AlpacaEval\nSelf-Pref")
+
+    all_cols = TASK_COLS + DATASET_COLS + [AE_COL]
+    col_keys = [c[0] for c in all_cols]
+    col_labels = [c[1] for c in all_cols]
+    n_cols = len(col_labels)
+
+    # Separator positions (for visual grouping)
+    task_end = len(TASK_COLS)
+    dataset_end = task_end + len(DATASET_COLS)
+
+    run_labels = []
+    matrices = []
+
+    for info in RUNS:
+        bp_data = _load_benchmark_accuracies(info["run_dir"])
+        if not bp_data:
+            print(f"  ⚠ Skipping {info['run_name']}: no benchmark data")
+            continue
+
+        row = np.full(n_cols, np.nan)
+        for j, key in enumerate(col_keys):
+            if key == "alpaca_eval":
+                # AlpacaEval: delta of avg self-selection rate
+                base_ae = _load_alpaca_eval_avg_self_selection(info["base_model"])
+                trained_ae = _load_alpaca_eval_avg_self_selection(info["trained_name"])
+                if base_ae is not None and trained_ae is not None:
+                    row[j] = trained_ae - base_ae
+            elif key in bp_data:
+                pre, post = bp_data[key]
+                if pre is not None and post is not None:
+                    row[j] = post - pre
+
+        run_labels.append(info["label"])
+        matrices.append(row)
+
+    if not matrices:
+        print("  ⚠ No real training data found, skipping real heatmap")
+        return
+
+    matrix = np.array(matrices)
+    norm = TwoSlopeNorm(vmin=-0.5, vcenter=0, vmax=0.5)
+
+    fig_h = max(len(run_labels) * 0.55 + 2, 5)
+    fig, ax = plt.subplots(figsize=(n_cols * 0.85 + 2.5, fig_h))
+
+    # Draw with gaps between groups using pcolormesh-like approach
+    im = ax.imshow(matrix, cmap="RdYlGn", norm=norm, aspect="auto")
+
+    # Annotate cells
+    for i in range(len(run_labels)):
+        for j in range(n_cols):
+            val = matrix[i, j]
+            if not np.isnan(val):
+                color = "white" if abs(val) > 0.35 else "black"
+                ax.text(j, i, f"{val:+.2f}", ha="center", va="center",
+                        fontsize=7, fontweight="bold", color=color)
+
+    # Vertical separators between groups
+    ax.axvline(x=task_end - 0.5, color="white", linewidth=2.5)
+    ax.axvline(x=dataset_end - 0.5, color="white", linewidth=2.5)
+
+    ax.set_xticks(range(n_cols))
+    ax.set_xticklabels(col_labels, fontsize=7, rotation=40, ha="right")
+    ax.set_yticks(range(len(run_labels)))
+    ax.set_yticklabels(run_labels, fontsize=7)
+    ax.set_ylabel("Training Run", fontsize=10, fontweight="bold")
+
+    # Group labels above columns
+    ax.text(task_end / 2 - 0.5, -1.3, "Task Transfer", ha="center", fontsize=8,
+            fontweight="bold", style="italic")
+    ax.text(task_end + len(DATASET_COLS) / 2 - 0.5, -1.3, "Dataset Transfer", ha="center",
+            fontsize=8, fontweight="bold", style="italic")
+    ax.text(n_cols - 1, -1.3, "AE", ha="center", fontsize=8,
+            fontweight="bold", style="italic")
+
+    cbar = fig.colorbar(im, ax=ax, shrink=0.7, pad=0.03, aspect=25)
+    cbar.set_label("Accuracy Δ (post − pre)", fontsize=8)
+
+    ax.set_title("Training Transfer — All Models", fontsize=11, fontweight="bold", pad=20)
+    plt.tight_layout()
+    path = OUT_DIR / "heatmap_task_transfer_with_ae_real.png"
     fig.savefig(path, dpi=200, bbox_inches="tight")
     plt.close()
     print(f"  ✓ Saved: {path}")
@@ -826,6 +1256,12 @@ def main():
 
     print("\n6. Task OP transfer heatmap (one per model)")
     fig_task_transfer_heatmap(pair_data)
+
+    print("\n6b. Task OP transfer heatmap with AlpacaEval (proxy data)")
+    fig_task_transfer_heatmap_with_ae(pair_data)
+
+    print("\n6c. Task OP transfer heatmap with AlpacaEval (REAL data)")
+    fig_task_transfer_heatmap_real()
 
     print("\n7. Dataset transfer heatmap (one per model)")
     fig_dataset_transfer_heatmap(pair_data)

@@ -1011,6 +1011,302 @@ def fig_training_effect_panels(data, pre_model="ll-3.1-8b", post_model="opus-4.1
     print(f"  ✓ Saved: {path}")
 
 
+# ============================================================================
+# Raw per-pair pivot data loader (not aggregated — individual evaluator×treatment pairs)
+# ============================================================================
+
+# Dataset subsets that correspond to the combined analysis directories
+DATASET_PIVOT_PATHS = {
+    "WikiSum": "wikisum/training_set_1-20+test_set_1-30",
+    "ShareGPT": "sharegpt/english_26+english2_74",
+    "PKU": "pku_saferlhf/mismatch_1-20+test_mismatch_1-20+test-mismatch_10_100-200",
+    "BigCode": "bigcodebench/instruct_1-50",
+}
+
+ANALYSIS_DIR = Path("data/analysis")
+
+
+def load_pivot_values(exp_name, dataset_short=None, model_filter=None):
+    """Load per-pair accuracy values from accuracy_pivot.csv files.
+
+    For IND experiments, applies adjustment: (treatment_ij + control_j) / 2
+    so that a model always accepting or always rejecting scores 0.5.
+
+    Returns a flat list of adjusted accuracy values.
+    If dataset_short is specified, loads only that dataset. Otherwise loads all.
+    If model_filter is specified, loads only rows matching that evaluator model.
+    """
+    is_ind = "IND" in exp_name
+    values = []
+    datasets = {dataset_short: DATASET_PIVOT_PATHS[dataset_short]} if dataset_short else DATASET_PIVOT_PATHS
+
+    for ds_name, ds_path in datasets.items():
+        pivot_path = ANALYSIS_DIR / ds_path / exp_name / "recognition_accuracy" / "accuracy_pivot.csv"
+        if not pivot_path.exists():
+            continue
+        df = pd.read_csv(pivot_path, index_col=0)
+
+        if is_ind:
+            # Extract control scores (diagonal: evaluator == treatment)
+            control = {}
+            for evaluator in df.index:
+                if evaluator in df.columns:
+                    val = df.loc[evaluator, evaluator]
+                    if pd.notna(val):
+                        control[evaluator] = val
+
+            # Adjusted = (treatment_ij + control_j) / 2
+            if model_filter:
+                if model_filter in df.index and model_filter in control:
+                    c_j = control[model_filter]
+                    for col in df.columns:
+                        if col == model_filter:
+                            continue  # skip self
+                        t_ij = df.loc[model_filter, col]
+                        if pd.notna(t_ij):
+                            values.append((t_ij + c_j) / 2)
+            else:
+                for evaluator in df.index:
+                    if evaluator not in control:
+                        continue
+                    c_j = control[evaluator]
+                    for col in df.columns:
+                        if col == evaluator:
+                            continue
+                        t_ij = df.loc[evaluator, col]
+                        if pd.notna(t_ij):
+                            values.append((t_ij + c_j) / 2)
+        else:
+            # PW: use raw values directly
+            if model_filter:
+                if model_filter in df.index:
+                    row_values = df.loc[model_filter].dropna().tolist()
+                    values.extend(row_values)
+            else:
+                values.extend(df.values[~np.isnan(df.values)].tolist())
+    return values
+
+
+# ============================================================================
+# FIGURE 10: Boxplots — 8 operationalizations
+# First 4: PW, IND, UT, AT (pool across datasets)
+# Last 4: WikiSum, ShareGPT, PKU, BigCode (pool across task OPs)
+# ============================================================================
+
+# Which experiments contribute to each task dimension
+BOXPLOT_TASK_GROUPS = {
+    "PW":  ["ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst", "COLM_01_AT_PW-C_Rec_NPr_FA_Inst"],
+    "IND": ["ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst", "COLM_02_AT_IND-C_Rec_NPr_FA_Inst"],
+    "UT":  ["ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst", "ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst"],
+    "AT":  ["COLM_01_AT_PW-C_Rec_NPr_FA_Inst", "COLM_02_AT_IND-C_Rec_NPr_FA_Inst"],
+}
+
+# All 4 experiments used for dataset boxes
+BOXPLOT_ALL_EXPS = [
+    "ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst",
+    "ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst",
+    "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+    "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
+]
+
+DATASET_NAMES = ["WikiSum", "ShareGPT", "PKU", "BigCode"]
+
+
+def fig_boxplot_operationalizations(data):
+    """
+    8 boxplots: PW, IND, UT, AT, WikiSum, ShareGPT, PKU, BigCode.
+
+    Uses raw per-pair pivot data (evaluator×treatment accuracy values)
+    for maximum spread visibility.
+
+    Task boxes pool all per-pair values from matching experiments across all datasets.
+    Dataset boxes pool per-pair values for that dataset across all experiments.
+    """
+    box_labels = list(BOXPLOT_TASK_GROUPS.keys()) + DATASET_NAMES
+    box_data = []
+
+    # Task dimension boxes (pool all per-pair values across all datasets)
+    for group_name, exp_list in BOXPLOT_TASK_GROUPS.items():
+        values = []
+        for exp_name in exp_list:
+            values.extend(load_pivot_values(exp_name))
+        box_data.append(values)
+
+    # Dataset boxes (pool per-pair values for that dataset across all experiments)
+    for ds_name in DATASET_NAMES:
+        values = []
+        for exp_name in BOXPLOT_ALL_EXPS:
+            values.extend(load_pivot_values(exp_name, dataset_short=ds_name))
+        box_data.append(values)
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(12, 5))
+
+    # Colors: blue-ish for task dimensions, green-ish for datasets
+    task_color = "#4C72B0"
+    dataset_color = "#55A868"
+    colors = [task_color] * 4 + [dataset_color] * 4
+
+    # Data points behind boxes
+    for i, (vals, color) in enumerate(zip(box_data, colors)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax.scatter(
+            np.full(len(vals), i) + jitter,
+            vals,
+            color=color, alpha=0.3, s=8, edgecolors="none", zorder=1,
+        )
+
+    # Boxes in front
+    bp = ax.boxplot(
+        box_data,
+        positions=range(len(box_labels)),
+        widths=0.5,
+        patch_artist=True,
+        showfliers=False,
+        medianprops=dict(color="black", linewidth=1.5, zorder=4),
+        whiskerprops=dict(color="gray", zorder=3),
+        capprops=dict(color="gray", zorder=3),
+        zorder=3,
+    )
+
+    for patch, color in zip(bp["boxes"], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    # Chance line
+    ax.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax.text(len(box_labels) - 0.5, 0.505, "chance", fontsize=8, color="gray",
+            ha="right", va="bottom")
+
+    # Vertical separator between task and dataset groups
+    ax.axvline(3.5, color="gray", linewidth=0.8, linestyle=":", alpha=0.5)
+
+    # Labels
+    ax.set_xticks(range(len(box_labels)))
+    ax.set_xticklabels(box_labels, fontsize=10, fontweight="bold")
+    ax.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax.set_title("Performance Distribution Across Operationalizations", fontsize=13, fontweight="bold")
+    ax.set_ylim(-0.05, 1.05)
+
+    # Legend patches
+    from matplotlib.patches import Patch
+    legend_elements = [
+        Patch(facecolor=task_color, alpha=0.35, edgecolor=task_color, label="Task Dimension"),
+        Patch(facecolor=dataset_color, alpha=0.35, edgecolor=dataset_color, label="Dataset"),
+    ]
+    ax.legend(handles=legend_elements, loc="upper right", fontsize=9)
+
+    # Count annotations below each box
+    for i, vals in enumerate(box_data):
+        ax.text(i, -0.03, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    plt.tight_layout()
+    path = OUT_DIR / "boxplot_operationalizations.png"
+    fig.savefig(path, dpi=200, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+# ============================================================================
+# FIGURE 11: Boxplots — per-model distributions across all operationalizations
+# 8 models selected for provider diversity and Elo spread
+# ============================================================================
+
+# Brand-inspired colors for model providers
+BOXPLOT_MODELS = [
+    ("ll-3.1-8b", "Llama 8B", "#0668E1"),             # Meta blue
+    ("gpt-4o-mini", "GPT-4o Mini", "#10A37F"),         # OpenAI green
+    ("gemini-2.0-flash", "Gemini Flash", "#4285F4"),    # Google blue
+    ("qwen-3.0-80b", "Qwen 80B", "#6F42C1"),           # Alibaba purple
+    ("deepseek-3.1", "DeepSeek 3.1", "#4D6BFE"),       # DeepSeek blue
+    ("kimi-k2", "Kimi K2", "#FF6B35"),                  # Moonshot orange
+    ("gpt-4o", "GPT-4o", "#10A37F"),                    # OpenAI green
+    ("opus-4.1", "Opus 4.1", "#D97757"),                # Anthropic terracotta
+]
+
+
+def fig_boxplot_per_model(data):
+    """
+    8 boxplots, one per model. Each box shows the distribution of that model's
+    per-pair accuracy across ALL operationalizations (4 experiments × 4 datasets).
+    Uses raw pivot data for full spread. Models ordered by Elo score (low → high).
+    """
+    box_data = []
+    box_labels = []
+    box_colors = []
+
+    for model_name, display_name, color in BOXPLOT_MODELS:
+        values = []
+        for exp_name in BOXPLOT_ALL_EXPS:
+            values.extend(load_pivot_values(exp_name, model_filter=model_name))
+        if not values:
+            continue
+        box_data.append(values)
+        box_labels.append(display_name)
+        box_colors.append(color)
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+
+    # Data points behind boxes
+    for i, (vals, color) in enumerate(zip(box_data, box_colors)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax.scatter(
+            np.full(len(vals), i) + jitter,
+            vals,
+            color=color, alpha=0.3, s=10, edgecolors="none", zorder=1,
+        )
+
+    # Boxes in front
+    bp = ax.boxplot(
+        box_data,
+        positions=range(len(box_labels)),
+        widths=0.5,
+        patch_artist=True,
+        showfliers=False,
+        medianprops=dict(color="black", linewidth=1.5, zorder=4),
+        whiskerprops=dict(color="gray", zorder=3),
+        capprops=dict(color="gray", zorder=3),
+        zorder=3,
+    )
+
+    for patch, color in zip(bp["boxes"], box_colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    # Chance line
+    ax.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax.text(len(box_labels) - 0.5, 0.505, "chance", fontsize=8, color="gray",
+            ha="right", va="bottom")
+
+    ax.set_xticks(range(len(box_labels)))
+    ax.set_xticklabels(box_labels, fontsize=10, fontweight="bold", rotation=20, ha="right")
+    ax.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax.set_title("Per-Model Performance Distribution Across All Operationalizations\n"
+                 "(ordered by LM Arena Elo, low → high)",
+                 fontsize=12, fontweight="bold")
+    ax.set_ylim(-0.05, 1.05)
+
+    # Count annotations
+    for i, vals in enumerate(box_data):
+        ax.text(i, -0.03, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    plt.tight_layout()
+    path = OUT_DIR / "boxplot_per_model.png"
+    fig.savefig(path, dpi=200, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
 def main():
     print("Loading experiment data...")
     data = load_all()
@@ -1046,6 +1342,12 @@ def main():
 
     print("\n9. Training effect: score-distance overlay (proxy ll-3.1-8b → opus-4.1)")
     fig_training_effect_panels(data)
+
+    print("\n10. Boxplots: 8 operationalizations")
+    fig_boxplot_operationalizations(data)
+
+    print("\n11. Boxplots: per-model across all OPs")
+    fig_boxplot_per_model(data)
 
     print(f"\nAll prototypes saved to: {OUT_DIR}/")
 
