@@ -42,72 +42,36 @@ def resolve_base_model(short_name: str) -> str:
 
 
 def discover_trained_models(base_models: list[str],
-                            training_dir: str = "data/training") -> list[str]:
+                            training_dir: str = "data/training",
+                            subsets: list[str] | None = None) -> list[str]:
     """Discover all trained model names for a set of base models.
 
-    Scans data/training/ for runs matching each base model and returns
-    the trained model names (e.g., 'll-3.1-8b-01_sft_pw_vs_qwen').
-
-    The mapping from training run directories to base models:
-    - Runs starting with a model prefix before 'vs' use that model
-      (e.g., '01_sft_pw_ll_3_3_70b_vs_...' → base 'll-3.3-70b')
-    - Other runs default to 'll-3.1-8b' as the base model
+    Uses the unified training_runs module to handle both original and
+    archived naming conventions.
 
     Returns the list of trained model names (not including base models).
     """
-    training_path = Path(training_dir)
-    if not training_path.exists():
-        return []
-
-    # Map shorthand base model names to the prefixes used in training dir names
-    BASE_PREFIXES = {
-        "ll-3.3-70b": "ll_3_3_70b",
-        "qwen-3.0-30b": "qwen3_30b",
-    }
+    from scripts.alpaca_eval.training_runs import discover_training_runs
 
     base_set = set(base_models)
+    runs = discover_training_runs(training_dir, subsets=subsets)
     trained = []
-
-    for run_path in sorted(training_path.iterdir()):
-        if not run_path.is_dir():
-            continue
-        run_name = run_path.name.split("__")[0]
-
-        # Determine which base model this run belongs to
-        run_base = "ll-3.1-8b"  # default
-        for base_model, prefix in BASE_PREFIXES.items():
-            # Check if run starts with a SFT prefix containing this model's prefix before 'vs'
-            # e.g., '01_sft_pw_ll_3_3_70b_vs_...' or '01_sft_pw_qwen3_30b_vs_...'
-            parts = run_name.split("_vs_")
-            if len(parts) >= 2:
-                before_vs = parts[0]
-                # Check if the model prefix appears in the part before 'vs'
-                # but NOT after a 'vs_' (which indicates the opponent)
-                if prefix in before_vs and before_vs != f"01_sft_pw" and before_vs != f"02_sft_ind":
-                    run_base = base_model
-                    break
-
-        # Only include if this base model is in our requested set
-        if run_base not in base_set:
-            continue
-
-        # Strip _tinker_small for the trained name
-        clean_name = run_name.replace("_tinker_small", "")
-        trained_name = f"{run_base}-{clean_name}"
-        trained.append(trained_name)
-
+    for run in runs:
+        if run.base_model in base_set:
+            trained.append(run.trained_name)
     return trained
 
 
 def expand_evaluators_with_trained(evaluator_models: list[str],
-                                   training_dir: str = "data/training") -> list[str]:
+                                   training_dir: str = "data/training",
+                                   subsets: list[str] | None = None) -> list[str]:
     """Expand a list of evaluator models by adding all trained versions.
 
     Given ['ll-3.1-8b', 'qwen-3.0-30b'], returns:
     ['ll-3.1-8b', 'qwen-3.0-30b',
-     'll-3.1-8b-01_sft_pw_vs_qwen', 'll-3.1-8b-02_sft_ind_vs_qwen', ...]
+     'll-3.1-8b-01_sft_pw_vs_qwen', 'll-3.1-8b-11_archived_ll8b_ut_pw_sharegpt_vs_qwen25', ...]
     """
-    trained = discover_trained_models(evaluator_models, training_dir)
+    trained = discover_trained_models(evaluator_models, training_dir, subsets=subsets)
     # Combine: base models first, then trained versions, deduplicated
     seen = set()
     result = []
@@ -170,6 +134,53 @@ JUDGE_SIMPLE_USER = """\
 
 [Task]
 Which response better answers the question? Reply with ONLY "A" or "B" (nothing else)."""
+
+
+# ---------------------------------------------------------------------------
+# Ranking mode prompts (multi-model, all outputs at once)
+# ---------------------------------------------------------------------------
+
+RANKING_SYSTEM_PROMPT = (
+    "You are a helpful assistant that ranks model outputs by quality."
+)
+
+RANKING_USER_TEMPLATE = """\
+I want you to rank the following model outputs by quality. I will give you an instruction and the responses from {n_models} models. Please rank them from best (rank 1) to worst (rank {n_models}).
+
+Here is the instruction:
+{{
+    "instruction": \"\"\"{instruction}\"\"\"
+}}
+
+Here are the model outputs:
+{model_outputs_block}
+
+Now rank all models by the quality of their answers, so that rank 1 is the best. Return a Python list of dicts:
+[
+    {{'model': '<model-name>', 'rank': <rank>}},
+    ...
+]
+
+Your response must be a valid Python list and should contain nothing else because we will directly execute it in Python. Provide the ranking that the majority of humans would give."""
+
+RANKING_COT_USER_TEMPLATE = """\
+I want you to rank the following model outputs by quality. I will give you an instruction and the responses from {n_models} models. Please rank them from best (rank 1) to worst (rank {n_models}).
+
+Here is the instruction:
+{{
+    "instruction": \"\"\"{instruction}\"\"\"
+}}
+
+Here are the model outputs:
+{model_outputs_block}
+
+First, briefly explain your reasoning for the ranking. Then, on a new line, provide your final ranking as a Python list of dicts:
+[
+    {{'model': '<model-name>', 'rank': <rank>}},
+    ...
+]
+
+The final line of your response must be the valid Python list and nothing else."""
 
 
 def is_local_model(short_name: str) -> bool:
@@ -291,6 +302,82 @@ def parse_ranking(completion: str) -> float:
         return 1.0 if last == "A" else 2.0
 
     return float(np.nan)
+
+
+def parse_multi_ranking(completion: str, model_labels: list[str]) -> dict[str, int] | None:
+    """Parse a multi-model ranking from completion text.
+
+    Expected format: [{'model': 'model_1', 'rank': 1}, {'model': 'model_2', 'rank': 2}, ...]
+
+    Returns dict mapping model_label -> rank, or None on parse failure.
+    """
+    import re
+
+    text = _strip_thinking(completion).strip()
+
+    # Try to find a Python list in the text (may be preceded by reasoning)
+    # Look for the last [...] block
+    list_matches = re.findall(r'\[.*?\]', text, re.DOTALL)
+    for candidate in reversed(list_matches):
+        try:
+            parsed = ast.literal_eval(candidate)
+            if isinstance(parsed, list) and len(parsed) >= 2:
+                # Validate structure
+                ranking = {}
+                for item in parsed:
+                    if isinstance(item, dict) and 'model' in item and 'rank' in item:
+                        ranking[item['model']] = int(item['rank'])
+                if len(ranking) >= 2:
+                    return ranking
+        except Exception:
+            continue
+
+    # Try the whole text as a literal
+    try:
+        parsed = ast.literal_eval(text)
+        if isinstance(parsed, list):
+            ranking = {}
+            for item in parsed:
+                if isinstance(item, dict) and 'model' in item and 'rank' in item:
+                    ranking[item['model']] = int(item['rank'])
+            if len(ranking) >= 2:
+                return ranking
+    except Exception:
+        pass
+
+    return None
+
+
+def build_ranking_prompt(
+    instruction: str,
+    model_outputs: dict[str, str],
+    cot: bool = False,
+) -> str:
+    """Build the ranking prompt with all model outputs.
+
+    Args:
+        instruction: The original instruction/question.
+        model_outputs: Dict mapping model label (e.g., 'model_1') to output text.
+        cot: Whether to use the CoT variant.
+
+    Returns the formatted user message.
+    """
+    entries = []
+    for label, output in model_outputs.items():
+        entries.append(
+            f'    {{\n'
+            f'        "model": "{label}",\n'
+            f'        "answer": \"\"\"{output}\"\"\"\n'
+            f'    }}'
+        )
+    model_outputs_block = "[\n" + ",\n".join(entries) + "\n]"
+
+    template = RANKING_COT_USER_TEMPLATE if cot else RANKING_USER_TEMPLATE
+    return template.format(
+        instruction=instruction,
+        model_outputs_block=model_outputs_block,
+        n_models=len(model_outputs),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -508,6 +595,131 @@ def judge_tinker(
     return pd.DataFrame(results)
 
 
+def judge_tinker_ranking(
+    all_model_outputs: dict[str, list[dict]],
+    evaluator_label: str,
+    hf_model_id: str,
+    sampler_path: str | None = None,
+    cot: bool = False,
+) -> pd.DataFrame:
+    """Run multi-model ranking evaluation via Tinker.
+
+    Presents ALL model outputs at once for each instruction.
+    Returns DataFrame with one row per instruction, containing full ranking.
+    """
+    import tinker
+    from tinker_cookbook import renderers as r
+    from tinker_cookbook.model_info import get_recommended_renderer_name
+    from tinker_cookbook.tokenizer_utils import get_tokenizer
+
+    print(f"  Connecting to Tinker for ranking evaluation...")
+    client = tinker.ServiceClient()
+
+    if sampler_path:
+        print(f"  Loading trained judge from: {sampler_path}")
+        sampling_client = client.create_sampling_client(model_path=sampler_path)
+    else:
+        print(f"  Loading base judge: {hf_model_id}")
+        sampling_client = client.create_sampling_client(base_model=hf_model_id)
+
+    tokenizer = get_tokenizer(hf_model_id)
+    try:
+        renderer_name = get_recommended_renderer_name(hf_model_id)
+    except (KeyError, ValueError):
+        raise RuntimeError(
+            f"Model '{hf_model_id}' not recognized by tinker_cookbook."
+        )
+    renderer = r.get_renderer(renderer_name, tokenizer)
+    stop_sequences = renderer.get_stop_sequences()
+
+    # More tokens for ranking (more models to list + optional CoT)
+    model_lower = hf_model_id.lower()
+    is_thinking = (
+        "oss" in model_lower
+        or "thinking" in renderer_name.lower()
+        or "qwen3.5" in model_lower
+        or "qwen-3.5" in model_lower
+    )
+    judge_max_tokens = 8192 if is_thinking else (2048 if cot else 512)
+
+    sampling_params = tinker.types.SamplingParams(
+        max_tokens=judge_max_tokens,
+        temperature=0,
+        stop=stop_sequences,
+    )
+
+    # Get model labels and number of instructions
+    model_labels = sorted(all_model_outputs.keys())
+    n_instructions = len(next(iter(all_model_outputs.values())))
+
+    # Randomize model presentation order per instruction to reduce position bias
+    print(f"  Submitting {n_instructions} ranking requests ({len(model_labels)} models each)...")
+    futures = []
+    shuffle_orders = []
+
+    for i in range(n_instructions):
+        instruction = all_model_outputs[model_labels[0]][i]["instruction"]
+
+        # Shuffle model order for this instruction
+        shuffled = model_labels.copy()
+        random.shuffle(shuffled)
+        shuffle_orders.append(shuffled)
+
+        # Build output dict with anonymized labels
+        model_outputs_anon = {}
+        for idx, label in enumerate(shuffled, 1):
+            model_outputs_anon[f"model_{idx}"] = all_model_outputs[label][i]["output"]
+
+        user_msg = build_ranking_prompt(instruction, model_outputs_anon, cot=cot)
+        convo = [
+            {"role": "system", "content": RANKING_SYSTEM_PROMPT},
+            {"role": "user", "content": user_msg},
+        ]
+        model_input = renderer.build_generation_prompt(convo)
+        futures.append(sampling_client.sample(
+            prompt=model_input, num_samples=1, sampling_params=sampling_params,
+        ))
+
+    # Collect results
+    results = []
+    parse_failures = 0
+    for i, (future, shuffled) in enumerate(zip(futures, shuffle_orders)):
+        if (i + 1) % 50 == 0 or i == len(futures) - 1:
+            print(f"  [{i+1}/{len(futures)}] Collecting ranking results...", flush=True)
+
+        result = future.result()
+        seq = result.sequences[0]
+        parsed_msg, _ = renderer.parse_response(seq.tokens)
+        completion = r.get_text_content(parsed_msg)
+
+        # Parse ranking and map back to original labels
+        anon_labels = [f"model_{idx}" for idx in range(1, len(shuffled) + 1)]
+        ranking = parse_multi_ranking(completion, anon_labels)
+
+        row = {
+            "instruction": all_model_outputs[model_labels[0]][i]["instruction"],
+            "raw_completion": completion,
+        }
+
+        if ranking:
+            # Map anonymous labels back to real model names
+            for idx, real_label in enumerate(shuffled, 1):
+                anon_key = f"model_{idx}"
+                rank = ranking.get(anon_key)
+                row[f"rank_{real_label}"] = rank
+        else:
+            parse_failures += 1
+            for label in model_labels:
+                row[f"rank_{label}"] = None
+
+        results.append(row)
+
+    if parse_failures:
+        print(f"  ⚠ {parse_failures}/{len(futures)} ranking parse failures")
+    print(f"  ✓ Completed {len(results)} ranking evaluations via Tinker")
+    return pd.DataFrame(results)
+
+
 # ---------------------------------------------------------------------------
 # API-based judging (via alpaca_eval PairwiseAnnotator)
 # ---------------------------------------------------------------------------
@@ -581,6 +793,84 @@ def judge_api(
 # ---------------------------------------------------------------------------
 # Main evaluation runner
 # ---------------------------------------------------------------------------
+
+def run_ranking_evaluation(
+    judge_name: str,
+    generator_models: list[str],
+    outputs_dir: Path,
+    output_dir: Path,
+    gpu_dispatch: str = "runpod",
+    cot: bool = False,
+):
+    """Run multi-model ranking evaluation: judge ranks ALL generator outputs + its own.
+
+    For trained models, the evaluator's "self" outputs come from the base model.
+    All generator outputs are presented at once alongside the evaluator's base outputs.
+    """
+    base_model = resolve_base_model(judge_name)
+    result_path = output_dir / judge_name / "ranking.json"
+    if result_path.exists():
+        print(f"  ⊘ {judge_name} ranking: already exists, skipping")
+        return
+
+    # Collect all model outputs (base model + generators)
+    # The evaluator's own outputs come from the base model
+    all_models = []
+    if base_model not in generator_models:
+        all_models.append(base_model)
+    all_models.extend(generator_models)
+    # Deduplicate while preserving order
+    seen = set()
+    unique_models = []
+    for m in all_models:
+        if m not in seen:
+            seen.add(m)
+            unique_models.append(m)
+
+    # Load outputs
+    all_model_outputs = {}
+    for model in unique_models:
+        path = outputs_dir / f"{model}.json"
+        if not path.exists():
+            print(f"  ⚠ Missing outputs for {model}, skipping ranking eval for {judge_name}")
+            return
+        with open(path) as f:
+            all_model_outputs[model] = json.load(f)
+
+    is_trained = judge_name != base_model
+    label = f"{judge_name} (trained)" if is_trained else judge_name
+    n_inst = len(next(iter(all_model_outputs.values())))
+    print(f"  Running {label} ranking: {len(unique_models)} models × {n_inst} instructions...")
+
+    # Route to backend
+    if gpu_dispatch == "tinker" and (is_trained or is_local_model(judge_name)):
+        from scripts.alpaca_eval.generate_outputs import resolve_tinker_checkpoint
+        hf_model, sampler_path = resolve_tinker_checkpoint(judge_name)
+        rankings = judge_tinker_ranking(
+            all_model_outputs, judge_name, hf_model, sampler_path, cot=cot,
+        )
+    else:
+        # For API models, we'd need to implement an API-based ranking judge
+        # For now, fall back to Tinker if available, or error
+        raise NotImplementedError(
+            f"Ranking mode not yet implemented for API-only models ({judge_name}). "
+            f"Use gpu_dispatch: tinker or judge_mode: simple."
+        )
+
+    # Save results
+    result_path.parent.mkdir(parents=True, exist_ok=True)
+    rankings.to_json(result_path, orient="records", indent=2)
+
+    # Compute self-preference: average rank of the evaluator's own model
+    rank_col = f"rank_{base_model}"
+    if rank_col in rankings.columns:
+        valid = rankings[rank_col].dropna()
+        avg_self_rank = valid.mean()
+        n_first = (valid == 1).sum()
+        print(f"  ✓ {judge_name}: avg self-rank={avg_self_rank:.2f}, "
+              f"ranked #1 in {n_first}/{len(valid)} cases ({n_first/len(valid)*100:.1f}%)")
+    print(f"    Saved to {result_path}")
+
 
 def run_pairwise_evaluation(
     judge_name: str,
@@ -675,19 +965,30 @@ def main():
                         help="Print RunPod payload without launching")
     args = parser.parse_args()
 
+    # Defaults (may be overridden by config)
+    judge_mode = "simple"
+    judge_cot = False
+    gpu_dispatch = "runpod"
+    config = {}
+
     # Resolve model names from --config or --judges/--opponents
     if args.config:
         import yaml as _yaml
         with open(args.config) as f:
             config = _yaml.safe_load(f)
+        judge_mode = config.get("judge_mode", judge_mode)
+        judge_cot = config.get("judge_cot", judge_cot)
+        gpu_dispatch = config.get("gpu_dispatch", gpu_dispatch)
         # evaluator_models = judges (auto-expand with trained versions)
         raw_eval = config.get("evaluator_models", config.get("model_names", []))
         raw_gen = config.get("generator_models", config.get("model_names", []))
+        data_subsets = config.get("data_subsets", None)
+        training_dir = config.get("training_dir", "data/training")
         base_judges = expand_model_names(raw_eval)
-        judges = expand_evaluators_with_trained(base_judges)
+        judges = expand_evaluators_with_trained(base_judges, training_dir=training_dir, subsets=data_subsets)
         if len(judges) > len(base_judges):
             trained_count = len(judges) - len(base_judges)
-            print(f"  Auto-discovered {trained_count} trained models from data/training/")
+            print(f"  Auto-discovered {trained_count} trained models from {training_dir}/")
         opponents = expand_model_names(args.opponents) if args.opponents else expand_model_names(raw_gen)
         if args.max_workers == 1:
             args.max_workers = config.get("max_workers", args.max_workers)
@@ -708,7 +1009,8 @@ def main():
         parser.error("Provide either --config or --judges")
 
     outputs_dir = Path(args.outputs_dir)
-    output_dir = Path(args.output_dir)
+    # Results and configs go into mode-specific subdirectories
+    output_dir = Path(args.output_dir) / judge_mode
     config_dir = Path("data/alpaca_eval/configs")
 
     print(f"Evaluator models (judges): {', '.join(judges)}")
@@ -718,18 +1020,13 @@ def main():
     print(f"Setup: Each judge compares its own outputs vs each generator's outputs.")
     print(f"       Skipping when judge == generator (all three models identical).")
 
-    # Resolve gpu_dispatch for splitting judges
-    _gpu_dispatch = "runpod"
-    if args.config:
-        _gpu_dispatch = config.get("gpu_dispatch", _gpu_dispatch)
-
     # Split judges into API/Tinker (inline) and RunPod (dispatch to GPU pod)
     # With tinker dispatch, all hf/ and trained models run inline via Tinker API
     api_judges = []
     runpod_judges = []
     for j in judges:
         is_trained = j not in INSPECT_MODEL_NAMES
-        if _gpu_dispatch == "tinker" and (is_trained or is_local_model(j)):
+        if gpu_dispatch == "tinker" and (is_trained or is_local_model(j)):
             api_judges.append(j)
         elif is_local_model(j) and not args.local:
             runpod_judges.append(j)
@@ -812,24 +1109,33 @@ def main():
                 print(f"  ⚠ Failed to launch pod for {judge}: {e}")
                 print(f"    Skipping — try again later or check GPU availability.")
 
-    # Resolve gpu_dispatch from config
-    gpu_dispatch = "runpod"
-    if args.config:
-        gpu_dispatch = config.get("gpu_dispatch", gpu_dispatch)
+    print(f"Judge mode: {judge_mode}" + (f" (with CoT)" if judge_cot else ""))
 
     # Run API judges (parallel if max_workers > 1)
     def _run_judge(judge):
         base_model = resolve_base_model(judge)
         label = f"{judge} (trained, base={base_model})" if judge != base_model else judge
-        print(f"\n{'='*70}")
-        print(f"Judge: {label} [API]")
-        print(f"  Comparing {base_model}'s outputs vs each generator's outputs")
-        print(f"{'='*70}")
-        for generator in opponents:
-            if generator == base_model:
-                print(f"  ⊘ {judge} vs {generator}: skipping (base model == generator)")
-                continue
-            run_pairwise_evaluation(judge, generator, outputs_dir, output_dir, config_dir, gpu_dispatch)
+
+        if judge_mode == "ranking":
+            print(f"\n{'='*70}")
+            print(f"Judge: {label} [RANKING]")
+            print(f"  Ranking all {len(opponents)} generator models + own outputs")
+            print(f"{'='*70}")
+            run_ranking_evaluation(
+                judge, opponents, outputs_dir, output_dir,
+                gpu_dispatch=gpu_dispatch, cot=judge_cot,
+            )
+        else:
+            # Simple pairwise mode
+            print(f"\n{'='*70}")
+            print(f"Judge: {label} [SIMPLE]")
+            print(f"  Comparing {base_model}'s outputs vs each generator's outputs")
+            print(f"{'='*70}")
+            for generator in opponents:
+                if generator == base_model:
+                    print(f"  ⊘ {judge} vs {generator}: skipping (base model == generator)")
+                    continue
+                run_pairwise_evaluation(judge, generator, outputs_dir, output_dir, config_dir, gpu_dispatch)
 
     if api_judges and args.max_workers > 1:
         from concurrent.futures import ThreadPoolExecutor, as_completed

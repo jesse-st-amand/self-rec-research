@@ -34,28 +34,38 @@ def load_alpaca_eval_instructions() -> list[dict]:
 def resolve_tinker_checkpoint(short_name: str) -> tuple[str, str | None]:
     """Resolve a model name that may include a training run suffix.
 
-    Names like 'll-3.1-8b-01_sft_pw_vs_qwen' split into:
-      base model 'll-3.1-8b' + training run '01_sft_pw_vs_qwen'
+    Names like 'll-3.1-8b-01_sft_pw_vs_qwen' or
+    'll-3.1-8b-11_archived_ll8b_ut_pw_sharegpt_vs_qwen25' split into:
+      base model + training run checkpoint.
 
     Returns (hf_base_model_id, tinker_sampler_path_or_None).
     """
+    from scripts.alpaca_eval.training_runs import discover_training_runs
+
+    # Check if this is a trained model by scanning all training runs
+    runs = discover_training_runs()
+    for run in runs:
+        if run.trained_name == short_name and run.sampler_path:
+            inspect_name = INSPECT_MODEL_NAMES.get(run.base_model, "")
+            hf_model = inspect_name
+            for prefix in ("hf/", "together/", "openai/", "anthropic/", "google/"):
+                hf_model = hf_model.removeprefix(prefix)
+            return hf_model, run.sampler_path
+
+    # Fallback: try the old glob-based matching for edge cases
     from pathlib import Path
     import glob
-
     training_dir = Path("data/training")
 
-    # Try to match {base_model}-{training_run} pattern
     if training_dir.exists():
         for base_name in sorted(INSPECT_MODEL_NAMES.keys(), key=len, reverse=True):
             if not short_name.startswith(base_name + "-"):
                 continue
             run_suffix = short_name[len(base_name) + 1:]
-            # Try exact match first, then with extra suffixes, then substring
             matches = glob.glob(str(training_dir / f"{run_suffix}__*"))
             if not matches:
                 matches = glob.glob(str(training_dir / f"{run_suffix}*__*"))
             if not matches:
-                # Substring search: find dirs containing the run_suffix
                 matches = [
                     str(d) for d in training_dir.iterdir()
                     if d.is_dir() and run_suffix in d.name and "__" in d.name
@@ -63,12 +73,11 @@ def resolve_tinker_checkpoint(short_name: str) -> tuple[str, str | None]:
             if not matches:
                 print(f"  ⚠ No training run matching '{run_suffix}' in data/training/")
                 break
-            run_dir = sorted(matches)[-1]  # latest timestamp
+            run_dir = sorted(matches)[-1]
             ckpt_file = Path(run_dir) / "checkpoints" / "checkpoints.jsonl"
             if not ckpt_file.exists():
                 print(f"  ⚠ No checkpoints.jsonl in {run_dir}")
                 break
-            # Read last checkpoint entry
             with open(ckpt_file) as f:
                 last_line = [l.strip() for l in f if l.strip()][-1]
             ckpt = json.loads(last_line)
@@ -76,7 +85,6 @@ def resolve_tinker_checkpoint(short_name: str) -> tuple[str, str | None]:
             if not sampler_path:
                 print(f"  ⚠ No sampler_path in checkpoint for {run_suffix}")
                 break
-            # Resolve base model HF ID
             inspect_name = INSPECT_MODEL_NAMES[base_name]
             hf_model = inspect_name.removeprefix("hf/").removeprefix("together/").removeprefix("openai/")
             return hf_model, sampler_path
@@ -84,7 +92,6 @@ def resolve_tinker_checkpoint(short_name: str) -> tuple[str, str | None]:
     # No training suffix — base model only
     if short_name in INSPECT_MODEL_NAMES:
         inspect_name = INSPECT_MODEL_NAMES[short_name]
-        # Strip any provider prefix to get the HF model ID
         for prefix in ("hf/", "together/", "openai/", "anthropic/", "google/"):
             if inspect_name.startswith(prefix):
                 return inspect_name.removeprefix(prefix), None

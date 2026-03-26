@@ -5,3 +5,23 @@ max_tokens: 6000
 max_workers: 16
 dataset: alpaca_eval
 gpu_dispatch: tinker
+
+# Training data directory and subsets to include.
+# training_dir: path to the training data root (default: data/training)
+# data_subsets: which subdirectories to scan for training runs.
+#   "00_original" — first batch (varied opponents, ShareGPT only)
+#   "01_final"    — second batch (varied datasets, tags, formats)
+training_dir: data/training_reorganized
+data_subsets: [00_original, 01_final]
+
+# Judge mode:
+#   "simple"  — pairwise A/B comparison, 2 models per eval (evaluator output
+#               vs one generator). Runs permutations of evaluator x generator.
+#               Best for weak models (ll-3.1-8b and trained variants).
+#   "ranking" — all generator outputs + evaluator output presented at once.
+#               Judge produces a ranked list. One eval per evaluator per instruction.
+#               Better for capable models.
+judge_mode: ranking
+# Whether to prompt instruction models to reason before answering.
+# Reasoning models (gpt-oss, qwen-3.5) always reason regardless.
+judge_cot: false
