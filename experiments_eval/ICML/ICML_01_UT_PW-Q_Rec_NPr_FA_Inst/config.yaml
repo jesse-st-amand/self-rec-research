@@ -8,5 +8,5 @@ priming: False
 generator_output: "FA"
 evaluator_reasoning: "DR"
 
-model_names: ['-set', 'dr']
+model_names: ["qwen-3.5-27b"]
 generator_models: ['-set', 'eval_cot-r_and_dr']

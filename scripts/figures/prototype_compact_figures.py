@@ -831,181 +831,300 @@ def fig_rank_distance_panels(data):
     print(f"  ✓ Saved: {path}")
 
 
+    # NOTE: fig_training_effect_panels moved to prototype_uplift_figures.py
+
+
 # ============================================================================
-# FIGURE 9: Training effect — single evaluator score-distance overlay
+# Raw per-pair pivot data loader (not aggregated — individual evaluator×treatment pairs)
 # ============================================================================
-def fig_training_effect_panels(data, pre_model="ll-3.1-8b", post_model="opus-4.1"):
+
+# Dataset subsets that correspond to the combined analysis directories
+DATASET_PIVOT_PATHS = {
+    "WikiSum": "wikisum/training_set_1-20+test_set_1-30",
+    "ShareGPT": "sharegpt/english_26+english2_74",
+    "PKU": "pku_saferlhf/mismatch_1-20+test_mismatch_1-20+test-mismatch_10_100-200",
+    "BigCode": "bigcodebench/instruct_1-50",
+}
+
+ANALYSIS_DIR = Path("data/analysis")
+
+
+def load_pivot_values(exp_name, dataset_short=None, model_filter=None):
+    """Load per-pair accuracy values from accuracy_pivot.csv files.
+
+    For IND experiments, applies adjustment: (treatment_ij + control_j) / 2
+    so that a model always accepting or always rejecting scores 0.5.
+
+    Returns a flat list of adjusted accuracy values.
+    If dataset_short is specified, loads only that dataset. Otherwise loads all.
+    If model_filter is specified, loads only rows matching that evaluator model.
     """
-    2×2 panel showing training effect on a single evaluator's score-distance
-    relationship. Pre-training (light gray background) vs post-training (dark
-    blue foreground) with trendlines and slope annotations.
+    is_ind = "IND" in exp_name
+    values = []
+    datasets = {dataset_short: DATASET_PIVOT_PATHS[dataset_short]} if dataset_short else DATASET_PIVOT_PATHS
 
-    Uses proxy models: pre_model as "untrained", post_model as "trained" stand-in.
+    for ds_name, ds_path in datasets.items():
+        pivot_path = ANALYSIS_DIR / ds_path / exp_name / "recognition_accuracy" / "accuracy_pivot.csv"
+        if not pivot_path.exists():
+            continue
+        df = pd.read_csv(pivot_path, index_col=0)
 
-    Layout:
-      (a) UT PW   (b) UT IND (adjusted)
-      (c) AT PW   (d) AT IND (adjusted)
+        if is_ind:
+            # Extract control scores (diagonal: evaluator == treatment)
+            control = {}
+            for evaluator in df.index:
+                if evaluator in df.columns:
+                    val = df.loc[evaluator, evaluator]
+                    if pd.notna(val):
+                        control[evaluator] = val
+
+            # Adjusted = (treatment_ij + control_j) / 2
+            if model_filter:
+                if model_filter in df.index and model_filter in control:
+                    c_j = control[model_filter]
+                    for col in df.columns:
+                        if col == model_filter:
+                            continue  # skip self
+                        t_ij = df.loc[model_filter, col]
+                        if pd.notna(t_ij):
+                            values.append((t_ij + c_j) / 2)
+            else:
+                for evaluator in df.index:
+                    if evaluator not in control:
+                        continue
+                    c_j = control[evaluator]
+                    for col in df.columns:
+                        if col == evaluator:
+                            continue
+                        t_ij = df.loc[evaluator, col]
+                        if pd.notna(t_ij):
+                            values.append((t_ij + c_j) / 2)
+        else:
+            # PW: use raw values directly
+            if model_filter:
+                if model_filter in df.index:
+                    row_values = df.loc[model_filter].dropna().tolist()
+                    values.extend(row_values)
+            else:
+                values.extend(df.values[~np.isnan(df.values)].tolist())
+    return values
+
+
+# ============================================================================
+# FIGURE 10: Boxplots — 8 operationalizations
+# First 4: PW, IND, UT, AT (pool across datasets)
+# Last 4: WikiSum, ShareGPT, PKU, BigCode (pool across task OPs)
+# ============================================================================
+
+# Which experiments contribute to each task dimension
+BOXPLOT_TASK_GROUPS = {
+    "PW":  ["ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst", "COLM_01_AT_PW-C_Rec_NPr_FA_Inst"],
+    "IND": ["ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst", "COLM_02_AT_IND-C_Rec_NPr_FA_Inst"],
+    "UT":  ["ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst", "ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst"],
+    "AT":  ["COLM_01_AT_PW-C_Rec_NPr_FA_Inst", "COLM_02_AT_IND-C_Rec_NPr_FA_Inst"],
+}
+
+# All 4 experiments used for dataset boxes
+BOXPLOT_ALL_EXPS = [
+    "ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst",
+    "ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst",
+    "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+    "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
+]
+
+DATASET_NAMES = ["WikiSum", "ShareGPT", "PKU", "BigCode"]
+
+
+def fig_boxplot_operationalizations(data):
     """
-    from self_rec_framework.src.helpers.model_names import LM_ARENA_SCORES
-    from scipy import stats
+    8 boxplots: PW, IND, UT, AT, WikiSum, ShareGPT, PKU, BigCode.
 
-    panels = {
-        "(a) User-Tag — Pairwise": "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst",
-        "(b) User-Tag — Individual": "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst",
-        "(c) Assistant-Tag — Pairwise": "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
-        "(d) Assistant-Tag — Individual": "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
-    }
+    Uses raw per-pair pivot data (evaluator×treatment accuracy values)
+    for maximum spread visibility.
 
-    def get_score(model):
-        if model in LM_ARENA_SCORES:
-            return LM_ARENA_SCORES[model]
-        base = model.replace("-thinking", "")
-        if base in LM_ARENA_SCORES:
-            return LM_ARENA_SCORES[base]
-        return None
+    Task boxes pool all per-pair values from matching experiments across all datasets.
+    Dataset boxes pool per-pair values for that dataset across all experiments.
+    """
+    box_labels = list(BOXPLOT_TASK_GROUPS.keys()) + DATASET_NAMES
+    box_data = []
 
-    # Load and filter data for both models across all experiments
-    panel_data = {}  # title -> {"pre": df, "post": df}
-    for title, exp_name in panels.items():
-        exp_dir = AGG_DIR / exp_name
-        if not exp_dir.exists():
-            print(f"  ⚠ Missing dir: {exp_name}")
-            return
-        ts_dir = sorted(exp_dir.iterdir(), reverse=True)[0]
-        csv_path = ts_dir / "rank_distance_data.csv"
-        if not csv_path.exists():
-            print(f"  ⚠ Missing: {csv_path}")
-            return
+    # Task dimension boxes (pool all per-pair values across all datasets)
+    for group_name, exp_list in BOXPLOT_TASK_GROUPS.items():
+        values = []
+        for exp_name in exp_list:
+            values.extend(load_pivot_values(exp_name))
+        box_data.append(values)
 
-        df = pd.read_csv(csv_path)
+    # Dataset boxes (pool per-pair values for that dataset across all experiments)
+    for ds_name in DATASET_NAMES:
+        values = []
+        for exp_name in BOXPLOT_ALL_EXPS:
+            values.extend(load_pivot_values(exp_name, dataset_short=ds_name))
+        box_data.append(values)
 
-        # Compute score distance for all rows
-        df["eval_score"] = df["evaluator"].apply(get_score)
-        df["gen_score"] = df["generator"].apply(get_score)
-        df = df.dropna(subset=["eval_score", "gen_score"])
-        df["score_distance"] = df["eval_score"] - df["gen_score"]
+    # Plot
+    fig, ax = plt.subplots(figsize=(12, 5))
 
-        # Apply IND adjustment
-        self_scores = load_self_scores(exp_name)
-        if self_scores is not None:
-            df = adjust_ind_performance(df, self_scores)
+    # Colors: blue-ish for task dimensions, green-ish for datasets
+    task_color = "#4C72B0"
+    dataset_color = "#55A868"
+    colors = [task_color] * 4 + [dataset_color] * 4
 
-        # Filter to single evaluator for pre and post
-        pre_df = df[df["evaluator"] == pre_model].copy()
-        post_df = df[df["evaluator"] == post_model].copy()
+    # Data points behind boxes
+    for i, (vals, color) in enumerate(zip(box_data, colors)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax.scatter(
+            np.full(len(vals), i) + jitter,
+            vals,
+            color=color, alpha=0.3, s=8, edgecolors="none", zorder=1,
+        )
 
-        panel_data[title] = {"pre": pre_df, "post": post_df}
-
-    # Colors
-    pre_color = "#AAAAAA"
-    post_color = "#1565C0"
-    pre_line_color = "#888888"
-    post_line_color = "#0D47A1"
-
-    fig, axes = plt.subplots(
-        2, 2, figsize=(12, 8),
-        gridspec_kw={"wspace": 0.15, "hspace": 0.1},
+    # Boxes in front
+    bp = ax.boxplot(
+        box_data,
+        positions=range(len(box_labels)),
+        widths=0.5,
+        patch_artist=True,
+        showfliers=False,
+        medianprops=dict(color="black", linewidth=1.5, zorder=4),
+        whiskerprops=dict(color="gray", zorder=3),
+        capprops=dict(color="gray", zorder=3),
+        zorder=3,
     )
 
-    titles = list(panels.keys())
-    is_ind = {1, 3}
-    for idx, title in enumerate(titles):
-        row, col = divmod(idx, 2)
-        ax = axes[row][col]
-        pre_df = panel_data[title]["pre"]
-        post_df = panel_data[title]["post"]
+    for patch, color in zip(bp["boxes"], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
 
-        # Background: pre-training data
-        if not pre_df.empty:
-            ax.scatter(
-                pre_df["score_distance"], pre_df["performance"],
-                c=pre_color, alpha=0.35, s=20, edgecolors="none",
-                label=f"{pre_model} (pre)", zorder=2,
-            )
-            # Pre trendline
-            pre_agg = pre_df.groupby("generator").agg(
-                score_distance=("score_distance", "first"),
-                performance=("performance", "mean"),
-                weight=("n_samples", "sum"),
-            ).reset_index()
-            if len(pre_agg) > 2:
-                x_v = pre_agg["score_distance"].values
-                y_v = pre_agg["performance"].values
-                w = np.sqrt(pre_agg["weight"].values)
-                coeffs_pre = np.polyfit(x_v, y_v, 1, w=w)
-                x_line = np.linspace(
-                    min(x_v.min(), post_df["score_distance"].min() if not post_df.empty else x_v.min()),
-                    max(x_v.max(), post_df["score_distance"].max() if not post_df.empty else x_v.max()),
-                    100,
-                )
-                ax.plot(x_line, coeffs_pre[0] * x_line + coeffs_pre[1],
-                        color=pre_line_color, linewidth=1.5, linestyle="--", alpha=0.7, zorder=3)
+    # Chance line
+    ax.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax.text(len(box_labels) - 0.5, 0.505, "chance", fontsize=8, color="gray",
+            ha="right", va="bottom")
 
-        # Foreground: post-training data
-        if not post_df.empty:
-            ax.scatter(
-                post_df["score_distance"], post_df["performance"],
-                c=post_color, alpha=0.7, s=25, edgecolors="none",
-                label=f"{post_model} (post)", zorder=4,
-            )
-            # Post trendline
-            post_agg = post_df.groupby("generator").agg(
-                score_distance=("score_distance", "first"),
-                performance=("performance", "mean"),
-                weight=("n_samples", "sum"),
-            ).reset_index()
-            if len(post_agg) > 2:
-                x_v = post_agg["score_distance"].values
-                y_v = post_agg["performance"].values
-                w = np.sqrt(post_agg["weight"].values)
-                coeffs_post = np.polyfit(x_v, y_v, 1, w=w)
-                ax.plot(x_line, coeffs_post[0] * x_line + coeffs_post[1],
-                        color=post_line_color, linewidth=2, alpha=0.9, zorder=5)
+    # Vertical separator between task and dataset groups
+    ax.axvline(3.5, color="gray", linewidth=0.8, linestyle=":", alpha=0.5)
 
-        # Slope annotation
-        slopes = []
-        if not pre_df.empty and len(pre_agg) > 2:
-            slopes.append(f"pre slope: {coeffs_pre[0]:.4f}")
-        if not post_df.empty and len(post_agg) > 2:
-            slopes.append(f"post slope: {coeffs_post[0]:.4f}")
-        if len(slopes) == 2 and len(pre_agg) > 2 and len(post_agg) > 2:
-            delta = coeffs_post[0] - coeffs_pre[0]
-            slopes.append(f"Δ slope: {delta:+.4f}")
-        if slopes:
-            ax.text(
-                0.03, 0.03, "\n".join(slopes),
-                transform=ax.transAxes, fontsize=7.5,
-                verticalalignment="bottom", fontfamily="monospace",
-                bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.85),
-            )
+    # Labels
+    ax.set_xticks(range(len(box_labels)))
+    ax.set_xticklabels(box_labels, fontsize=10, fontweight="bold")
+    ax.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax.set_title("Performance Distribution Across Operationalizations", fontsize=13, fontweight="bold")
+    ax.set_ylim(-0.05, 1.05)
 
-        ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
-        ax.set_title(title, fontsize=11, fontweight="bold")
-        ax.set_ylim(0.0, 1.05)
+    # Legend patches
+    from matplotlib.patches import Patch
+    legend_elements = [
+        Patch(facecolor=task_color, alpha=0.35, edgecolor=task_color, label="Task Dimension"),
+        Patch(facecolor=dataset_color, alpha=0.35, edgecolor=dataset_color, label="Dataset"),
+    ]
+    ax.legend(handles=legend_elements, loc="upper right", fontsize=9)
 
-        y_label = "Adjusted Accuracy" if idx in is_ind else "Recognition Accuracy"
-        if col == 0:
-            ax.set_ylabel(y_label, fontsize=10)
-        else:
-            ax.set_ylabel("")
+    # Count annotations below each box
+    for i, vals in enumerate(box_data):
+        ax.text(i, -0.03, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
 
-        if row == 1:
-            ax.set_xlabel("Elo Score Distance\n(Evaluator − Generator)", fontsize=10)
-        else:
-            ax.set_xlabel("")
-            ax.set_xticklabels([])
+    plt.tight_layout()
+    path = OUT_DIR / "boxplot_operationalizations.png"
+    fig.savefig(path, dpi=200, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
 
-        if idx == 0:
-            ax.legend(fontsize=8, loc="upper left", markerscale=1.5)
 
-    fig.suptitle(
-        f"Training Effect on Score-Distance Relationship\n"
-        f"(proxy: {pre_model} → {post_model})",
-        fontsize=13, fontweight="bold", y=1.0,
+# ============================================================================
+# FIGURE 11: Boxplots — per-model distributions across all operationalizations
+# 8 models selected for provider diversity and Elo spread
+# ============================================================================
+
+# Brand-inspired colors for model providers
+BOXPLOT_MODELS = [
+    ("ll-3.1-8b", "Llama 8B", "#0668E1"),             # Meta blue
+    ("gpt-4o-mini", "GPT-4o Mini", "#10A37F"),         # OpenAI green
+    ("gemini-2.0-flash", "Gemini Flash", "#4285F4"),    # Google blue
+    ("qwen-3.0-80b", "Qwen 80B", "#6F42C1"),           # Alibaba purple
+    ("deepseek-3.1", "DeepSeek 3.1", "#4D6BFE"),       # DeepSeek blue
+    ("kimi-k2", "Kimi K2", "#FF6B35"),                  # Moonshot orange
+    ("gpt-4o", "GPT-4o", "#10A37F"),                    # OpenAI green
+    ("opus-4.1", "Opus 4.1", "#D97757"),                # Anthropic terracotta
+]
+
+
+def fig_boxplot_per_model(data):
+    """
+    8 boxplots, one per model. Each box shows the distribution of that model's
+    per-pair accuracy across ALL operationalizations (4 experiments × 4 datasets).
+    Uses raw pivot data for full spread. Models ordered by Elo score (low → high).
+    """
+    box_data = []
+    box_labels = []
+    box_colors = []
+
+    for model_name, display_name, color in BOXPLOT_MODELS:
+        values = []
+        for exp_name in BOXPLOT_ALL_EXPS:
+            values.extend(load_pivot_values(exp_name, model_filter=model_name))
+        if not values:
+            continue
+        box_data.append(values)
+        box_labels.append(display_name)
+        box_colors.append(color)
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+
+    # Data points behind boxes
+    for i, (vals, color) in enumerate(zip(box_data, box_colors)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax.scatter(
+            np.full(len(vals), i) + jitter,
+            vals,
+            color=color, alpha=0.3, s=10, edgecolors="none", zorder=1,
+        )
+
+    # Boxes in front
+    bp = ax.boxplot(
+        box_data,
+        positions=range(len(box_labels)),
+        widths=0.5,
+        patch_artist=True,
+        showfliers=False,
+        medianprops=dict(color="black", linewidth=1.5, zorder=4),
+        whiskerprops=dict(color="gray", zorder=3),
+        capprops=dict(color="gray", zorder=3),
+        zorder=3,
     )
 
-    safe_pre = pre_model.replace(".", "_").replace("-", "_")
-    path = OUT_DIR / f"training_effect_score_distance_{safe_pre}.png"
+    for patch, color in zip(bp["boxes"], box_colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    # Chance line
+    ax.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax.text(len(box_labels) - 0.5, 0.505, "chance", fontsize=8, color="gray",
+            ha="right", va="bottom")
+
+    ax.set_xticks(range(len(box_labels)))
+    ax.set_xticklabels(box_labels, fontsize=10, fontweight="bold", rotation=20, ha="right")
+    ax.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax.set_title("Per-Model Performance Distribution Across All Operationalizations\n"
+                 "(ordered by LM Arena Elo, low → high)",
+                 fontsize=12, fontweight="bold")
+    ax.set_ylim(-0.05, 1.05)
+
+    # Count annotations
+    for i, vals in enumerate(box_data):
+        ax.text(i, -0.03, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    plt.tight_layout()
+    path = OUT_DIR / "boxplot_per_model.png"
     fig.savefig(path, dpi=200, bbox_inches="tight")
     plt.close()
     print(f"  ✓ Saved: {path}")
@@ -1046,6 +1165,12 @@ def main():
 
     print("\n9. Training effect: score-distance overlay (proxy ll-3.1-8b → opus-4.1)")
     fig_training_effect_panels(data)
+
+    print("\n10. Boxplots: 8 operationalizations")
+    fig_boxplot_operationalizations(data)
+
+    print("\n11. Boxplots: per-model across all OPs")
+    fig_boxplot_per_model(data)
 
     print(f"\nAll prototypes saved to: {OUT_DIR}/")
 

@@ -10,11 +10,13 @@
  dependencies = [
     "self-rec-framework",
     "sgtr-rl",
+    "alpaca-eval",
+    "setuptools<81",
 ]
 
 [tool.uv.sources]
 self-rec-framework = { path = "_external/self-rec-framework", editable = true }
 sgtr-rl = { path = "_external/SGTR-RL", editable = true }
 
-[tool.setuptools]
-packages = []
+[tool.setuptools.packages.find]
+include = ["scripts*"]
