@@ -20,5 +20,4 @@ fi
 uv run srf-generate-sweep \
     --model_names $MODEL_NAMES \
     --dataset_path=data/input/wikisum/training_set_1-20 \
-    --dataset_config="$CONFIG_FILE" \
-    --overwrite
+    --dataset_config="$CONFIG_FILE"

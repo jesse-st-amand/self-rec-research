@@ -1,0 +1,21 @@
+# Evaluator temperature (for the judging model's inference)
+temperature: 1.0
+# Generator temperature (determines which data dirs to look up,
+# e.g., ll-3.1-8b_temp_0.0/data.json). Omit or set to 1.0 for default.
+generator_temperature: 1.0
+max_final_answer_tokens: null
+max_thinking_tokens: null
+
+tags: "UT"
+format: "PW-Q"
+task: "Rec"
+priming: False
+generator_output: "FA"
+evaluator_reasoning: "DR"
+
+model_names: [-set, 'SGTR-training-judges']
+generator_models: [-set, 'SGTR-training-generators']
+training_dir: data/training_reorganized/01_final
+
+# Where to dispatch hf/ models that need GPU: "tinker", "runpod", or null (skip)
+gpu_dispatch: tinker

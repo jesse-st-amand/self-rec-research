@@ -15,13 +15,25 @@ import matplotlib.patches as mpatches
 from matplotlib.colors import TwoSlopeNorm
 from pathlib import Path
 
-from scripts.figures.prototype_compact_figures import (
+from scripts.figures.COLM2026.prototype_compact_figures import (
     load_self_scores, adjust_ind_performance,
 )
 
 AGG_DIR = Path("data/analysis/_aggregated_data")
 OUT_DIR = Path("data/figures/prototypes/uplift")
 TRAINING_DIR = "data/training"
+TRAINING_SUBSETS = None  # List of subset names to filter, or None for all
+
+# Shared color palette for base models in arrow/transfer figures
+BASE_MODEL_COLORS = {
+    "Llama 3.1 8B": "#1565C0",
+    "Llama 3.3 70B": "#1976D2",
+    "Qwen 3.0 30B": "#7B1FA2",
+    "GPT-OSS 20B": "#00897B",
+    "GPT-OSS 120B": "#00695C",
+}
+AE_MODE = None           # "simple" or "ranking" — affects how AE column is computed
+AE_RESULTS_DIR = None    # Path to AE results dir for the current mode
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Operationalizations to compare — trained on PW-Rec (UT), tested on all
@@ -918,16 +930,37 @@ def fig_task_transfer_heatmap_with_ae(pair_data):
 # Uses actual training metrics from data/training/ and AlpacaEval results.
 # Only ll-3.1-8b has real data currently.
 # ============================================================================
+def _load_val_accuracy(run_dir):
+    """Load pre (step 0) and post (final step) val/accuracy from metrics.jsonl."""
+    import json as _json
+    metrics_path = Path(run_dir) / "metrics" / "metrics.jsonl"
+    if not metrics_path.exists():
+        return None, None
+    with open(metrics_path) as f:
+        lines = [l.strip() for l in f if l.strip()]
+    pre, post = None, None
+    for l in lines:
+        d = _json.loads(l)
+        if "val/accuracy" in d:
+            if pre is None:
+                pre = d["val/accuracy"]
+            post = d["val/accuracy"]  # keep updating — last one is final
+    return pre, post
+
+
 def _load_benchmark_accuracies(run_dir):
     """Load epoch 0 (pre) and max epoch (post) accuracies from benchmark_predictions/.
 
-    Returns dict mapping benchmark_name → (pre_acc, post_acc).
+    Prefers _full variants (more samples) over non-full. Returns dict mapping
+    base benchmark_name (without _full suffix) → (pre_acc, post_acc).
     """
     import json as _json
     bp_dir = Path(run_dir) / "benchmark_predictions"
     if not bp_dir.exists():
         return {}
-    results = {}
+
+    # First pass: collect all benchmarks
+    raw = {}
     for bench_dir in sorted(bp_dir.iterdir()):
         if not bench_dir.is_dir() or "mmlu" in bench_dir.name:
             continue
@@ -942,36 +975,81 @@ def _load_benchmark_accuracies(run_dir):
         if epochs:
             pre = epochs.get(0)
             post = epochs.get(max(epochs.keys()))
-            results[bench_dir.name] = (pre, post)
+            raw[bench_dir.name] = (pre, post)
+
+    # Second pass: prefer _full over non-full, keyed by base name
+    results = {}
+    for name, vals in raw.items():
+        base_name = name.replace("_full", "")
+        full_name = base_name + "_full"
+        if name.endswith("_full"):
+            # _full variant always wins
+            results[base_name] = vals
+        elif base_name not in results:
+            # Non-full only if no _full exists
+            if full_name not in raw:
+                results[base_name] = vals
     return results
 
 
-def _load_alpaca_eval_avg_self_selection(model_name):
-    """Load average AlpacaEval self-selection rate across all opponents.
+def _load_alpaca_eval_avg_self_selection(model_name, ae_aliases=None):
+    """Load average AlpacaEval metric across all opponents.
 
-    Tries exact name first, then strips _tinker_small suffix for matching.
+    Mode-aware: uses AE_MODE and AE_RESULTS_DIR module variables.
+    - simple mode: returns avg self-selection rate (win rate)
+    - ranking mode: returns avg self-rank (lower = more self-preference)
+    - default (no mode set): uses simple results from data/alpaca_eval/results/simple/
+
+    Tries exact name, ae_aliases, and _tinker_small stripped variants.
     """
     import json as _json
-    # Try exact name first, then without _tinker_small
+    from scripts.alpaca_eval.run_self_preference import resolve_base_model
+
+    ae_mode = AE_MODE or "simple"
+    ae_base = AE_RESULTS_DIR or f"data/alpaca_eval/results/{ae_mode}"
+
+    # Build candidate names: exact, aliases, stripped
     candidates = [model_name]
+    if ae_aliases:
+        candidates.extend(ae_aliases)
     stripped = model_name.replace("_tinker_small", "")
     if stripped != model_name:
         candidates.append(stripped)
 
-    for name in candidates:
-        results_dir = Path(f"data/alpaca_eval/results/{name}")
-        if not results_dir.exists():
-            continue
-        rates = []
-        for f in results_dir.glob("vs_*.json"):
-            with open(f) as fh:
+    # Deduplicate while preserving order
+    seen = set()
+    unique = []
+    for c in candidates:
+        if c not in seen:
+            seen.add(c)
+            unique.append(c)
+
+    for name in unique:
+        if ae_mode == "ranking":
+            ranking_file = Path(ae_base) / name / "ranking.json"
+            if not ranking_file.exists():
+                continue
+            with open(ranking_file) as fh:
                 data = _json.load(fh)
-            valid = [d["preference"] for d in data
-                     if d.get("preference") is not None and d["preference"] == d["preference"]]
-            if valid:
-                rates.append(sum(1 for p in valid if p == 1.0) / len(valid))
-        if rates:
-            return np.mean(rates)
+            base = resolve_base_model(name)
+            rank_col = f"rank_{base}"
+            ranks = [d[rank_col] for d in data if d.get(rank_col) is not None]
+            if ranks:
+                return np.mean(ranks)
+        else:
+            results_dir = Path(ae_base) / name
+            if not results_dir.exists():
+                continue
+            rates = []
+            for f in results_dir.glob("vs_*.json"):
+                with open(f) as fh:
+                    data = _json.load(fh)
+                valid = [d["preference"] for d in data
+                         if d.get("preference") is not None and d["preference"] == d["preference"]]
+                if valid:
+                    rates.append(sum(1 for p in valid if p == 1.0) / len(valid))
+            if rates:
+                return np.mean(rates)
     return None
 
 
@@ -979,117 +1057,135 @@ def fig_task_transfer_heatmap_real():
     """
     Task transfer heatmap using actual training data from all available runs.
     Uses benchmark_predictions epoch_0 (pre) and final epoch (post).
-    AlpacaEval column averaged across all available opponents.
+    AlpacaEval column uses mode-aware loading (win rate or avg rank).
     """
-    import glob as _glob
+    # Use unified discovery
+    runs = _discover_training_runs(training_dir=TRAINING_DIR, subsets=TRAINING_SUBSETS)
+    if not runs:
+        print("  ⚠ No training data found, skipping heatmap")
+        return
 
-    # Discover all training runs and their metadata
     RUNS = []
-    training_dir = Path("data/training")
-    for run_path in sorted(training_dir.iterdir()):
-        if not run_path.is_dir():
-            continue
-        run_name = run_path.name.split("__")[0]
-
-        # Clean opponent names for display
-        OPPONENT_DISPLAY = {
-            "qwen": "Qwen 2.5 7B",
-            "gpt_4o": "GPT-4o",
-            "haiku_3_5": "Haiku 3.5",
-            "opus_4_1": "Opus 4.1",
-            "ll_3_1_70b": "Llama 3.1 70B",
-            "ll_3_3_70b": "Llama 3.3 70B",
-            "ll_3_1_8b": "Llama 3.1 8B",
-            "qwen3_30b": "Qwen 3.0 30B",
-            "multi_model_holdout_ll_3_1_70b": "Multi (holdout 70B)",
-        }
-
-        def _clean_opponent(raw):
-            raw = raw.replace("_tinker_small", "")
-            return OPPONENT_DISPLAY.get(raw, raw)
-
-        # Determine base model from directory name conventions
-        if run_name.startswith("01_sft_pw_ll_3_3_70b_vs"):
-            base = "ll-3.3-70b"
-            opp = _clean_opponent(run_name.split("vs_")[1])
-            label = f"Llama 3.3 70B (PW → {opp})"
-            trained_name = f"ll-3.3-70b-{run_name}"
-        elif run_name.startswith("01_sft_pw_qwen3_30b_vs"):
-            base = "qwen-3.0-30b"
-            opp = _clean_opponent(run_name.split("vs_")[1])
-            label = f"Qwen 3.0 30B (PW → {opp})"
-            trained_name = f"qwen-3.0-30b-{run_name}"
-        elif run_name.startswith("02_sft_ind_"):
-            base = "ll-3.1-8b"
-            opp = _clean_opponent(run_name.split("vs_")[1]) if "vs_" in run_name else "?"
-            label = f"Llama 3.1 8B (IND → {opp})"
-            trained_name = f"ll-3.1-8b-{run_name}"
-        elif run_name.startswith("03_sft_pw_"):
-            base = "ll-3.1-8b"
-            opp = _clean_opponent(run_name.split("vs_")[1]) if "vs_" in run_name else "multi"
-            label = f"Llama 3.1 8B (PW → {opp})"
-            trained_name = f"ll-3.1-8b-{run_name}"
-        else:
-            base = "ll-3.1-8b"
-            opp = _clean_opponent(run_name.split("vs_")[1]) if "vs_" in run_name else "?"
-            label = f"Llama 3.1 8B (PW → {opp})"
-            trained_name = f"ll-3.1-8b-{run_name}"
-
+    for r in runs:
         RUNS.append({
-            "run_dir": str(run_path),
-            "run_name": run_name,
-            "label": label,
-            "base_model": base,
-            "trained_name": trained_name,
+            "run_dir": r["run_dir"],
+            "run_name": r["run_name"],
+            "label": r["label"],
+            "tag": r["tag"],
+            "fmt": r.get("training_type", "PW").lower(),
+            "base_model": r["base_short"],
+            "trained_name": r["trained_name"],
+            "ae_aliases": r.get("ae_aliases", []),
         })
 
-    # Columns: task transfer OPs + dataset xevals + AlpacaEval
-    # Using benchmark_predictions directory names as keys
-    TASK_COLS = [
-        ("xeval_tag_at_pw", "PW Rec\n(AT)"),
-        ("xeval_tag_at_ind", "IND Rec\n(AT)"),
-        ("xeval_format_ind", "IND Rec\n(UT)"),
-        ("xeval_format_pw", "PW Rec\n(UT)"),
-        ("xeval_task_pref_pw", "PW Pref\n(UT)"),
-        ("xeval_task_pref_ind", "IND Pref\n(UT)"),
-    ]
-    DATASET_COLS = [
-        ("xeval_dataset_wikisum", "WikiSum"),
-        ("xeval_dataset_bigcodebench", "BigCode"),
-        ("xeval_dataset_pku", "PKU"),
-    ]
-    AE_COL = ("alpaca_eval", "AlpacaEval\nSelf-Pref")
+    # Rec columns: the benchmark key depends on whether the run was UT or AT trained.
+    # UT runs cross-eval AT via xeval_tag_at_*, AT runs cross-eval UT via xeval_tag_ut_*.
+    # Format cross-eval: PW-trained → xeval_format_ind, IND-trained → xeval_format_pw.
+    REC_COL_LABELS = ["PW Rec\n(UT)", "IND Rec\n(UT)", "PW Rec\n(AT)", "IND Rec\n(AT)"]
+    PREF_COL_LABELS = ["PW Pref", "IND Pref"]
+    DATASET_COL_LABELS = ["ShareGPT", "WikiSum", "BigCode", "PKU"]
+    MEAN_COL_LABELS = ["Mean\nRec", "Mean\nDataset"]
 
-    all_cols = TASK_COLS + DATASET_COLS + [AE_COL]
-    col_keys = [c[0] for c in all_cols]
-    col_labels = [c[1] for c in all_cols]
-    n_cols = len(col_labels)
+    ae_mode = AE_MODE or "simple"
+    if ae_mode == "ranking":
+        AE_LABEL = "AE\nΔ Rank"
+    else:
+        AE_LABEL = "AE\nΔ Pref"
 
-    # Separator positions (for visual grouping)
-    task_end = len(TASK_COLS)
-    dataset_end = task_end + len(DATASET_COLS)
+    all_labels = REC_COL_LABELS + PREF_COL_LABELS + DATASET_COL_LABELS + MEAN_COL_LABELS + [AE_LABEL]
+    n_cols = len(all_labels)
+
+    # Separator positions
+    rec_end = len(REC_COL_LABELS)
+    pref_end = rec_end + len(PREF_COL_LABELS)
+    ds_end = pref_end + len(DATASET_COL_LABELS)
+    mean_end = ds_end + len(MEAN_COL_LABELS)
+
+    # Benchmark key resolver per run (tag-aware)
+    def _resolve_bench_key(label: str, run_tag: str):
+        """Map a column label to the benchmark key for a given run's tag."""
+        if label == "PW Rec\n(UT)":
+            return "xeval_format_pw" if run_tag == "ut" else "xeval_tag_ut_pw"
+        elif label == "IND Rec\n(UT)":
+            return "xeval_format_ind" if run_tag == "ut" else "xeval_tag_ut_ind"
+        elif label == "PW Rec\n(AT)":
+            return "xeval_tag_at_pw" if run_tag == "ut" else "xeval_format_pw"
+        elif label == "IND Rec\n(AT)":
+            return "xeval_tag_at_ind" if run_tag == "ut" else "xeval_format_ind"
+        elif label == "PW Pref":
+            return "xeval_task_pref_pw"
+        elif label == "IND Pref":
+            return "xeval_task_pref_ind"
+        elif label == "ShareGPT":
+            return "xeval_dataset_sharegpt"
+        elif label == "WikiSum":
+            return "xeval_dataset_wikisum"
+        elif label == "BigCode":
+            return "xeval_dataset_bigcodebench"
+        elif label == "PKU":
+            return "xeval_dataset_pku"
+        return None
 
     run_labels = []
     matrices = []
 
+    # Look up via the module object so monkey-patches (e.g., adversarial inversion) take effect
+    import sys
+    _self_mod = sys.modules[__name__]
+    _bp_loader = getattr(_self_mod, "_load_benchmark_accuracies")
+    _val_loader = getattr(_self_mod, "_load_val_accuracy")
+
     for info in RUNS:
-        bp_data = _load_benchmark_accuracies(info["run_dir"])
+        bp_data = _bp_loader(info["run_dir"])
         if not bp_data:
             print(f"  ⚠ Skipping {info['run_name']}: no benchmark data")
             continue
 
         row = np.full(n_cols, np.nan)
-        for j, key in enumerate(col_keys):
-            if key == "alpaca_eval":
-                # AlpacaEval: delta of avg self-selection rate
-                base_ae = _load_alpaca_eval_avg_self_selection(info["base_model"])
-                trained_ae = _load_alpaca_eval_avg_self_selection(info["trained_name"])
-                if base_ae is not None and trained_ae is not None:
-                    row[j] = trained_ae - base_ae
-            elif key in bp_data:
-                pre, post = bp_data[key]
+        run_tag = info.get("tag", "UT").lower()
+
+        # Determine which rec label is the training OP (use val_accuracy for it)
+        run_fmt = info.get("fmt", "pw").lower() if "fmt" in info else (
+            "ind" if "_ind_" in info.get("run_name", "") else "pw")
+        if run_tag == "ut":
+            training_op_label = f"{'PW' if run_fmt == 'pw' else 'IND'} Rec\n(UT)"
+        else:
+            training_op_label = f"{'PW' if run_fmt == 'pw' else 'IND'} Rec\n(AT)"
+
+        # Fill rec + pref + dataset columns
+        data_cols = REC_COL_LABELS + PREF_COL_LABELS + DATASET_COL_LABELS
+        for j, label in enumerate(data_cols):
+            bench_key = _resolve_bench_key(label, run_tag)
+            if bench_key and bench_key in bp_data:
+                pre, post = bp_data[bench_key]
                 if pre is not None and post is not None:
                     row[j] = post - pre
+            elif label == training_op_label:
+                # Training OP has no cross-eval benchmark — use val_accuracy
+                val_pre, val_post = _val_loader(info["run_dir"])
+                if val_pre is not None and val_post is not None:
+                    row[j] = val_post - val_pre
+
+        # Mean Rec: average of the 4 rec columns (indices 0..3)
+        rec_vals = [row[j] for j in range(rec_end) if not np.isnan(row[j])]
+        if rec_vals:
+            row[ds_end] = np.mean(rec_vals)
+
+        # Mean Dataset: average of the dataset columns
+        ds_vals = [row[j] for j in range(pref_end, ds_end) if not np.isnan(row[j])]
+        if ds_vals:
+            row[ds_end + 1] = np.mean(ds_vals)
+
+        # AlpacaEval column
+        ae_idx = n_cols - 1
+        base_ae = _load_alpaca_eval_avg_self_selection(info["base_model"])
+        trained_ae = _load_alpaca_eval_avg_self_selection(
+            info["trained_name"], ae_aliases=info.get("ae_aliases", []))
+        if base_ae is not None and trained_ae is not None:
+            if ae_mode == "ranking":
+                row[ae_idx] = -(trained_ae - base_ae)
+            else:
+                row[ae_idx] = trained_ae - base_ae
 
         run_labels.append(info["label"])
         matrices.append(row)
@@ -1102,9 +1198,8 @@ def fig_task_transfer_heatmap_real():
     norm = TwoSlopeNorm(vmin=-0.5, vcenter=0, vmax=0.5)
 
     fig_h = max(len(run_labels) * 0.55 + 2, 5)
-    fig, ax = plt.subplots(figsize=(n_cols * 0.85 + 2.5, fig_h))
+    fig, ax = plt.subplots(figsize=(n_cols * 0.75 + 2.5, fig_h))
 
-    # Draw with gaps between groups using pcolormesh-like approach
     im = ax.imshow(matrix, cmap="RdYlGn", norm=norm, aspect="auto")
 
     # Annotate cells
@@ -1114,24 +1209,28 @@ def fig_task_transfer_heatmap_real():
             if not np.isnan(val):
                 color = "white" if abs(val) > 0.35 else "black"
                 ax.text(j, i, f"{val:+.2f}", ha="center", va="center",
-                        fontsize=7, fontweight="bold", color=color)
+                        fontsize=6.5, fontweight="bold", color=color)
 
     # Vertical separators between groups
-    ax.axvline(x=task_end - 0.5, color="white", linewidth=2.5)
-    ax.axvline(x=dataset_end - 0.5, color="white", linewidth=2.5)
+    for sep in [rec_end - 0.5, pref_end - 0.5, ds_end - 0.5, mean_end - 0.5]:
+        ax.axvline(x=sep, color="white", linewidth=2.5)
 
     ax.set_xticks(range(n_cols))
-    ax.set_xticklabels(col_labels, fontsize=7, rotation=40, ha="right")
+    ax.set_xticklabels(all_labels, fontsize=6.5, rotation=40, ha="right")
     ax.set_yticks(range(len(run_labels)))
     ax.set_yticklabels(run_labels, fontsize=7)
     ax.set_ylabel("Training Run", fontsize=10, fontweight="bold")
 
     # Group labels above columns
-    ax.text(task_end / 2 - 0.5, -1.3, "Task Transfer", ha="center", fontsize=8,
+    ax.text(rec_end / 2 - 0.5, -1.3, "Recognition", ha="center", fontsize=7.5,
             fontweight="bold", style="italic")
-    ax.text(task_end + len(DATASET_COLS) / 2 - 0.5, -1.3, "Dataset Transfer", ha="center",
-            fontsize=8, fontweight="bold", style="italic")
-    ax.text(n_cols - 1, -1.3, "AE", ha="center", fontsize=8,
+    ax.text((rec_end + pref_end) / 2 - 0.5, -1.3, "Preference", ha="center", fontsize=7.5,
+            fontweight="bold", style="italic")
+    ax.text((pref_end + ds_end) / 2 - 0.5, -1.3, "Dataset", ha="center", fontsize=7.5,
+            fontweight="bold", style="italic")
+    ax.text((ds_end + mean_end) / 2 - 0.5, -1.3, "Mean", ha="center", fontsize=7.5,
+            fontweight="bold", style="italic")
+    ax.text(n_cols - 1, -1.3, "AE", ha="center", fontsize=7.5,
             fontweight="bold", style="italic")
 
     cbar = fig.colorbar(im, ax=ax, shrink=0.7, pad=0.03, aspect=25)
@@ -1513,6 +1612,7 @@ def _discover_training_runs(subsets=None, training_dir="data/training"):
         "ll-3.1-8b": "Llama 3.1 8B",
         "ll-3.3-70b": "Llama 3.3 70B",
         "qwen-3.0-30b": "Qwen 3.0 30B",
+        "gpt-oss-20b": "GPT-OSS 20B",
         "gpt-oss-120b": "GPT-OSS 120B",
     }
 
@@ -1544,19 +1644,22 @@ def _discover_training_runs(subsets=None, training_dir="data/training"):
 
         # Load AlpacaEval data
         ae_base = _load_alpaca_eval_avg_self_selection(r.base_model)
-        ae_trained = _load_alpaca_eval_avg_self_selection(r.trained_name)
+        ae_trained = _load_alpaca_eval_avg_self_selection(r.trained_name, ae_aliases=r.ae_aliases)
 
         runs.append({
             "run_dir": str(r.run_path),
             "run_name": r.run_name,
             "base": base_display,
             "base_short": r.base_model,
+            "identity_model": r.identity_model,
+            "is_adversarial": r.base_model != r.identity_model,
             "opponent": opponent_display,
             "training_type": training_type,
             "tag": tag,
             "dataset": r.dataset,
             "subset": r.subset,
             "trained_name": r.trained_name,
+            "ae_aliases": r.ae_aliases,
             "label": f"{base_display} ({tag} {training_type} → {opponent_display})",
             "bp_data": bp_data,
             "ae_base": ae_base,
@@ -1566,7 +1669,8 @@ def _discover_training_runs(subsets=None, training_dir="data/training"):
 
 
 def _draw_real_arrows(ax, runs, x_labels, get_pre_post_fn, colors,
-                      show_xlabel=True, show_delta=True, title=None):
+                      show_xlabel=True, show_delta=True, title=None,
+                      show_ylabel=True):
     """Draw grouped arrows for real training data on a single axes."""
     n_runs = len(runs)
     if n_runs == 0:
@@ -1602,21 +1706,19 @@ def _draw_real_arrows(ax, runs, x_labels, get_pre_post_fn, colors,
                         zorder=4)
             ax.scatter(x, post_val, color=color, s=40, zorder=5,
                        edgecolors="black", linewidth=0.4)
-            if show_delta:
-                ax.text(x + 0.1, (pre_val + post_val) / 2, f"{delta:+.2f}",
-                        fontsize=5, color=arrow_color, va="center")
 
     ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
-    ax.set_ylim(0.0, 1.05)
-    ax.set_ylabel("Accuracy", fontsize=9)
+    ax.set_ylim(-0.02, 1.05)
+    if show_ylabel:
+        ax.set_ylabel("Accuracy", fontsize=14)
     if show_xlabel:
         ax.set_xticks(range(len(x_labels)))
-        ax.set_xticklabels(x_labels, fontsize=7.5, rotation=30, ha="right")
+        ax.set_xticklabels(x_labels, fontsize=12.5, rotation=30, ha="right")
     else:
         ax.set_xticks(range(len(x_labels)))
         ax.set_xticklabels([])
     if title:
-        ax.set_title(title, fontsize=9, fontweight="bold")
+        ax.set_title(title, fontsize=14, fontweight="bold")
 
 
 def _avg_pre_post(runs, bench_key):
@@ -1647,7 +1749,7 @@ def fig_arrow_task_panels_real():
     X-axis = test task OPs + AE. One dot-line per base model (averaged
     over training opponents). Panels without training data show placeholder.
     Uses _full benchmarks where available."""
-    runs = _discover_training_runs(training_dir=TRAINING_DIR)
+    runs = _discover_training_runs(training_dir=TRAINING_DIR, subsets=TRAINING_SUBSETS)
     if not runs:
         print("  ⚠ No training data found")
         return
@@ -1681,17 +1783,15 @@ def fig_arrow_task_panels_real():
                 return ["xeval_format_ind_full", "xeval_format_ind"]
             else:
                 return ["xeval_tag_at_ind_full", "xeval_tag_at_ind"]
-        elif label == "PW Pref":
+        elif label in ("PW Pref", "PW (UT) Pref"):
             return ["xeval_task_pref_pw_full", "xeval_task_pref_pw"]
-        elif label == "IND Pref":
+        elif label in ("IND Pref", "IND (UT) Pref"):
             return ["xeval_task_pref_ind_full", "xeval_task_pref_ind"]
         return []
 
-    base_models = ["Llama 3.1 8B", "Qwen 3.0 30B", "Llama 3.3 70B", "GPT-OSS 120B"]
-    base_colors = {
-        "Llama 3.1 8B": "#1565C0", "Qwen 3.0 30B": "#E65100",
-        "Llama 3.3 70B": "#2E7D32", "GPT-OSS 120B": "#C62828",
-    }
+    # Derive base models from actual runs
+    base_models = sorted(set(r["base"] for r in runs), key=lambda b: list(BASE_MODEL_COLORS.keys()).index(b) if b in BASE_MODEL_COLORS else 99)
+    base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
 
     # Training OP panels: (title, training_type, tag, highlighted_column)
     panels = [
@@ -1700,23 +1800,6 @@ def fig_arrow_task_panels_real():
         ("(c) Trained on: PW (AT)", "PW", "AT", "PW (AT)"),
         ("(d) Trained on: IND (AT)", "IND", "AT", "IND (AT)"),
     ]
-
-    def _load_val_accuracy(run_dir):
-        """Load pre (step 0) and post (final step) val/accuracy from metrics.jsonl."""
-        import json as _json
-        metrics_path = Path(run_dir) / "metrics" / "metrics.jsonl"
-        if not metrics_path.exists():
-            return None, None
-        with open(metrics_path) as f:
-            lines = [l.strip() for l in f if l.strip()]
-        pre, post = None, None
-        for l in lines:
-            d = _json.loads(l)
-            if "val/accuracy" in d:
-                if pre is None:
-                    pre = d["val/accuracy"]
-                post = d["val/accuracy"]  # keep updating — last one is final
-        return pre, post
 
     def build_avg_pair_data(filtered_runs, bases, highlight_col):
         """Build pair_data. For the highlighted column (training OP),
@@ -1826,16 +1909,13 @@ def fig_arrow_dataset_panels_real():
     For the highlighted trained-on column, use _full benchmark predictions
     (non-dataset benchmarks are implicitly ShareGPT-based).
     Cross-dataset columns use xeval_dataset_* benchmarks."""
-    runs = _discover_training_runs(training_dir=TRAINING_DIR)
+    runs = _discover_training_runs(training_dir=TRAINING_DIR, subsets=TRAINING_SUBSETS)
     if not runs:
         print("  ⚠ No training data found")
         return
 
-    base_models = ["Llama 3.1 8B", "Qwen 3.0 30B", "Llama 3.3 70B", "GPT-OSS 120B"]
-    base_colors = {
-        "Llama 3.1 8B": "#1565C0", "Qwen 3.0 30B": "#E65100",
-        "Llama 3.3 70B": "#2E7D32", "GPT-OSS 120B": "#C62828",
-    }
+    base_models = sorted(set(r["base"] for r in runs), key=lambda b: list(BASE_MODEL_COLORS.keys()).index(b) if b in BASE_MODEL_COLORS else 99)
+    base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
     datasets = ["WikiSum", "BigCode", "PKU", "ShareGPT"]
 
     # Map display names to training run dataset field
@@ -1951,6 +2031,577 @@ def fig_arrow_dataset_panels_real():
     print(f"  ✓ Saved: {path}")
 
 
+def _draw_real_arrows_horizontal(ax, runs, y_labels, get_pre_post_fn, colors,
+                                 show_ylabel=True, show_delta=True, title=None,
+                                 show_xlabel=True, ylabel_side="left"):
+    """Draw grouped horizontal arrows for real training data on a single axes.
+    Y-axis = categories, X-axis = accuracy.
+    ylabel_side: 'left' or 'right' — which side to place y-axis labels."""
+    n_runs = len(runs)
+    if n_runs == 0:
+        return
+    group_width = 0.6
+    offsets = np.linspace(-group_width / 2, group_width / 2, max(n_runs, 2))
+    if n_runs == 1:
+        offsets = [0.0]
+
+    # Alternating row background
+    for o_idx in range(len(y_labels)):
+        if o_idx % 2 == 1:
+            ax.axhspan(o_idx - 0.5, o_idx + 0.5, facecolor="white", edgecolor="none", zorder=0)
+            ax.axhspan(o_idx - 0.5, o_idx + 0.5, facecolor="none",
+                       edgecolor="#cccccc", hatch="//", linewidth=0, zorder=0)
+
+    for r_idx, run in enumerate(runs):
+        color = colors[r_idx % len(colors)]
+
+        for y_idx, label in enumerate(y_labels):
+            pre_val, post_val = get_pre_post_fn(run, label)
+            if pre_val is None or post_val is None:
+                continue
+
+            y = y_idx + offsets[r_idx]
+            delta = post_val - pre_val
+
+            ax.scatter(pre_val, y, color="gray", s=30, zorder=3,
+                       edgecolors="black", linewidth=0.4)
+            arrow_color = "#2E7D32" if delta > 0 else "#C62828"
+            ax.annotate("", xy=(post_val, y), xytext=(pre_val, y),
+                        arrowprops=dict(arrowstyle="->", color=arrow_color, lw=1.5),
+                        zorder=4)
+            ax.scatter(post_val, y, color=color, s=40, zorder=5,
+                       edgecolors="black", linewidth=0.4)
+
+    ax.axvline(x=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+    ax.set_xlim(-0.02, 1.05)
+    ax.tick_params(axis='x', labelsize=14)
+    if show_xlabel:
+        ax.set_xlabel("Accuracy", fontsize=14)
+    if show_ylabel:
+        ax.set_yticks(range(len(y_labels)))
+        ax.set_yticklabels(y_labels, fontsize=12.5, rotation=30,
+                           ha="right" if ylabel_side == "left" else "left")
+        if ylabel_side == "right":
+            ax.yaxis.tick_right()
+    else:
+        ax.set_yticks(range(len(y_labels)))
+        ax.set_yticklabels([])
+    ax.invert_yaxis()
+    if title:
+        ax.set_title(title, fontsize=14, fontweight="bold")
+
+
+def fig_arrow_combined_panels_real_horizontal():
+    """Horizontal variant of the combined 2×4 figure: accuracy on x-axis, tasks/datasets on y-axis."""
+    runs = _discover_training_runs(training_dir=TRAINING_DIR, subsets=TRAINING_SUBSETS)
+    if not runs:
+        print("  ⚠ No training data found")
+        return
+
+    base_models = sorted(set(r["base"] for r in runs),
+                         key=lambda b: list(BASE_MODEL_COLORS.keys()).index(b) if b in BASE_MODEL_COLORS else 99)
+    base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
+
+    # ── Task transfer ──
+    test_ops = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)", "PW Pref", "IND Pref"]
+
+    def _get_bench_for_label(label, run):
+        tag = run.get("tag", "UT")
+        if label == "PW (UT)":
+            return ["xeval_tag_ut_pw_full", "xeval_tag_ut_pw"] if tag != "UT" else ["xeval_format_pw_full", "xeval_format_pw"]
+        elif label == "IND (UT)":
+            return ["xeval_tag_ut_ind_full", "xeval_tag_ut_ind"] if tag != "UT" else ["xeval_format_ind_full", "xeval_format_ind"]
+        elif label == "PW (AT)":
+            return ["xeval_tag_at_pw_full", "xeval_tag_at_pw"] if tag != "AT" else ["xeval_format_pw_full", "xeval_format_pw"]
+        elif label == "IND (AT)":
+            return ["xeval_tag_at_ind_full", "xeval_tag_at_ind"] if tag != "AT" else ["xeval_format_ind_full", "xeval_format_ind"]
+        elif label in ("PW Pref", "PW (UT) Pref"):
+            return ["xeval_task_pref_pw_full", "xeval_task_pref_pw"]
+        elif label in ("IND Pref", "IND (UT) Pref"):
+            return ["xeval_task_pref_ind_full", "xeval_task_pref_ind"]
+        return []
+
+    task_panels = [
+        ("(a) Trained on: PW (UT)", "PW", "UT", "PW (UT)"),
+        ("(b) Trained on: IND (UT)", "IND", "UT", "IND (UT)"),
+        ("(c) Trained on: PW (AT)", "PW", "AT", "PW (AT)"),
+        ("(d) Trained on: IND (AT)", "IND", "AT", "IND (AT)"),
+    ]
+
+    def build_task_pair_data(filtered_runs, bases, highlight_col):
+        pair_data = {}
+        for base in bases:
+            base_runs = [r for r in filtered_runs if r["base"] == base]
+            if not base_runs:
+                continue
+            pre_dict, post_dict = {}, {}
+            for label in test_ops:
+                if label == highlight_col:
+                    pres, posts = [], []
+                    for r in base_runs:
+                        p, q = _load_val_accuracy(r["run_dir"])
+                        if p is not None:
+                            pres.append(p)
+                        if q is not None:
+                            posts.append(q)
+                    pre_val = np.mean(pres) if pres else None
+                    post_val = np.mean(posts) if posts else None
+                else:
+                    pre_vals, post_vals = [], []
+                    for r in base_runs:
+                        bench_keys = _get_bench_for_label(label, r)
+                        for bk in bench_keys:
+                            bp = r["bp_data"].get(bk)
+                            if bp:
+                                pre_vals.append(bp["pre"])
+                                post_vals.append(bp["post"])
+                                break
+                    pre_val = np.mean(pre_vals) if pre_vals else None
+                    post_val = np.mean(post_vals) if post_vals else None
+                if pre_val is not None:
+                    pre_dict[label] = pre_val
+                if post_val is not None:
+                    post_dict[label] = post_val
+            if pre_dict or post_dict:
+                pair_data[base] = {"pre": pre_dict, "post": post_dict}
+        return pair_data
+
+    # ── Dataset transfer (shorthand y-labels, full names in titles) ──
+    datasets = ["WS", "BCB", "PKU", "S-GPT"]
+    DS_DISPLAY_TO_FIELD = {
+        "WS": "wikisum", "BCB": "bigcodebench",
+        "PKU": "pku", "S-GPT": "sharegpt",
+    }
+    ds_bench_map = {
+        "WS": ["xeval_dataset_wikisum_full", "xeval_dataset_wikisum"],
+        "BCB": ["xeval_dataset_bigcodebench_full", "xeval_dataset_bigcodebench"],
+        "PKU": ["xeval_dataset_pku_full", "xeval_dataset_pku"],
+        "S-GPT": ["xeval_dataset_sharegpt_full", "xeval_dataset_sharegpt"],
+    }
+    ds_panel_labels = [
+        "(e) Trained on: WikiSum (WS)", "(f) Trained on: BigCodeBench (BCB)",
+        "(g) Trained on: PKU-SafeRLHF (PKU)", "(h) Trained on: ShareGPT (S-GPT)",
+    ]
+
+    # ── Build 2×4 figure ──
+    from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+    fig = plt.figure(figsize=(18, 10))
+    outer = GridSpec(1, 2, figure=fig, wspace=0.08, left=0.06, right=0.95,
+                     top=0.93, bottom=0.10)
+    gs_task = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0], hspace=0.15, wspace=0.05)
+    gs_ds = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[1], hspace=0.15, wspace=0.05)
+    axes = np.array([
+        [fig.add_subplot(gs_task[0, 0]), fig.add_subplot(gs_task[0, 1]),
+         fig.add_subplot(gs_ds[0, 0]), fig.add_subplot(gs_ds[0, 1])],
+        [fig.add_subplot(gs_task[1, 0]), fig.add_subplot(gs_task[1, 1]),
+         fig.add_subplot(gs_ds[1, 0]), fig.add_subplot(gs_ds[1, 1])],
+    ])
+    for ax in axes.flatten()[1:]:
+        ax.sharex(axes[0, 0])
+
+    # Left 4 panels: task transfer
+    task_axes = [axes[0, 0], axes[0, 1], axes[1, 0], axes[1, 1]]
+    for p_idx, (title, fmt, tag, highlight_col) in enumerate(task_panels):
+        ax = task_axes[p_idx]
+        is_bottom_row = p_idx >= 2
+        is_left_col = p_idx % 2 == 0
+        filtered = [r for r in runs if r["training_type"] == fmt and r.get("tag", "UT") == tag]
+
+        if not filtered:
+            ax.set_title(title, fontsize=10, fontweight="bold")
+            ax.text(0.5, 0.5, "No training data\navailable yet", ha="center", va="center",
+                    fontsize=11, color="gray", fontstyle="italic", transform=ax.transAxes)
+            ax.axvline(x=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+            ax.set_xlim(-0.02, 1.05)
+            ax.set_yticks(range(len(test_ops)))
+            ax.set_yticklabels(test_ops if is_left_col else [], fontsize=10)
+            ax.invert_yaxis()
+            hi_y = test_ops.index(highlight_col)
+            ax.axhspan(hi_y - 0.45, hi_y + 0.45, color="gold", alpha=0.15, zorder=0)
+            if not is_bottom_row:
+                ax.tick_params(labelbottom=False)
+            continue
+
+        pair_data = build_task_pair_data(filtered, base_models, highlight_col)
+        colors = [base_colors[b] for b in pair_data.keys()]
+        _draw_real_arrows_horizontal(ax, list(pair_data.values()), test_ops,
+                          lambda run, label: (run["pre"].get(label), run["post"].get(label)),
+                          colors, show_ylabel=is_left_col, show_delta=False, title=title,
+                          show_xlabel=is_bottom_row)
+        if not is_left_col:
+            ax.tick_params(labelleft=False)
+        if not is_bottom_row:
+            ax.tick_params(labelbottom=False)
+        hi_y = test_ops.index(highlight_col)
+        ax.axhspan(hi_y - 0.45, hi_y + 0.45, color="gold", alpha=0.15, zorder=0)
+
+    # Right 4 panels: dataset transfer (y-labels on right side)
+    ds_axes = [axes[0, 2], axes[0, 3], axes[1, 2], axes[1, 3]]
+    for d_idx, train_ds in enumerate(datasets):
+        ax = ds_axes[d_idx]
+        is_bottom_row = d_idx >= 2
+        is_right_col = d_idx % 2 == 1  # show labels on right-hand panels
+        train_ds_field = DS_DISPLAY_TO_FIELD[train_ds]
+        filtered = [r for r in runs if r.get("dataset") == train_ds_field]
+
+        if not filtered:
+            ax.set_title(ds_panel_labels[d_idx], fontsize=10, fontweight="bold")
+            ax.text(0.5, 0.5, "No training data\navailable yet", ha="center", va="center",
+                    fontsize=11, color="gray", fontstyle="italic", transform=ax.transAxes)
+            ax.axvline(x=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+            ax.set_xlim(-0.02, 1.05)
+            ax.tick_params(axis='x', labelsize=14)
+            ax.set_yticks(range(len(datasets)))
+            ax.tick_params(left=False, labelleft=False)
+            if is_right_col:
+                ax.set_yticklabels(datasets, fontsize=12.5, rotation=30, ha="left")
+                ax.yaxis.tick_right()
+            else:
+                ax.set_yticklabels([])
+            ax.invert_yaxis()
+            trained_y = datasets.index(train_ds)
+            ax.axhspan(trained_y - 0.45, trained_y + 0.45, color="gold", alpha=0.1, zorder=0)
+            if not is_bottom_row:
+                ax.tick_params(labelbottom=False)
+            continue
+
+        pair_data = {}
+        for base in base_models:
+            base_runs = [r for r in filtered if r["base"] == base]
+            if not base_runs:
+                continue
+            pre_dict, post_dict = {}, {}
+            for ds in datasets:
+                ds_field = DS_DISPLAY_TO_FIELD[ds]
+                if ds == train_ds:
+                    pres, posts = [], []
+                    for r in base_runs:
+                        bp = r["bp_data"]
+                        if "val_accuracy" in bp:
+                            pres.append(bp["val_accuracy"]["pre"])
+                            posts.append(bp["val_accuracy"]["post"])
+                    pre_val = np.mean(pres) if pres else None
+                    post_val = np.mean(posts) if posts else None
+                else:
+                    bench_keys = ds_bench_map.get(ds, [])
+                    pre_vals, post_vals = [], []
+                    for r in base_runs:
+                        bp = r["bp_data"]
+                        for bk in bench_keys:
+                            if bk in bp:
+                                pre_vals.append(bp[bk]["pre"])
+                                post_vals.append(bp[bk]["post"])
+                                break
+                    pre_val = np.mean(pre_vals) if pre_vals else None
+                    post_val = np.mean(post_vals) if post_vals else None
+                if pre_val is not None:
+                    pre_dict[ds] = pre_val
+                if post_val is not None:
+                    post_dict[ds] = post_val
+            if pre_dict or post_dict:
+                pair_data[base] = {"pre": pre_dict, "post": post_dict}
+
+        colors = [base_colors[b] for b in pair_data.keys()]
+        _draw_real_arrows_horizontal(ax, list(pair_data.values()), datasets,
+                          lambda run, label: (run["pre"].get(label), run["post"].get(label)),
+                          colors, show_ylabel=is_right_col, show_delta=False,
+                          title=ds_panel_labels[d_idx], show_xlabel=is_bottom_row,
+                          ylabel_side="right")
+        # Always remove left-side ticks on dataset panels
+        ax.tick_params(left=False, labelleft=False)
+        if not is_right_col:
+            ax.tick_params(labelright=False)
+        if not is_bottom_row:
+            ax.tick_params(labelbottom=False)
+        trained_y = datasets.index(train_ds)
+        ax.axhspan(trained_y - 0.45, trained_y + 0.45, color="gold", alpha=0.1, zorder=0)
+
+    # Shared legend
+    handles = []
+    for base in base_models:
+        n = len([r for r in runs if r["base"] == base])
+        if n > 0:
+            handles.append(plt.Line2D([0], [0], marker='o', color=base_colors[base],
+                                       markersize=6, linestyle='None',
+                                       label=f"{base} (n={n})"))
+    handles.append(plt.Line2D([0], [0], marker='o', color='gray', markersize=5,
+                               linestyle='None', markeredgecolor='black',
+                               markeredgewidth=0.4, label="Pre-training"))
+    fig.legend(handles=handles, fontsize=14, loc="lower center", ncol=len(handles),
+               bbox_to_anchor=(0.5, -0.04))
+
+    fig.text(0.27, 0.97, "Task Transfer", ha="center", fontsize=13, fontweight="bold")
+    fig.text(0.76, 0.97, "Dataset Domain Transfer", ha="center", fontsize=13, fontweight="bold")
+
+    # Vertical separator — centered between task and dataset groups
+    col1_right = axes[0, 1].get_position().x1
+    col2_left = axes[0, 2].get_position().x0
+    sep_x = (col1_right + col2_left) / 2
+    fig.add_artist(plt.Line2D([sep_x, sep_x], [0.03, 0.95], transform=fig.transFigure,
+                              color="gray", linestyle=":", linewidth=1.5, zorder=10))
+
+    path = OUT_DIR / "arrow_combined_panels_real_horizontal.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+def fig_arrow_combined_panels_real():
+    """Combined 2×4 figure: task transfer (left 4 panels) + dataset transfer (right 4 panels).
+    Uses the same logic as fig_arrow_task_panels_real and fig_arrow_dataset_panels_real."""
+    runs = _discover_training_runs(training_dir=TRAINING_DIR, subsets=TRAINING_SUBSETS)
+    if not runs:
+        print("  ⚠ No training data found")
+        return
+
+    base_models = sorted(set(r["base"] for r in runs),
+                         key=lambda b: list(BASE_MODEL_COLORS.keys()).index(b) if b in BASE_MODEL_COLORS else 99)
+    base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
+
+    # ── Task transfer (left 4 panels) ──
+    test_ops = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)", "PW (UT) Pref", "IND (UT) Pref"]
+
+    def _get_bench_for_label(label, run):
+        tag = run.get("tag", "UT")
+        if label == "PW (UT)":
+            return ["xeval_tag_ut_pw_full", "xeval_tag_ut_pw"] if tag != "UT" else ["xeval_format_pw_full", "xeval_format_pw"]
+        elif label == "IND (UT)":
+            return ["xeval_tag_ut_ind_full", "xeval_tag_ut_ind"] if tag != "UT" else ["xeval_format_ind_full", "xeval_format_ind"]
+        elif label == "PW (AT)":
+            return ["xeval_tag_at_pw_full", "xeval_tag_at_pw"] if tag != "AT" else ["xeval_format_pw_full", "xeval_format_pw"]
+        elif label == "IND (AT)":
+            return ["xeval_tag_at_ind_full", "xeval_tag_at_ind"] if tag != "AT" else ["xeval_format_ind_full", "xeval_format_ind"]
+        elif label in ("PW Pref", "PW (UT) Pref"):
+            return ["xeval_task_pref_pw_full", "xeval_task_pref_pw"]
+        elif label in ("IND Pref", "IND (UT) Pref"):
+            return ["xeval_task_pref_ind_full", "xeval_task_pref_ind"]
+        return []
+
+    task_panels = [
+        ("(a) Trained on: PW (UT)", "PW", "UT", "PW (UT)"),
+        ("(b) Trained on: IND (UT)", "IND", "UT", "IND (UT)"),
+        ("(c) Trained on: PW (AT)", "PW", "AT", "PW (AT)"),
+        ("(d) Trained on: IND (AT)", "IND", "AT", "IND (AT)"),
+    ]
+
+    def build_task_pair_data(filtered_runs, bases, highlight_col):
+        pair_data = {}
+        for base in bases:
+            base_runs = [r for r in filtered_runs if r["base"] == base]
+            if not base_runs:
+                continue
+            pre_dict, post_dict = {}, {}
+            for label in test_ops:
+                if label == highlight_col:
+                    pres, posts = [], []
+                    for r in base_runs:
+                        p, q = _load_val_accuracy(r["run_dir"])
+                        if p is not None:
+                            pres.append(p)
+                        if q is not None:
+                            posts.append(q)
+                    pre_val = np.mean(pres) if pres else None
+                    post_val = np.mean(posts) if posts else None
+                else:
+                    pre_vals, post_vals = [], []
+                    for r in base_runs:
+                        bench_keys = _get_bench_for_label(label, r)
+                        for bk in bench_keys:
+                            bp = r["bp_data"].get(bk)
+                            if bp:
+                                pre_vals.append(bp["pre"])
+                                post_vals.append(bp["post"])
+                                break
+                    pre_val = np.mean(pre_vals) if pre_vals else None
+                    post_val = np.mean(post_vals) if post_vals else None
+                if pre_val is not None:
+                    pre_dict[label] = pre_val
+                if post_val is not None:
+                    post_dict[label] = post_val
+            if pre_dict or post_dict:
+                pair_data[base] = {"pre": pre_dict, "post": post_dict}
+        return pair_data
+
+    # ── Dataset transfer (right 4 panels) ──
+    datasets = ["WikiSum", "BigCodeBench", "PKU-SafeRLHF", "ShareGPT"]
+    DS_DISPLAY_TO_FIELD = {
+        "WikiSum": "wikisum", "BigCodeBench": "bigcodebench",
+        "PKU-SafeRLHF": "pku", "ShareGPT": "sharegpt",
+    }
+    ds_bench_map = {
+        "WikiSum": ["xeval_dataset_wikisum_full", "xeval_dataset_wikisum"],
+        "BigCodeBench": ["xeval_dataset_bigcodebench_full", "xeval_dataset_bigcodebench"],
+        "PKU-SafeRLHF": ["xeval_dataset_pku_full", "xeval_dataset_pku"],
+        "ShareGPT": ["xeval_dataset_sharegpt_full", "xeval_dataset_sharegpt"],
+    }
+    ds_panel_labels = [
+        "(e) Trained on: WikiSum", "(f) Trained on: BigCodeBench",
+        "(g) Trained on: PKU-SafeRLHF", "(h) Trained on: ShareGPT",
+    ]
+
+    # ── Build 2×4 figure ──
+    # Use nested GridSpec: outer 1×2 (task | dataset) with gap between,
+    # inner 2×2 in each half with tight spacing
+    from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+    fig = plt.figure(figsize=(24, 8))
+    outer = GridSpec(1, 2, figure=fig, wspace=0.06, left=0.03, right=0.99,
+                     top=0.93, bottom=0.12)
+    gs_task = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0], hspace=0.08, wspace=0.05)
+    gs_ds = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[1], hspace=0.08, wspace=0.05)
+    axes = np.array([
+        [fig.add_subplot(gs_task[0, 0]), fig.add_subplot(gs_task[0, 1]),
+         fig.add_subplot(gs_ds[0, 0]), fig.add_subplot(gs_ds[0, 1])],
+        [fig.add_subplot(gs_task[1, 0]), fig.add_subplot(gs_task[1, 1]),
+         fig.add_subplot(gs_ds[1, 0]), fig.add_subplot(gs_ds[1, 1])],
+    ])
+    # Share y-axis across all panels
+    for ax in axes.flatten()[1:]:
+        ax.sharey(axes[0, 0])
+
+    # Left 4 panels: task transfer (col 0-1, rows 0-1 → panels a-d)
+    task_axes = [axes[0, 0], axes[0, 1], axes[1, 0], axes[1, 1]]
+    for p_idx, (title, fmt, tag, highlight_col) in enumerate(task_panels):
+        ax = task_axes[p_idx]
+        is_top_row = p_idx < 2
+        is_left_col = p_idx % 2 == 0
+        filtered = [r for r in runs if r["training_type"] == fmt and r.get("tag", "UT") == tag]
+
+        if not filtered:
+            ax.set_title(title, fontsize=10, fontweight="bold")
+            ax.text(0.5, 0.5, "No training data\navailable yet", ha="center", va="center",
+                    fontsize=11, color="gray", fontstyle="italic", transform=ax.transAxes)
+            ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+            ax.set_ylim(-0.02, 1.05)
+            ax.set_xticks(range(len(test_ops)))
+            if is_top_row:
+                ax.set_xticklabels([])
+            else:
+                ax.set_xticklabels(test_ops, fontsize=7.5, rotation=30, ha="right")
+            if not is_left_col:
+                ax.tick_params(labelleft=False)
+            hi_x = test_ops.index(highlight_col)
+            ax.axvspan(hi_x - 0.45, hi_x + 0.45, color="gold", alpha=0.15, zorder=0)
+            ax.text(hi_x, 0.98, "trained", ha="center",
+                    fontsize=6, fontstyle="italic", color="goldenrod")
+            continue
+
+        pair_data = build_task_pair_data(filtered, base_models, highlight_col)
+        colors = [base_colors[b] for b in pair_data.keys()]
+        _draw_real_arrows(ax, list(pair_data.values()), test_ops,
+                          lambda run, label: (run["pre"].get(label), run["post"].get(label)),
+                          colors, show_xlabel=(not is_top_row), show_delta=True, title=title,
+                          show_ylabel=is_left_col)
+        if not is_left_col:
+            ax.tick_params(labelleft=False)
+        hi_x = test_ops.index(highlight_col)
+        ax.axvspan(hi_x - 0.45, hi_x + 0.45, color="gold", alpha=0.15, zorder=0)
+        ax.text(hi_x, ax.get_ylim()[1] * 0.98, "trained", ha="center",
+                fontsize=6, fontstyle="italic", color="goldenrod")
+
+    # Right 4 panels: dataset transfer (col 2-3, rows 0-1 → panels e-h)
+    ds_axes = [axes[0, 2], axes[0, 3], axes[1, 2], axes[1, 3]]
+    for d_idx, train_ds in enumerate(datasets):
+        ax = ds_axes[d_idx]
+        is_top_row = d_idx < 2
+        is_left_col = d_idx % 2 == 0  # cols 2,4 are "left" within dataset group
+        train_ds_field = DS_DISPLAY_TO_FIELD[train_ds]
+        filtered = [r for r in runs if r.get("dataset") == train_ds_field]
+
+        if not filtered:
+            ax.set_title(ds_panel_labels[d_idx], fontsize=10, fontweight="bold")
+            ax.text(0.5, 0.5, "No training data\navailable yet", ha="center", va="center",
+                    fontsize=11, color="gray", fontstyle="italic", transform=ax.transAxes)
+            ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+            ax.set_ylim(-0.02, 1.05)
+            ax.set_xticks(range(len(datasets)))
+            if is_top_row:
+                ax.set_xticklabels([])
+            else:
+                ax.set_xticklabels(datasets, fontsize=8, rotation=30, ha="right")
+            if not is_left_col:
+                ax.tick_params(labelleft=False)
+            trained_x = datasets.index(train_ds)
+            ax.axvspan(trained_x - 0.45, trained_x + 0.45, color="gold", alpha=0.1, zorder=0)
+            continue
+
+        pair_data = {}
+        for base in base_models:
+            base_runs = [r for r in filtered if r["base"] == base]
+            if not base_runs:
+                continue
+            pre_dict, post_dict = {}, {}
+            for ds in datasets:
+                ds_field = DS_DISPLAY_TO_FIELD[ds]
+                if ds == train_ds:
+                    pres, posts = [], []
+                    for r in base_runs:
+                        bp = r["bp_data"]
+                        if "val_accuracy" in bp:
+                            pres.append(bp["val_accuracy"]["pre"])
+                            posts.append(bp["val_accuracy"]["post"])
+                    pre_val = np.mean(pres) if pres else None
+                    post_val = np.mean(posts) if posts else None
+                else:
+                    bench_keys = ds_bench_map.get(ds, [])
+                    pre_vals, post_vals = [], []
+                    for r in base_runs:
+                        bp = r["bp_data"]
+                        for bk in bench_keys:
+                            if bk in bp:
+                                pre_vals.append(bp[bk]["pre"])
+                                post_vals.append(bp[bk]["post"])
+                                break
+                    pre_val = np.mean(pre_vals) if pre_vals else None
+                    post_val = np.mean(post_vals) if post_vals else None
+                if pre_val is not None:
+                    pre_dict[ds] = pre_val
+                if post_val is not None:
+                    post_dict[ds] = post_val
+            if pre_dict or post_dict:
+                pair_data[base] = {"pre": pre_dict, "post": post_dict}
+
+        colors = [base_colors[b] for b in pair_data.keys()]
+        _draw_real_arrows(ax, list(pair_data.values()), datasets,
+                          lambda run, label: (run["pre"].get(label), run["post"].get(label)),
+                          colors, show_xlabel=(not is_top_row), show_delta=True,
+                          title=ds_panel_labels[d_idx], show_ylabel=False)
+        if not is_left_col:
+            ax.tick_params(labelleft=False)
+        trained_x = datasets.index(train_ds)
+        ax.axvspan(trained_x - 0.45, trained_x + 0.45, color="gold", alpha=0.1, zorder=0)
+        ax.text(trained_x, ax.get_ylim()[1] * 0.98, "trained", ha="center",
+                fontsize=6, fontstyle="italic", color="goldenrod")
+
+    # Shared legend
+    handles = []
+    for base in base_models:
+        n = len([r for r in runs if r["base"] == base])
+        if n > 0:
+            handles.append(plt.Line2D([0], [0], marker='o', color=base_colors[base],
+                                       markersize=6, linestyle='None',
+                                       label=f"{base} (n={n})"))
+    handles.append(plt.Line2D([0], [0], marker='o', color='gray', markersize=5,
+                               linestyle='None', markeredgecolor='black',
+                               markeredgewidth=0.4, label="Pre-training"))
+    fig.legend(handles=handles, fontsize=13, loc="lower center", ncol=len(handles),
+               bbox_to_anchor=(0.5, -0.02))
+
+    # Column group titles
+    fig.text(0.27, 0.97, "Task Transfer", ha="center", fontsize=18, fontweight="bold")
+    fig.text(0.76, 0.97, "Dataset Domain Transfer", ha="center", fontsize=18, fontweight="bold")
+
+    # Vertical separator between task (cols 0-1) and dataset (cols 2-3) panels
+    col1_right = axes[0, 1].get_position().x1
+    col2_left = axes[0, 2].get_position().x0
+    sep_x = col1_right + (col2_left - col1_right) * 0.35
+    fig.add_artist(plt.Line2D([sep_x, sep_x], [0.03, 0.95], transform=fig.transFigure,
+                              color="gray", linestyle=":", linewidth=1.5, zorder=10))
+    path = OUT_DIR / "arrow_combined_panels_real.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
 def fig_arrow_model_panels_real():
     """Real data: one panel per training opponent.
     X-axis = generator models tested against (from AlpacaEval self-preference results).
@@ -1959,18 +2610,19 @@ def fig_arrow_model_panels_real():
     Highlights when the tested opponent matches the trained opponent."""
     import json as _json
 
-    base_models = ["Llama 3.1 8B", "Qwen 3.0 30B", "Llama 3.3 70B"]
-    base_colors = {"Llama 3.1 8B": "#1565C0", "Qwen 3.0 30B": "#E65100", "Llama 3.3 70B": "#2E7D32"}
-    base_short = {"Llama 3.1 8B": "ll-3.1-8b", "Qwen 3.0 30B": "qwen-3.0-30b", "Llama 3.3 70B": "ll-3.3-70b"}
-
-    runs = _discover_training_runs(training_dir=TRAINING_DIR)
+    runs = _discover_training_runs(training_dir=TRAINING_DIR, subsets=TRAINING_SUBSETS)
     if not runs:
         print("  ⚠ No training data found")
         return
 
+    # Derive base models and mappings from runs
+    base_models = sorted(set(r["base"] for r in runs), key=lambda b: list(BASE_MODEL_COLORS.keys()).index(b) if b in BASE_MODEL_COLORS else 99)
+    base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
+    base_short = {r["base"]: r["base_short"] for r in runs}
+
     pw_runs = [r for r in runs if r["training_type"] == "PW"]
 
-    # Get unique training opponents
+    # Get unique training opponents per base model
     opponents_8b = sorted(set(r["opponent"] for r in pw_runs if r["base"] == "Llama 3.1 8B"))
 
     # Collect all generator models from alpaca_eval results

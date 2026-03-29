@@ -31,31 +31,53 @@ def load_alpaca_eval_instructions() -> list[dict]:
         return json.load(f)
 
 
+# Module-level training dir, set from config by callers
+TRAINING_DIR = "data/training"
+
+
 def resolve_tinker_checkpoint(short_name: str) -> tuple[str, str | None]:
     """Resolve a model name that may include a training run suffix.
 
     Names like 'll-3.1-8b-01_sft_pw_vs_qwen' or
-    'll-3.1-8b-11_archived_ll8b_ut_pw_sharegpt_vs_qwen25' split into:
-      base model + training run checkpoint.
+    'll-3.1-8b-llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-2-5-7b_UT_PW_ShareGPT'
+    split into: base model + training run checkpoint.
 
     Returns (hf_base_model_id, tinker_sampler_path_or_None).
     """
     from scripts.alpaca_eval.training_runs import discover_training_runs
 
     # Check if this is a trained model by scanning all training runs
-    runs = discover_training_runs()
+    # Strip -thinking suffix for matching (it's appended by expand_model_names
+    # but not part of the training run directory name)
+    match_name = short_name.removesuffix("-thinking") if short_name.endswith("-thinking") else short_name
+    runs = discover_training_runs(TRAINING_DIR)
     for run in runs:
-        if run.trained_name == short_name and run.sampler_path:
+        if run.trained_name == match_name and run.sampler_path:
             inspect_name = INSPECT_MODEL_NAMES.get(run.base_model, "")
+            # Strip only the provider prefix (first match), not nested org prefixes
             hf_model = inspect_name
-            for prefix in ("hf/", "together/", "openai/", "anthropic/", "google/"):
-                hf_model = hf_model.removeprefix(prefix)
+            for prefix in ("hf/", "together/", "anthropic/", "google/"):
+                if hf_model.startswith(prefix):
+                    hf_model = hf_model[len(prefix):]
+                    break
             return hf_model, run.sampler_path
+
+    # Check if it's a base model before trying training run fallback
+    # Strip -thinking for base model check
+    clean_name = short_name.removesuffix("-thinking") if short_name.endswith("-thinking") else short_name
+    if clean_name in INSPECT_MODEL_NAMES or short_name in INSPECT_MODEL_NAMES:
+        # It's a base model, not a trained one
+        lookup = short_name if short_name in INSPECT_MODEL_NAMES else clean_name
+        inspect_name = INSPECT_MODEL_NAMES[lookup]
+        for prefix in ("hf/", "together/", "openai/", "anthropic/", "google/"):
+            if inspect_name.startswith(prefix):
+                return inspect_name.removeprefix(prefix), None
+        return inspect_name, None
 
     # Fallback: try the old glob-based matching for edge cases
     from pathlib import Path
     import glob
-    training_dir = Path("data/training")
+    training_dir = Path(TRAINING_DIR)
 
     if training_dir.exists():
         for base_name in sorted(INSPECT_MODEL_NAMES.keys(), key=len, reverse=True):

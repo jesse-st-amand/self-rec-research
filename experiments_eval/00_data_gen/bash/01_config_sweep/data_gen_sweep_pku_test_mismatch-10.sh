@@ -20,5 +20,4 @@ fi
 uv run srf-generate-sweep \
     --model_names $MODEL_NAMES \
     --dataset_path=data/input/pku_saferlhf/test-mismatch_10_100-200/input.json \
-    --dataset_config="$CONFIG_FILE" \
-    --overwrite
+    --dataset_config="$CONFIG_FILE"

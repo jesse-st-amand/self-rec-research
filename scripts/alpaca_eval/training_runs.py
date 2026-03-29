@@ -70,6 +70,45 @@ DATASET_MAP = {
 }
 
 
+# Reverse mapping: shorthand opponent -> old naming convention suffix
+_REVERSE_OPPONENT_MAP = {v: k for k, v in ORIGINAL_OPPONENT_MAP.items()}
+# Reverse mapping: shorthand base -> old naming convention prefix
+_REVERSE_BASE_PREFIXES = {v: k for k, v in ORIGINAL_BASE_PREFIXES.items()}
+
+
+def _build_ae_aliases(base_model: str, opponent: str, tag: str, fmt: str, dataset: str) -> list[str]:
+    """Build old-style AE result directory names for a reorganized run.
+
+    Returns a list of candidate names that might exist in
+    data/alpaca_eval/results/{mode}/.
+    """
+    aliases = []
+
+    # Only UT PW ShareGPT runs have old-style AE results (original batch)
+    if tag != "ut" or dataset != "sharegpt":
+        return aliases
+
+    old_opp = _REVERSE_OPPONENT_MAP.get(opponent)
+    if not old_opp:
+        return aliases
+
+    if base_model == "ll-3.1-8b":
+        if fmt == "pw":
+            aliases.append(f"ll-3.1-8b-01_sft_pw_vs_{old_opp}")
+            # Special case: multi-model holdout
+            if opponent == "multi":
+                aliases.append("ll-3.1-8b-03_sft_pw_vs_multi_model_holdout_ll_3_1_70b")
+        elif fmt == "ind":
+            aliases.append(f"ll-3.1-8b-02_sft_ind_vs_{old_opp}")
+    elif base_model in _REVERSE_BASE_PREFIXES:
+        prefix = _REVERSE_BASE_PREFIXES[base_model]
+        if fmt == "pw":
+            old_opp_for_multi = _REVERSE_OPPONENT_MAP.get(opponent, opponent)
+            aliases.append(f"{base_model}-01_sft_pw_{prefix}_vs_{old_opp_for_multi}")
+
+    return aliases
+
+
 @dataclass
 class TrainingRunInfo:
     """Standardized metadata for a training run."""
@@ -77,11 +116,13 @@ class TrainingRunInfo:
     run_path: Path          # Full path to the training run directory
     subset: str             # "original" or "archived"
     base_model: str         # Base model shorthand (e.g., "ll-3.1-8b")
+    identity_model: str     # Model whose text is treated as "self" (usually == base_model)
     opponent: str           # Opponent model shorthand (e.g., "qwen-2.5-7b")
     tag: str                # "ut" or "at"
     fmt: str                # "pw" or "ind"
     dataset: str            # "sharegpt", "wikisum", "bigcodebench", "pku"
     trained_name: str       # Full trained model name for AE (e.g., "ll-3.1-8b-11_archived_...")
+    ae_aliases: list[str] = field(default_factory=list)  # Alternative names to search in AE results
     sampler_path: str | None = None  # Tinker checkpoint path
     benchmarks: list[str] = field(default_factory=list)  # Available benchmark dirs
 
@@ -121,6 +162,7 @@ def _parse_original(run_name: str, run_path: Path) -> TrainingRunInfo | None:
         run_path=run_path,
         subset="original",
         base_model=base_model,
+        identity_model=base_model,
         opponent=opponent,
         tag=tag,
         fmt=fmt,
@@ -159,6 +201,7 @@ def _parse_archived(run_name: str, run_path: Path) -> TrainingRunInfo | None:
         run_path=run_path,
         subset="archived",
         base_model=base_model,
+        identity_model=base_model,
         opponent=opponent,
         tag=tag,
         fmt=fmt,
@@ -186,19 +229,26 @@ def _parse_reorganized(dir_name: str, run_path: Path, subset: str) -> TrainingRu
     tag = tag.lower()
     fmt = fmt.lower()
 
-    # trained_name uses the shorthand base model
-    trained_name = f"{base_model}-{dir_name}"
+    # Use directory name directly as the trained model name
+    # (it already encodes base model, identity, opponent, etc.)
+    trained_name = dir_name
+
+    # Build ae_aliases: scan AE results for old-style names matching this run's
+    # base model + opponent + format combination
+    ae_aliases = _build_ae_aliases(base_model, opponent, tag, fmt, dataset)
 
     return TrainingRunInfo(
         run_name=dir_name,
         run_path=run_path,
         subset=subset,
         base_model=base_model,
+        identity_model=identity_model,
         opponent=opponent,
         tag=tag,
         fmt=fmt,
         dataset=dataset,
         trained_name=trained_name,
+        ae_aliases=ae_aliases,
     )
 
 
@@ -274,17 +324,22 @@ def discover_training_runs(
                 _load_run_metadata(info)
                 runs.append(info)
     else:
-        # Flat layout (legacy data/training/)
+        # Flat layout — could be legacy (data/training/) or a direct subset dir
+        # (data/training_reorganized/01_final/). Try all parsers.
+        subset_name = training_path.name  # use dir name as subset
         for run_path in sorted(training_path.iterdir()):
             if not run_path.is_dir():
                 continue
 
-            run_name = run_path.name.split("__")[0]
+            # Try reorganized naming first
+            info = _parse_reorganized(run_path.name, run_path, subset_name)
 
-            if "archived" in run_name:
-                info = _parse_archived(run_name, run_path)
-            else:
-                info = _parse_original(run_name, run_path)
+            if info is None:
+                run_name = run_path.name.split("__")[0]
+                if "archived" in run_name:
+                    info = _parse_archived(run_name, run_path)
+                else:
+                    info = _parse_original(run_name, run_path)
 
             if info is None:
                 continue
