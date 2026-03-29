@@ -441,6 +441,112 @@ def plot_score_distance_training_effect(output_path: Path, training_dir: str = "
     print(f"✓ Saved score-distance training effect to {output_path}")
 
 
+def plot_score_distance_heldout(output_path: Path, training_dir: str = "data/training",
+                                data_subsets: list[str] | None = None):
+    """2×2 paneled score-distance scatter using held-out validation accuracy.
+
+    Each panel = one training OP (UT PW, UT IND, AT PW, AT IND).
+    Only includes runs trained on that OP, using their val/accuracy
+    (held-out test set from the same task). Gray = epoch 0, Blue = final.
+    X-axis = Elo score distance (evaluator - opponent).
+    """
+    from self_rec_framework.src.helpers.model_names import LM_ARENA_SCORES
+    from scripts.alpaca_eval.training_runs import discover_training_runs, get_val_accuracy
+
+    def get_score(model):
+        if model in LM_ARENA_SCORES:
+            return LM_ARENA_SCORES[model]
+        return LM_ARENA_SCORES.get(model.replace("-thinking", ""))
+
+    runs = discover_training_runs(training_dir, subsets=data_subsets)
+    if not runs:
+        print("  ⚠ No training data found")
+        return
+
+    panels = [
+        ("(a) UT PW", "ut", "pw"),
+        ("(b) UT IND", "ut", "ind"),
+        ("(c) AT PW", "at", "pw"),
+        ("(d) AT IND", "at", "ind"),
+    ]
+
+    panel_points = {title: {"pre": [], "post": []} for title, _, _ in panels}
+
+    for run in runs:
+        eval_score = get_score(run.base_model)
+        opp_score = get_score(run.opponent)
+        if eval_score is None or opp_score is None:
+            continue
+        score_dist = eval_score - opp_score
+
+        pre = get_val_accuracy(run, epoch=0)
+        post = get_val_accuracy(run)
+
+        for title, tag, fmt in panels:
+            if run.tag == tag and run.fmt == fmt:
+                if pre is not None:
+                    panel_points[title]["pre"].append((score_dist, pre))
+                if post is not None:
+                    panel_points[title]["post"].append((score_dist, post))
+                break
+
+    pre_color = "#AAAAAA"
+    post_color = "#1565C0"
+
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8),
+                              gridspec_kw={"wspace": 0.15, "hspace": 0.15})
+
+    for idx, (title, _, _) in enumerate(panels):
+        row, col = divmod(idx, 2)
+        ax = axes[row][col]
+        pre_pts = panel_points[title]["pre"]
+        post_pts = panel_points[title]["post"]
+
+        if pre_pts:
+            xs, ys = zip(*pre_pts)
+            ax.scatter(xs, ys, c=pre_color, alpha=0.5, s=50, edgecolors="black",
+                       linewidth=0.4, label="Pre-training (epoch 0)", zorder=2)
+            if len(xs) > 2:
+                coeffs = np.polyfit(xs, ys, 1)
+                x_line = np.linspace(min(xs), max(xs), 100)
+                ax.plot(x_line, coeffs[0] * x_line + coeffs[1],
+                        color="#888888", linewidth=1.5, linestyle="--", alpha=0.7, zorder=3)
+
+        if post_pts:
+            xs, ys = zip(*post_pts)
+            ax.scatter(xs, ys, c=post_color, alpha=0.8, s=55, edgecolors="black",
+                       linewidth=0.4, label="Post-training (final epoch)", zorder=4)
+            if len(xs) > 2:
+                coeffs = np.polyfit(xs, ys, 1)
+                x_line = np.linspace(min(xs), max(xs), 100)
+                ax.plot(x_line, coeffs[0] * x_line + coeffs[1],
+                        color="#0D47A1", linewidth=2, alpha=0.9, zorder=5)
+
+        if not pre_pts and not post_pts:
+            ax.text(0.5, 0.5, "No data", ha="center", va="center",
+                    fontsize=11, color="gray", fontstyle="italic", transform=ax.transAxes)
+
+        ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+        ax.set_title(title, fontsize=11, fontweight="bold")
+        ax.set_ylim(0.0, 1.05)
+
+        if col == 0:
+            ax.set_ylabel("Held-Out Val Accuracy", fontsize=10)
+        if row == 1:
+            ax.set_xlabel("Elo Score Distance\n(Evaluator − Opponent)", fontsize=10)
+        else:
+            ax.set_xticklabels([])
+        if idx == 0:
+            ax.legend(fontsize=8, loc="lower right")
+
+    fig.suptitle("Score-Distance vs Held-Out Accuracy\n"
+                 "(validation set from same task as training)", fontsize=13, fontweight="bold")
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    fig.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"✓ Saved score-distance held-out plot to {output_path}")
+
+
 def plot_deviation_bars(summary: pd.DataFrame, output_path: Path):
     """Plot per-judge self-preference deviation from chance."""
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -463,22 +569,36 @@ def plot_deviation_bars(summary: pd.DataFrame, output_path: Path):
 def _shorten_trained_label(judge_name: str, base_model: str) -> str:
     """Shorten a trained model name for display on plots.
 
-    Handles both original and archived naming conventions.
+    Handles reorganized, archived, and original naming conventions.
     """
     import re
-    suffix = judge_name.replace(base_model + "-", "")
+    # Strip -thinking suffix for label parsing, it's implied by the base model
+    clean_name = judge_name.removesuffix("-thinking")
+    suffix = clean_name.replace(base_model.removesuffix("-thinking") + "-", "")
 
-    # Archived: "11_archived_ll8b_ut_pw_sharegpt_vs_qwen25" -> "ut pw sharegpt vs qwen25"
+    # Reorganized: "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-2-5-7b_UT_PW_ShareGPT"
+    m = re.match(r".+_sft-as_(.+?)_vs_(.+?)_(UT|AT)_(PW|IND)_(\w+)$", suffix)
+    if m:
+        identity, opponent, tag, fmt, dataset = m.groups()
+        label = f"vs {opponent} {tag} {fmt} {dataset}"
+        # Only show identity if different from base (train_as case)
+        from scripts.alpaca_eval.training_runs import REORG_MODEL_MAP
+        identity_short = REORG_MODEL_MAP.get(identity, identity)
+        if identity_short != base_model.removesuffix("-thinking"):
+            label = f"as {identity} {label}"
+        return label
+
+    # Archived: "11_archived_ll8b_ut_pw_sharegpt_vs_qwen25"
     m = re.match(r"\d+_archived_\w+_(ut|at)_(pw|ind)_(\w+)_vs_(\w+)", suffix)
     if m:
         tag, fmt, dataset, opponent = m.groups()
-        return f"{tag} {fmt} {dataset} vs {opponent}"
+        return f"vs {opponent} {tag} {fmt} {dataset}"
 
-    # Handle train_as: "22_archived_qwen30_ut_pw_sharegpt_train_as_oss120_vs_qwen30"
+    # Archived train_as
     m = re.match(r"\d+_archived_\w+_(ut|at)_(pw|ind)_(\w+)_train_as_(\w+)_vs_(\w+)", suffix)
     if m:
         tag, fmt, dataset, train_as, opponent = m.groups()
-        return f"{tag} {fmt} {dataset} (as {train_as}) vs {opponent}"
+        return f"as {train_as} vs {opponent} {tag} {fmt} {dataset}"
 
     # Original naming
     suffix = suffix.replace("01_sft_pw_vs_", "pw vs ")
@@ -601,13 +721,21 @@ def plot_simple_self_preference_delta(summary: pd.DataFrame, output_path: Path):
 # Ranking mode analysis
 # ---------------------------------------------------------------------------
 
-def load_ranking_self_ranks(results_dir: Path, judges: list[str]) -> pd.DataFrame:
+def load_ranking_self_ranks(results_dir: Path, judges: list[str] | None = None) -> pd.DataFrame:
     """Load ranking results and compute average self-rank per judge.
+
+    If judges is provided, only include those judges. Otherwise, scan the
+    results directory for all available judges.
 
     Returns DataFrame with columns: judge, base_model, is_trained,
     avg_self_rank, pct_ranked_first, n_valid, n_total.
     """
     from scripts.alpaca_eval.run_self_preference import resolve_base_model
+
+    # If no judges specified, discover from results directory
+    if judges is None or not judges:
+        judges = sorted([d.name for d in results_dir.iterdir()
+                        if d.is_dir() and (d / "ranking.json").exists()])
 
     rows = []
     for judge in judges:
@@ -731,11 +859,23 @@ def plot_ranking_delta(df: pd.DataFrame, output_path: Path):
         "ll-3.1-8b": "Llama 3.1 8B",
         "ll-3.3-70b": "Llama 3.3 70B",
         "qwen-3.0-30b": "Qwen 3.0 30B",
+        "qwen-3.0-30b-thinking": "Qwen 3.0 30B",
+        "qwen-3.5-27b": "Qwen 3.5 27B",
+        "qwen-3.5-27b-thinking": "Qwen 3.5 27B",
+        "gpt-oss-20b": "GPT-OSS 20B",
+        "gpt-oss-20b-thinking": "GPT-OSS 20B",
+        "gpt-oss-120b-thinking": "GPT-OSS 120B",
     }
     BASE_COLORS = {
         "ll-3.1-8b": "#1565C0",
         "ll-3.3-70b": "#E65100",
         "qwen-3.0-30b": "#2E7D32",
+        "qwen-3.0-30b-thinking": "#2E7D32",
+        "qwen-3.5-27b": "#7B1FA2",
+        "qwen-3.5-27b-thinking": "#7B1FA2",
+        "gpt-oss-20b": "#C62828",
+        "gpt-oss-20b-thinking": "#C62828",
+        "gpt-oss-120b-thinking": "#C62828",
     }
 
     n_rows = len(trained)
@@ -799,6 +939,7 @@ def analyze_ranking_mode(results_dir: Path, output_dir: Path, judges: list[str])
     """Full analysis pipeline for ranking mode results."""
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # Use the filtered judges list passed from main()
     df = load_ranking_self_ranks(results_dir, judges)
     if df.empty:
         print("  ⚠ No ranking results found")
@@ -855,17 +996,17 @@ def main():
     # Resolve model names and judge_mode from --config or --model_names
     judge_mode = "simple"
     data_subsets = None
+    training_dir = "data/training"
+    generators = []
     if args.config:
         import yaml as _yaml
         with open(args.config) as f:
             config = _yaml.safe_load(f)
-        from scripts.alpaca_eval.run_self_preference import expand_evaluators_with_trained
         raw_eval = config.get("evaluator_models", config.get("model_names", []))
         raw_gen = config.get("generator_models", config.get("model_names", []))
         data_subsets = config.get("data_subsets", None)
         training_dir = config.get("training_dir", "data/training")
-        base_judges = expand_model_names(raw_eval)
-        judges = expand_evaluators_with_trained(base_judges, training_dir=training_dir, subsets=data_subsets)
+        judges = expand_model_names(raw_eval, training_dir=training_dir, data_subsets=data_subsets)
         generators = expand_model_names(raw_gen)
         judge_mode = config.get("judge_mode", "simple")
     elif args.model_names:
@@ -874,98 +1015,208 @@ def main():
     else:
         parser.error("Provide either --config or --model_names")
 
-    # Route to mode-specific subdirectories
-    results_dir = Path(args.results_dir) / judge_mode
-    output_dir = Path(args.output_dir) / judge_mode
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Normalize judge_mode to a list for permutation
+    judge_modes = judge_mode if isinstance(judge_mode, list) else [judge_mode]
 
-    print(f"Judge mode: {judge_mode}")
+    print(f"Judge modes: {', '.join(judge_modes)}")
     if data_subsets:
         print(f"Data subsets: {', '.join(data_subsets)}")
     print(f"Evaluator models (judges): {', '.join(judges)}")
-    print(f"Results dir: {results_dir}")
-    print(f"Output dir: {output_dir}")
 
-    if judge_mode == "ranking":
-        analyze_ranking_mode(results_dir, output_dir, judges)
-    else:
-        # Simple pairwise mode (existing analysis)
-        print(f"Generator models (opponents): {', '.join(generators)}")
+    # Build mapping: trained_name -> subset (for filtering judges per subset)
+    # Include ae_aliases so old-style AE result names also map to the right subset
+    from scripts.alpaca_eval.training_runs import discover_training_runs
+    all_runs = discover_training_runs(training_dir, subsets=data_subsets)
+    trained_to_subset = {}
+    for r in all_runs:
+        trained_to_subset[r.trained_name] = r.subset
+        for alias in r.ae_aliases:
+            trained_to_subset[alias] = r.subset
 
-        matrix = load_self_selection_rates(results_dir, judges, generators)
-        summary = compute_self_preference_summary(matrix)
+    base_results = Path(args.results_dir)
+    base_output = Path(args.output_dir)
+    subsets_to_run = data_subsets if data_subsets else [None]
 
-        matrix.to_csv(output_dir / "self_preference_matrix.csv")
-        print(f"✓ Saved self-selection rate matrix to {output_dir / 'self_preference_matrix.csv'}")
-
-        summary.to_csv(output_dir / "self_preference_summary.csv", index=False)
-        print(f"✓ Saved summary to {output_dir / 'self_preference_summary.csv'}")
+    # Loop: data_subsets (outer) → non-AE figures → judge_modes (inner, AE figures)
+    for subset in subsets_to_run:
+        subset_label = subset or "all"
+        subset_out = base_output / subset_label
+        subset_out.mkdir(parents=True, exist_ok=True)
 
         print(f"\n{'='*70}")
-        print("SELF-PREFERENCE SUMMARY")
+        print(f"DATA SUBSET: {subset_label}")
         print(f"{'='*70}")
-        print(summary.to_string(index=False))
-        print(f"\nOverall mean self-preference: {summary['avg_self_selection_rate'].mean():.3f}")
-        print(f"Overall mean deviation: {summary['deviation_from_chance'].mean():.3f}")
 
-        if not summary.empty:
-            plot_heatmap(matrix, output_dir / "self_preference_heatmap.png")
-            plot_delta_heatmap(matrix, output_dir / "self_preference_delta_heatmap.png")
-            plot_deviation_bars(summary, output_dir / "self_preference_deviation.png")
-            plot_simple_self_preference_delta(summary, output_dir / "self_preference_delta_arrows.png")
-            plot_training_effect_per_opponent(
-                results_dir, judges,
-                output_dir / "training_effect_per_opponent_real.png"
-            )
-            plot_score_distance_training_effect(
-                output_dir / "score_distance_training_effect_real.png",
-                training_dir=training_dir,
-                data_subsets=data_subsets,
-            )
+        # Helper: check if a judge belongs to this subset
+        def _judge_in_subset(judge_name, _subset=subset):
+            if judge_name in trained_to_subset:
+                return trained_to_subset[judge_name] == _subset
+            # Trained thinking models have -thinking appended to the dir name
+            # but trained_to_subset uses the name without -thinking
+            clean = judge_name.removesuffix("-thinking")
+            if clean != judge_name and clean in trained_to_subset:
+                return trained_to_subset[clean] == _subset
+            from scripts.alpaca_eval.run_self_preference import resolve_base_model
+            return resolve_base_model(judge_name) == judge_name
 
-        # Generate uplift/transfer figures from training data
-        try:
-            from scripts.figures.prototype_uplift_figures import (
-                fig_task_transfer_heatmap_real,
-                fig_arrow_task_panels_real,
-                fig_arrow_dataset_panels_real,
-                fig_arrow_model_panels_real,
-                fig_training_effect_panels,
-                OUT_DIR as UPLIFT_OUT_DIR,
-            )
-            import scripts.figures.prototype_uplift_figures as _uplift
-            orig_out = _uplift.OUT_DIR
-            _uplift.OUT_DIR = output_dir
-            # Set training_dir so uplift figures read from the right place
-            orig_training_dir = getattr(_uplift, 'TRAINING_DIR', 'data/training')
-            _uplift.TRAINING_DIR = training_dir
+        # --- Non-AE figures (saved directly in {subset}/, computed once) ---
+        _generate_uplift_figures(subset_out, training_dir, [subset] if subset else None)
+        plot_score_distance_heldout(
+            subset_out / "score_distance_heldout.png",
+            training_dir=training_dir,
+            data_subsets=[subset] if subset else None,
+        )
 
-            print(f"\n{'='*70}")
-            print("TRAINING TRANSFER FIGURES")
-            print(f"{'='*70}")
+        # --- AE figures (per judge_mode, saved in {subset}/{mode}/) ---
+        for mode in judge_modes:
+            # Prefer subset-specific results dir (e.g., results/01_final/ranking/)
+            # over flat dir (e.g., results/ranking/)
+            if subset and (base_results / subset / mode).exists():
+                mode_results = base_results / subset / mode
+            else:
+                mode_results = base_results / mode
+            mode_out = subset_out / mode
+            mode_out.mkdir(parents=True, exist_ok=True)
 
-            print("\nTransfer heatmap (all training runs)...")
-            fig_task_transfer_heatmap_real()
+            print(f"\n  --- {subset_label} / {mode} ---")
 
-            print("\nArrow plots — task transfer...")
-            fig_arrow_task_panels_real()
+            if mode == "ranking":
+                if mode_results.exists() and any(mode_results.iterdir()):
+                    available = sorted([
+                        d.name for d in mode_results.iterdir()
+                        if d.is_dir() and (d / "ranking.json").exists()
+                        and _judge_in_subset(d.name)
+                    ])
+                    if available:
+                        print(f"  Ranking: {len(available)} judges")
+                        analyze_ranking_mode(mode_results, mode_out, available)
+                    else:
+                        print(f"  No ranking results for {subset_label}")
 
-            print("\nArrow plots — dataset transfer...")
-            fig_arrow_dataset_panels_real()
+            elif mode == "simple":
+                if mode_results.exists() and any(mode_results.iterdir()):
+                    available = sorted([
+                        d.name for d in mode_results.iterdir()
+                        if d.is_dir() and any(d.glob("vs_*.json"))
+                        and _judge_in_subset(d.name)
+                    ])
+                    if available:
+                        print(f"  Simple: {len(available)} judges")
+                        print(f"  Generators: {', '.join(generators)}")
 
-            print("\nArrow plots — per-opponent model transfer...")
-            fig_arrow_model_panels_real()
+                        matrix = load_self_selection_rates(mode_results, available, generators)
+                        summary = compute_self_preference_summary(matrix)
 
-            print("\nScore-distance training effect (proxy: ll-3.1-8b → opus-4.1)...")
-            fig_training_effect_panels(pre_model="ll-3.1-8b", post_model="opus-4.1")
+                        matrix.to_csv(mode_out / "self_preference_matrix.csv")
+                        summary.to_csv(mode_out / "self_preference_summary.csv", index=False)
 
-            _uplift.OUT_DIR = orig_out
-            _uplift.TRAINING_DIR = orig_training_dir
+                        print(f"\n  SELF-PREFERENCE SUMMARY")
+                        print(summary.to_string(index=False))
 
-        except Exception as e:
-            print(f"\n⚠ Could not generate uplift figures: {e}")
+                        if not summary.empty:
+                            plot_heatmap(matrix, mode_out / "self_preference_heatmap.png")
+                            plot_delta_heatmap(matrix, mode_out / "self_preference_delta_heatmap.png")
+                            plot_deviation_bars(summary, mode_out / "self_preference_deviation.png")
+                            plot_simple_self_preference_delta(summary, mode_out / "self_preference_delta_arrows.png")
+                            plot_training_effect_per_opponent(
+                                mode_results, available,
+                                mode_out / "training_effect_per_opponent_real.png"
+                            )
+                    else:
+                        print(f"  No simple results for {subset_label}")
 
-        print(f"\n✓ Analysis complete. Results in {output_dir}/")
+            # Generate task transfer heatmap with AE data (mode-specific)
+            _generate_ae_heatmap(mode_out, training_dir,
+                                 [subset] if subset else None, mode,
+                                 mode_results)
+
+    print(f"\n✓ Analysis complete. Results in {base_output}/")
+
+
+def _generate_ae_heatmap(output_dir: Path, training_dir: str,
+                         data_subsets: list[str] | None,
+                         ae_mode: str, ae_results_dir: Path):
+    """Generate task transfer heatmap with AlpacaEval column.
+
+    For simple mode: AE column shows avg self-selection rate change.
+    For ranking mode: AE column shows avg self-rank change (inverted: lower = better).
+    """
+    try:
+        from scripts.figures.COLM2026.prototype_uplift_figures import fig_task_transfer_heatmap_real
+        import scripts.figures.COLM2026.prototype_uplift_figures as _uplift
+
+        orig_out = _uplift.OUT_DIR
+        orig_td = getattr(_uplift, 'TRAINING_DIR', 'data/training')
+        orig_sub = getattr(_uplift, 'TRAINING_SUBSETS', None)
+
+        output_dir.mkdir(parents=True, exist_ok=True)
+        _uplift.OUT_DIR = output_dir
+        _uplift.TRAINING_DIR = training_dir
+        _uplift.TRAINING_SUBSETS = data_subsets
+        # Pass AE mode info so the heatmap function can load the right data
+        _uplift.AE_MODE = ae_mode
+        _uplift.AE_RESULTS_DIR = str(ae_results_dir)
+
+        fig_task_transfer_heatmap_real()
+
+        _uplift.OUT_DIR = orig_out
+        _uplift.TRAINING_DIR = orig_td
+        _uplift.TRAINING_SUBSETS = orig_sub
+        _uplift.AE_MODE = None
+        _uplift.AE_RESULTS_DIR = None
+
+    except Exception as e:
+        print(f"\n⚠ Could not generate AE heatmap: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+def _generate_uplift_figures(output_dir: Path, training_dir: str, data_subsets: list[str] | None):
+    """Generate uplift/transfer figures from training benchmark data.
+
+    Saves directly to output_dir. Caller is responsible for per-subset routing.
+    """
+    try:
+        from scripts.figures.COLM2026.prototype_uplift_figures import (
+            fig_arrow_task_panels_real,
+            fig_arrow_dataset_panels_real,
+            fig_arrow_model_panels_real,
+            fig_arrow_combined_panels_real,
+            fig_arrow_combined_panels_real_horizontal,
+        )
+        import scripts.figures.COLM2026.prototype_uplift_figures as _uplift
+        orig_out = _uplift.OUT_DIR
+        orig_training_dir = getattr(_uplift, 'TRAINING_DIR', 'data/training')
+        orig_subsets = getattr(_uplift, 'TRAINING_SUBSETS', None)
+
+        output_dir.mkdir(parents=True, exist_ok=True)
+        _uplift.OUT_DIR = output_dir
+        _uplift.TRAINING_DIR = training_dir
+        _uplift.TRAINING_SUBSETS = data_subsets
+
+        subset_label = ", ".join(data_subsets) if data_subsets else "all"
+        print(f"\n  TRAINING TRANSFER FIGURES ({subset_label})")
+
+        fig_arrow_task_panels_real()
+        fig_arrow_dataset_panels_real()
+        fig_arrow_model_panels_real()
+        fig_arrow_combined_panels_real()
+        fig_arrow_combined_panels_real_horizontal()
+
+        plot_score_distance_training_effect(
+            output_dir / "score_distance_training_effect_real.png",
+            training_dir=training_dir,
+            data_subsets=data_subsets,
+        )
+
+        _uplift.OUT_DIR = orig_out
+        _uplift.TRAINING_DIR = orig_training_dir
+        _uplift.TRAINING_SUBSETS = orig_subsets
+
+    except Exception as e:
+        print(f"\n⚠ Could not generate uplift figures: {e}")
+        import traceback
+        traceback.print_exc()
 
 
 if __name__ == "__main__":

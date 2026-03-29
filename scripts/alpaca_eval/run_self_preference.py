@@ -29,15 +29,30 @@ from self_rec_framework.scripts.utils import expand_model_names
 def resolve_base_model(short_name: str) -> str:
     """Resolve the base model for a potentially trained model name.
 
-    'll-3.1-8b-01_sft_pw_vs_qwen' -> 'll-3.1-8b'
+    'gpt-oss-20b_sft-as_gpt-oss-20b_vs_...' -> 'gpt-oss-20b'
     'll-3.1-8b' -> 'll-3.1-8b'
     """
-    if short_name in INSPECT_MODEL_NAMES:
-        return short_name
-    # Try to match {base_model}-{training_run} pattern
+    # Strip -thinking suffix for resolution, but preserve it in the result
+    has_thinking = short_name.endswith("-thinking")
+    clean = short_name.removesuffix("-thinking") if has_thinking else short_name
+
+    if clean in INSPECT_MODEL_NAMES:
+        return short_name if has_thinking else clean
+
+    # Reorganized naming: {base}_sft-as_{identity}_vs_{opponent}_{tag}_{fmt}_{dataset}
+    if "_sft-as_" in clean:
+        base_part = clean.split("_sft-as_")[0]
+        try:
+            from scripts.alpaca_eval.training_runs import REORG_MODEL_MAP
+            resolved = REORG_MODEL_MAP.get(base_part, base_part)
+        except ImportError:
+            resolved = base_part
+        return resolved + "-thinking" if has_thinking else resolved
+
+    # Legacy: try to match {base_model}-{training_run} pattern
     for base_name in sorted(INSPECT_MODEL_NAMES.keys(), key=len, reverse=True):
-        if short_name.startswith(base_name + "-"):
-            return base_name
+        if clean.startswith(base_name + "-"):
+            return base_name + "-thinking" if has_thinking else base_name
     return short_name
 
 
@@ -969,6 +984,7 @@ def main():
     judge_mode = "simple"
     judge_cot = False
     gpu_dispatch = "runpod"
+    data_subsets = None
     config = {}
 
     # Resolve model names from --config or --judges/--opponents
@@ -984,11 +1000,10 @@ def main():
         raw_gen = config.get("generator_models", config.get("model_names", []))
         data_subsets = config.get("data_subsets", None)
         training_dir = config.get("training_dir", "data/training")
-        base_judges = expand_model_names(raw_eval)
-        judges = expand_evaluators_with_trained(base_judges, training_dir=training_dir, subsets=data_subsets)
-        if len(judges) > len(base_judges):
-            trained_count = len(judges) - len(base_judges)
-            print(f"  Auto-discovered {trained_count} trained models from {training_dir}/")
+        # Set module-level training dir so resolve_tinker_checkpoint finds the right runs
+        import scripts.alpaca_eval.generate_outputs as _gen_mod
+        _gen_mod.TRAINING_DIR = training_dir
+        judges = expand_model_names(raw_eval, training_dir=training_dir, data_subsets=data_subsets)
         opponents = expand_model_names(args.opponents) if args.opponents else expand_model_names(raw_gen)
         if args.max_workers == 1:
             args.max_workers = config.get("max_workers", args.max_workers)
@@ -1009,9 +1024,25 @@ def main():
         parser.error("Provide either --config or --judges")
 
     outputs_dir = Path(args.outputs_dir)
-    # Results and configs go into mode-specific subdirectories
-    output_dir = Path(args.output_dir) / judge_mode
     config_dir = Path("data/alpaca_eval/configs")
+
+    # Normalize judge_mode to list and use first mode for eval
+    # (eval runs are mode-specific; use the first mode in the list)
+    judge_modes = judge_mode if isinstance(judge_mode, list) else [judge_mode]
+    active_mode = judge_modes[0]
+    if len(judge_modes) > 1:
+        print(f"Note: config has multiple judge_modes {judge_modes}. Running eval for: {active_mode}")
+    judge_mode = active_mode
+    judge_cot = judge_cot if not isinstance(judge_cot, list) else judge_cot[0]
+
+    # Include data subset in output path if specified
+    _output_base = Path(args.output_dir)
+    if data_subsets:
+        active_subset = data_subsets[0] if isinstance(data_subsets, list) else data_subsets
+        if len(data_subsets) > 1:
+            print(f"Note: config has multiple data_subsets {data_subsets}. Saving results to: {active_subset}")
+        _output_base = _output_base / active_subset
+    output_dir = _output_base / judge_mode
 
     print(f"Evaluator models (judges): {', '.join(judges)}")
     print(f"Generator models (opponents): {', '.join(opponents)}")

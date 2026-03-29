@@ -121,6 +121,27 @@ def push():
                 f.write(f"\n{entry}\n")
 
     print(f"Staging and pushing to {REPO_ID}...")
+
+    # Ensure files matching LFS patterns are stored via LFS.
+    # If files were previously committed without LFS, re-stage them so
+    # git-lfs picks them up via the .gitattributes filter rules.
+    lfs_result = subprocess.run(
+        ["git", "-C", str(LOCAL_DIR), "lfs", "ls-files", "--name-only"],
+        capture_output=True, text=True,
+    )
+    lfs_tracked = set(lfs_result.stdout.strip().splitlines()) if lfs_result.returncode == 0 else set()
+
+    # Find large files (>10MB) not yet in LFS and re-stage them
+    for json_path in LOCAL_DIR.rglob("alpaca_eval/**/*.json"):
+        if json_path.stat().st_size > 10 * 1024 * 1024:
+            rel = str(json_path.relative_to(LOCAL_DIR))
+            if rel not in lfs_tracked:
+                print(f"  Re-staging {rel} for LFS ({json_path.stat().st_size // (1024*1024)}MB)")
+                subprocess.run(
+                    ["git", "-C", str(LOCAL_DIR), "rm", "--cached", rel],
+                    capture_output=True,
+                )
+
     _run_git("add", "-A")
 
     # Check if there's anything to commit

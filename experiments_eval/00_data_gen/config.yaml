@@ -1,11 +1,13 @@
-temperature: 1.0
+temperature: 0.0
 max_final_answer_tokens: null
 max_thinking_tokens: null
+max_tasks: 1
 
-model_names: ["qwen-3.5-27b"]
+model_names: ["-set", "SGTR-training-generators"]
+training_dir: data/training_reorganized/01_final
 
-# Where to dispatch hf/ models that need GPU: "runpod" or null (skip)
-gpu_dispatch: runpod
+# Where to dispatch hf/ models that need GPU: "tinker", "runpod", or null (skip)
+gpu_dispatch: tinker
 
 treatments:
   caps: [S2, S4]

@@ -11,6 +11,11 @@
     "self-rec-framework",
     "sgtr-rl",
     "alpaca-eval",
+    "tinker",
+    "tinker-cookbook",
+    # CUDA deps pinned to match torch's cu12 requirements
+    "nvidia-cusparselt-cu12>=0.8",
+    "nvidia-nvshmem-cu12>=3.6",
     "setuptools<81",
 ]
 

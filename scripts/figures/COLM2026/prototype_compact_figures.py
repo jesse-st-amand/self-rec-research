@@ -666,6 +666,20 @@ def fig_score_distance_panels(data):
             x_line = np.linspace(x_vals.min(), x_vals.max(), 100)
             y_line = slope * x_line + intercept
             ax.plot(x_line, y_line, color="black", linewidth=1.5, alpha=0.8)
+
+            # Bootstrap confidence band
+            rng = np.random.default_rng(42)
+            n_boot = 500
+            boot_lines = np.zeros((n_boot, len(x_line)))
+            for b in range(n_boot):
+                idx_b = rng.choice(len(x_vals), size=len(x_vals), replace=True)
+                c = np.polyfit(x_vals[idx_b], y_vals[idx_b], 1,
+                               w=np.sqrt(w[idx_b]))
+                boot_lines[b] = c[0] * x_line + c[1]
+            lo = np.percentile(boot_lines, 2.5, axis=0)
+            hi = np.percentile(boot_lines, 97.5, axis=0)
+            ax.fill_between(x_line, lo, hi, color="black", alpha=0.1, zorder=1)
+
             r, p = stats.pearsonr(x_vals, y_vals)
             ax.text(
                 0.03, 0.03, f"r = {r:.2f}",
@@ -1130,6 +1144,129 @@ def fig_boxplot_per_model(data):
     print(f"  ✓ Saved: {path}")
 
 
+def fig_boxplot_combined(data):
+    """Combined figure: operationalizations on top, per-model on bottom, saved as PDF."""
+    from matplotlib.patches import Patch
+
+    fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(12, 9),
+                                          gridspec_kw={"hspace": 0.35})
+
+    # ── Top panel: operationalizations ──
+    box_labels_top = list(BOXPLOT_TASK_GROUPS.keys()) + DATASET_NAMES
+    box_data_top = []
+
+    for group_name, exp_list in BOXPLOT_TASK_GROUPS.items():
+        values = []
+        for exp_name in exp_list:
+            values.extend(load_pivot_values(exp_name))
+        box_data_top.append(values)
+
+    for ds_name in DATASET_NAMES:
+        values = []
+        for exp_name in BOXPLOT_ALL_EXPS:
+            values.extend(load_pivot_values(exp_name, dataset_short=ds_name))
+        box_data_top.append(values)
+
+    task_color = "#4C72B0"
+    dataset_color = "#55A868"
+    colors_top = [task_color] * 4 + [dataset_color] * 4
+
+    for i, (vals, color) in enumerate(zip(box_data_top, colors_top)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax_top.scatter(np.full(len(vals), i) + jitter, vals,
+                       color=color, alpha=0.3, s=8, edgecolors="none", zorder=1)
+
+    bp_top = ax_top.boxplot(
+        box_data_top, positions=range(len(box_labels_top)), widths=0.5,
+        patch_artist=True, showfliers=False,
+        medianprops=dict(color="black", linewidth=1.5, zorder=4),
+        whiskerprops=dict(color="gray", zorder=3),
+        capprops=dict(color="gray", zorder=3), zorder=3,
+    )
+    for patch, color in zip(bp_top["boxes"], colors_top):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    ax_top.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax_top.text(len(box_labels_top) - 0.5, 0.505, "chance", fontsize=8, color="gray",
+                ha="right", va="bottom")
+    ax_top.axvline(3.5, color="gray", linewidth=0.8, linestyle=":", alpha=0.5)
+    ax_top.set_xticks(range(len(box_labels_top)))
+    ax_top.set_xticklabels(box_labels_top, fontsize=10, fontweight="bold")
+    ax_top.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax_top.set_title("(a) Performance Distribution Across Operationalizations",
+                     fontsize=12, fontweight="bold")
+    ax_top.set_ylim(-0.05, 1.05)
+
+    legend_elements = [
+        Patch(facecolor=task_color, alpha=0.35, edgecolor=task_color, label="Task Dimension"),
+        Patch(facecolor=dataset_color, alpha=0.35, edgecolor=dataset_color, label="Dataset"),
+    ]
+    ax_top.legend(handles=legend_elements, loc="upper right", fontsize=9)
+
+    for i, vals in enumerate(box_data_top):
+        ax_top.text(i, -0.03, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    # ── Bottom panel: per-model ──
+    box_data_bot = []
+    box_labels_bot = []
+    box_colors_bot = []
+
+    for model_name, display_name, color in BOXPLOT_MODELS:
+        values = []
+        for exp_name in BOXPLOT_ALL_EXPS:
+            values.extend(load_pivot_values(exp_name, model_filter=model_name))
+        if not values:
+            continue
+        box_data_bot.append(values)
+        box_labels_bot.append(display_name)
+        box_colors_bot.append(color)
+
+    for i, (vals, color) in enumerate(zip(box_data_bot, box_colors_bot)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax_bot.scatter(np.full(len(vals), i) + jitter, vals,
+                       color=color, alpha=0.3, s=10, edgecolors="none", zorder=1)
+
+    bp_bot = ax_bot.boxplot(
+        box_data_bot, positions=range(len(box_labels_bot)), widths=0.5,
+        patch_artist=True, showfliers=False,
+        medianprops=dict(color="black", linewidth=1.5, zorder=4),
+        whiskerprops=dict(color="gray", zorder=3),
+        capprops=dict(color="gray", zorder=3), zorder=3,
+    )
+    for patch, color in zip(bp_bot["boxes"], box_colors_bot):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    ax_bot.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax_bot.text(len(box_labels_bot) - 0.5, 0.505, "chance", fontsize=8, color="gray",
+                ha="right", va="bottom")
+    ax_bot.set_xticks(range(len(box_labels_bot)))
+    ax_bot.set_xticklabels(box_labels_bot, fontsize=10, fontweight="bold", rotation=20, ha="right")
+    ax_bot.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax_bot.set_title("(b) Per-Model Performance Distribution (ordered by LM Arena Elo, low \u2192 high)",
+                     fontsize=12, fontweight="bold")
+    ax_bot.set_ylim(-0.05, 1.05)
+
+    for i, vals in enumerate(box_data_bot):
+        ax_bot.text(i, -0.03, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    path = OUT_DIR / "boxplot_combined.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
 def main():
     print("Loading experiment data...")
     data = load_all()
@@ -1172,7 +1309,688 @@ def main():
     print("\n11. Boxplots: per-model across all OPs")
     fig_boxplot_per_model(data)
 
+    print("\n12. Combined boxplots (operationalizations + per-model)")
+    fig_boxplot_combined(data)
+
+    print("\n13. Recognition vs Preference scatter (PW + IND stacked)")
+    fig_rec_vs_pref_scatter()
+
     print(f"\nAll prototypes saved to: {OUT_DIR}/")
+
+
+def fig_rec_vs_pref_scatter():
+    """Vertically stacked scatter: Recognition vs Preference performance.
+
+    Top panel: PW (ICML_01 vs ICML_05)
+    Bottom panel: IND (ICML_02 vs ICML_06)
+
+    Replicates the logic from srf-experiment-contrast's plot_performance_scatter
+    with both panels sharing a single legend on the right.
+    """
+    from scipy import stats
+    from matplotlib.legend_handler import HandlerTuple
+    from matplotlib.ticker import MultipleLocator
+    from self_rec_framework.scripts.analysis.experiment_contrast import (
+        get_family_base_color, extract_dataset_name,
+        format_dataset_display_name,
+    )
+    from self_rec_framework.scripts.utils import (
+        get_model_provider, provider_to_model_name,
+    )
+    from self_rec_framework.scripts.utils import (
+        calculate_binomial_ci, weighted_regression_with_ci, weighted_correlation,
+    )
+
+    # Data paths (latest timestamps)
+    pairs = [
+        {
+            "rec_dir": "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst/20260128_224112",
+            "pref_dir": "ICML_05_UT_PW-Q_Pref-Q_NPr_FA_Inst/20260127_163232",
+            "label": "(c)",
+        },
+        {
+            "rec_dir": "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst/20260127_151419",
+            "pref_dir": "ICML_06_UT_IND-Q_Pref-Q_NPr_FA_Inst/20260127_163242",
+            "label": "(d)",
+        },
+    ]
+
+    fig, axes = plt.subplots(2, 1, figsize=(8, 16))
+
+    # Shared state for legend
+    all_families = set()
+    all_datasets = set()
+    family_colors_map = {}
+    dataset_markers_map = {}
+    dataset_line_colors_map = {}
+    datasets_with_fit_all = {}
+
+    markers = ['D', '^', 's', 'o', 'v', '<', '>', 'p', '*', 'h']
+    ds_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd",
+                 "#8c564b", "#e377c2", "#7f7f7f"]
+
+    for p_idx, pair in enumerate(pairs):
+        ax = axes[p_idx]
+
+        rec_perf = pd.read_csv(AGG_DIR / pair["rec_dir"] / "aggregated_performance.csv", index_col=0)
+        pref_perf = pd.read_csv(AGG_DIR / pair["pref_dir"] / "aggregated_performance.csv", index_col=0)
+        rec_counts = pd.read_csv(AGG_DIR / pair["rec_dir"] / "aggregated_counts.csv", index_col=0)
+        pref_counts = pd.read_csv(AGG_DIR / pair["pref_dir"] / "aggregated_counts.csv", index_col=0)
+
+        # Align columns by short dataset name
+        def _align_counts(df_perf, df_counts):
+            col_map = {}
+            for pc in df_perf.columns:
+                ps = extract_dataset_name(pc)
+                for cc in df_counts.columns:
+                    if extract_dataset_name(cc) == ps:
+                        col_map[cc] = pc
+                        break
+            if col_map:
+                df_counts = df_counts.rename(columns=col_map)
+            return df_counts.reindex(index=df_perf.index, columns=df_perf.columns)
+
+        rec_counts = _align_counts(rec_perf, rec_counts)
+        pref_counts = _align_counts(pref_perf, pref_counts)
+
+        # Build plot data
+        plot_data = []
+        for model in rec_perf.index:
+            for dataset in rec_perf.columns:
+                rec_val = rec_perf.loc[model, dataset]
+                # Match pref column by short name
+                ds_short = extract_dataset_name(dataset)
+                pref_col = None
+                for c in pref_perf.columns:
+                    if extract_dataset_name(c) == ds_short:
+                        pref_col = c
+                        break
+                if pref_col is None or model not in pref_perf.index:
+                    continue
+                pref_val = pref_perf.loc[model, pref_col]
+                if pd.isna(rec_val) or pd.isna(pref_val):
+                    continue
+
+                # Error bars
+                rec_err = pref_err = None
+                n1 = rec_counts.loc[model, dataset] if dataset in rec_counts.columns and model in rec_counts.index else None
+                n2 = pref_counts.loc[model, pref_col] if pref_col in pref_counts.columns and model in pref_counts.index else None
+                if pd.notna(n1) and n1 > 0:
+                    _, _, se = calculate_binomial_ci(rec_val, int(n1))
+                    rec_err = 1.96 * se
+                if pd.notna(n2) and n2 > 0:
+                    _, _, se = calculate_binomial_ci(pref_val, int(n2))
+                    pref_err = 1.96 * se
+
+                plot_data.append({
+                    "model": model,
+                    "dataset": ds_short,
+                    "rec": rec_val,     # y-axis
+                    "pref": pref_val,   # x-axis
+                    "family": get_model_provider(model),
+                    "rec_err": rec_err,
+                    "pref_err": pref_err,
+                    "n1": int(n1) if pd.notna(n1) else None,
+                    "n2": int(n2) if pd.notna(n2) else None,
+                })
+
+        if not plot_data:
+            continue
+        plot_df = pd.DataFrame(plot_data)
+
+        unique_datasets = sorted(plot_df["dataset"].unique())
+        unique_families = sorted(plot_df["family"].unique())
+
+        # Assign markers/colors (consistent across panels)
+        for i, ds in enumerate(unique_datasets):
+            if ds not in dataset_markers_map:
+                idx = len(dataset_markers_map)
+                dataset_markers_map[ds] = markers[idx % len(markers)]
+                dataset_line_colors_map[ds] = ds_colors[idx % len(ds_colors)]
+        for fam in unique_families:
+            all_families.add(fam)
+            if fam not in family_colors_map:
+                fam_models = plot_df[plot_df["family"] == fam]["model"].unique()
+                family_colors_map[fam] = get_family_base_color(fam_models[0]) if len(fam_models) > 0 else "#9ca3af"
+
+        all_datasets.update(unique_datasets)
+
+        data_min = min(plot_df["rec"].min(), plot_df["pref"].min())
+        data_max = max(plot_df["rec"].max(), plot_df["pref"].max())
+        line_min = min(-0.05, data_min - 0.05)
+        line_max = max(1.05, data_max + 0.05)
+
+        datasets_with_fit = {}
+
+        for dataset in unique_datasets:
+            ds_data = plot_df[plot_df["dataset"] == dataset]
+            marker = dataset_markers_map[dataset]
+
+            for fam in ds_data["family"].unique():
+                fam_data = ds_data[ds_data["family"] == fam]
+                color = family_colors_map[fam]
+
+                xerr = np.array([e if pd.notna(e) and e is not None else 0 for e in fam_data["pref_err"]])
+                yerr = np.array([e if pd.notna(e) and e is not None else 0 for e in fam_data["rec_err"]])
+                if np.all(xerr == 0):
+                    xerr = None
+                if np.all(yerr == 0):
+                    yerr = None
+
+                ax.errorbar(fam_data["pref"], fam_data["rec"], xerr=xerr, yerr=yerr,
+                            fmt="none", ecolor=color, alpha=0.4, capsize=2, capthick=0.5,
+                            elinewidth=0.5, zorder=1)
+                ax.scatter(fam_data["pref"], fam_data["rec"], c=color, marker=marker,
+                           s=100, alpha=0.7, edgecolors="black", linewidths=0.5, zorder=2)
+
+            # Regression
+            x_vals = ds_data["pref"].values.astype(float)
+            y_vals = ds_data["rec"].values.astype(float)
+            if len(x_vals) > 1:
+                weights = None
+                if "n1" in ds_data.columns and "n2" in ds_data.columns:
+                    wl = []
+                    for n1, n2 in zip(ds_data["n1"], ds_data["n2"]):
+                        n1v = None if (pd.isna(n1) or n1 is None) else float(n1)
+                        n2v = None if (pd.isna(n2) or n2 is None) else float(n2)
+                        if n1v and n2v and n1v > 0 and n2v > 0:
+                            wl.append(np.sqrt(n1v * n2v))
+                        elif n1v and n1v > 0:
+                            wl.append(n1v)
+                        elif n2v and n2v > 0:
+                            wl.append(n2v)
+                        else:
+                            wl.append(np.nan)
+                    if not np.all(np.isnan(wl)):
+                        weights = np.array(wl)
+                        valid_w = weights[~np.isnan(weights)]
+                        if len(valid_w) > 0:
+                            weights = np.clip(weights, np.percentile(valid_w, 5), np.percentile(valid_w, 95))
+
+                line_color = dataset_line_colors_map[dataset]
+                valid_mask = ~(np.isnan(x_vals) | np.isnan(y_vals))
+                if weights is not None:
+                    valid_mask &= ~np.isnan(weights)
+
+                if np.sum(valid_mask) >= 2:
+                    xf, yf = x_vals[valid_mask], y_vals[valid_mask]
+                    wf = weights[valid_mask] if weights is not None else None
+
+                    reg = weighted_regression_with_ci(xf, yf, weights=wf, x_min=line_min, x_max=line_max)
+                    if reg:
+                        corr = weighted_correlation(xf, yf, wf) if wf is not None else stats.pearsonr(xf, yf)[0]
+                        datasets_with_fit[dataset] = corr
+                        ax.fill_between(reg["x"], reg["ci_lower"], reg["ci_upper"],
+                                        color=line_color, alpha=0.15, zorder=0)
+                        ax.plot(reg["x"], reg["y_pred"], color=line_color, linestyle="--",
+                                linewidth=1.5, alpha=0.7, zorder=1)
+                    else:
+                        slope, intercept, r_value, _, _ = stats.linregress(xf, yf)
+                        datasets_with_fit[dataset] = r_value
+                        xl = np.linspace(line_min, line_max, 100)
+                        ax.plot(xl, slope * xl + intercept, color=line_color,
+                                linestyle="--", linewidth=1.5, alpha=0.7)
+
+        # Store for legend
+        for ds, corr in datasets_with_fit.items():
+            key = (p_idx, ds)
+            datasets_with_fit_all[key] = corr
+
+        # Reference lines
+        ax.plot([line_min, line_max], [line_min, line_max], color="#888888",
+                linestyle=":", linewidth=2, alpha=0.7)
+        ax.axhline(y=0.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.8)
+        ax.axvline(x=0.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.8)
+
+        ax.set_xlabel("Preference Score", fontsize=14)
+        ax.set_ylabel("Performance Score", fontsize=14)
+        ax.set_aspect("equal", adjustable="box")
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.xaxis.set_major_locator(MultipleLocator(0.1))
+        ax.yaxis.set_major_locator(MultipleLocator(0.1))
+        ax.grid(alpha=0.3, linestyle="--")
+        ax.set_axisbelow(True)
+        ax.tick_params(axis="both", labelsize=12)
+
+        # Panel label
+        ax.text(0.02, 0.98, pair["label"], transform=ax.transAxes, fontsize=16,
+                fontweight="bold", va="top", ha="left")
+
+        # Per-panel dataset legend (inside plot, bottom-right)
+        ds_handles = []
+        for ds in sorted(unique_datasets):
+            marker = dataset_markers_map[ds]
+            lc = dataset_line_colors_map[ds]
+            h_marker = plt.Line2D([0], [0], marker=marker, color="w",
+                                  markerfacecolor="gray", markersize=8,
+                                  markeredgecolor="black", markeredgewidth=0.5)
+            h_line = plt.Line2D([0], [0], linestyle="--", color=lc, linewidth=2)
+            key = (p_idx, ds)
+            r_str = f"r={datasets_with_fit_all[key]:.2f}" if key in datasets_with_fit_all else ""
+            ds_handles.append(((h_marker, h_line), f"{format_dataset_display_name(ds)} ({r_str})"))
+
+        ds_leg = ax.legend(
+            handles=[h for h, _ in ds_handles],
+            labels=[l for _, l in ds_handles],
+            loc="lower right", fontsize=9, framealpha=0.9,
+            handler_map={tuple: HandlerTuple(ndivide=None)},
+        )
+        ax.add_artist(ds_leg)
+
+    # Shared legend on the right for model families + misc
+    def _title_h(t):
+        return plt.Line2D([], [], linestyle="", marker="", label=t)
+
+    fam_handles = [_title_h("Model Name")]
+    for fam in sorted(all_families):
+        display = provider_to_model_name(fam)
+        fam_handles.append(plt.Line2D([0], [0], marker="o", color="w",
+                                       markerfacecolor=family_colors_map[fam],
+                                       markersize=10, markeredgecolor="black",
+                                       markeredgewidth=0.5, label=display))
+
+    misc_handles = [
+        _title_h(""),
+        plt.Line2D([0], [0], color="#555555", linestyle="--", linewidth=1.0,
+                   alpha=0.8, label="Chance (0.5)"),
+        plt.Line2D([0], [0], color="#888888", linestyle=":", linewidth=2,
+                   alpha=0.7, label="1:1 line"),
+    ]
+
+    all_handles = fam_handles + misc_handles
+    all_labels = [h.get_label() for h in all_handles]
+
+    fig.legend(handles=all_handles, labels=all_labels,
+              loc="center right", bbox_to_anchor=(1.18, 0.5),
+              fontsize=10, framealpha=0.9, borderpad=1.0,
+              labelspacing=1.0)
+
+    plt.tight_layout(rect=[0, 0, 0.85, 1])
+    path = OUT_DIR / "rec_vs_pref_scatter.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+def fig_quality_heuristic_combined(data=None):
+    """2×3 combined figure: score-distance scatter (cols 0-1) + rec-vs-pref scatter (col 2).
+
+    Row 0: PW panels — (a) UT-PW score-distance, (b) UT-IND score-distance, (c) rec vs pref PW
+    Row 1: IND panels — (c) AT-PW score-distance, (d) AT-IND score-distance, (d) rec vs pref IND
+    """
+    from self_rec_framework.src.helpers.model_names import LM_ARENA_SCORES
+    from scipy import stats
+    from matplotlib.legend_handler import HandlerTuple
+    from matplotlib.ticker import MultipleLocator
+    from self_rec_framework.scripts.analysis.experiment_contrast import (
+        get_family_base_color, extract_dataset_name,
+        format_dataset_display_name,
+    )
+    from self_rec_framework.scripts.utils import (
+        get_model_provider, provider_to_model_name,
+        calculate_binomial_ci, weighted_regression_with_ci, weighted_correlation,
+    )
+    from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+
+    fig = plt.figure(figsize=(20, 12))
+    # Outer: 1×2 — left (score-distance 2×2) and right (scatter 2×1)
+    # wspace gives room for the dotted separator + Performance Score y-label
+    outer = GridSpec(1, 2, figure=fig, width_ratios=[2, 1], wspace=0.10,
+                     left=0.05, right=0.97, top=0.95, bottom=0.08)
+    gs_left = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0], hspace=0.08, wspace=0.08)
+    gs_right = GridSpecFromSubplotSpec(2, 1, subplot_spec=outer[1], hspace=0.08)
+
+    axes_left = np.array([
+        [fig.add_subplot(gs_left[0, 0]), fig.add_subplot(gs_left[0, 1])],
+        [fig.add_subplot(gs_left[1, 0]), fig.add_subplot(gs_left[1, 1])],
+    ])
+    axes_right = [fig.add_subplot(gs_right[0, 0]), fig.add_subplot(gs_right[1, 0])]
+
+    # ──────────────────────────────────────────────────────────────────
+    # LEFT 2×2: Score distance panels (same logic as fig_score_distance_panels)
+    # ──────────────────────────────────────────────────────────────────
+    sd_panels = {
+        "(a) User-Tag — Pairwise": "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst",
+        "(b) User-Tag — Individual": "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst",
+        "(c) Assistant-Tag — Pairwise": "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+        "(d) Assistant-Tag — Individual": "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
+    }
+
+    panel_dfs = {}
+    for title, exp_name in sd_panels.items():
+        exp_dir = AGG_DIR / exp_name
+        if not exp_dir.exists():
+            print(f"  ⚠ Missing dir: {exp_name}")
+            return
+        ts_dir = sorted(exp_dir.iterdir(), reverse=True)[0]
+        csv_path = ts_dir / "rank_distance_data.csv"
+        if not csv_path.exists():
+            print(f"  ⚠ Missing: {csv_path}")
+            return
+        df = pd.read_csv(csv_path)
+
+        def get_score(model):
+            if model in LM_ARENA_SCORES:
+                return LM_ARENA_SCORES[model]
+            base = model.replace("-thinking", "")
+            if base in LM_ARENA_SCORES:
+                return LM_ARENA_SCORES[base]
+            return None
+
+        df["eval_score"] = df["evaluator"].apply(get_score)
+        df["gen_score"] = df["generator"].apply(get_score)
+        df = df.dropna(subset=["eval_score", "gen_score"])
+        df["score_distance"] = df["eval_score"] - df["gen_score"]
+
+        self_scores = load_self_scores(exp_name)
+        if self_scores is not None:
+            df = adjust_ind_performance(df, self_scores)
+
+        panel_dfs[title] = df
+
+    sd_ds_colors = {
+        "wikisum": "#2196F3", "sharegpt": "#FF9800",
+        "pku_saferlhf": "#4CAF50", "bigcodebench": "#E91E63",
+    }
+    sd_ds_labels = {
+        "wikisum": "WikiSum", "sharegpt": "ShareGPT",
+        "pku_saferlhf": "PKU", "bigcodebench": "BigCode",
+    }
+
+    sd_titles = list(sd_panels.keys())
+    is_ind = {1, 3}
+    for idx, title in enumerate(sd_titles):
+        row, col = divmod(idx, 2)
+        ax = axes_left[row][col]
+        df = panel_dfs[title]
+        dataset_names = sorted(df["dataset"].unique())
+
+        for ds_name in dataset_names:
+            ds_data = df[df["dataset"] == ds_name]
+            if ds_data.empty:
+                continue
+            ax.scatter(
+                ds_data["score_distance"], ds_data["performance"],
+                c=sd_ds_colors.get(ds_name, "gray"),
+                label=sd_ds_labels.get(ds_name, ds_name),
+                alpha=0.4, s=15, edgecolors="none",
+            )
+
+        agg = df.groupby(["evaluator", "generator"]).agg(
+            score_distance=("score_distance", "first"),
+            performance=("performance", "mean"),
+            weight=("n_samples", "sum"),
+        ).reset_index()
+
+        if len(agg) > 2:
+            w = agg["weight"].values
+            x_vals = agg["score_distance"].values
+            y_vals = agg["performance"].values
+            coeffs = np.polyfit(x_vals, y_vals, 1, w=np.sqrt(w))
+            slope, intercept = coeffs
+            x_line = np.linspace(x_vals.min(), x_vals.max(), 100)
+            y_line = slope * x_line + intercept
+            ax.plot(x_line, y_line, color="black", linewidth=1.5, alpha=0.8)
+
+            rng = np.random.default_rng(42)
+            n_boot = 500
+            boot_lines = np.zeros((n_boot, len(x_line)))
+            for b in range(n_boot):
+                idx_b = rng.choice(len(x_vals), size=len(x_vals), replace=True)
+                c = np.polyfit(x_vals[idx_b], y_vals[idx_b], 1, w=np.sqrt(w[idx_b]))
+                boot_lines[b] = c[0] * x_line + c[1]
+            lo = np.percentile(boot_lines, 2.5, axis=0)
+            hi = np.percentile(boot_lines, 97.5, axis=0)
+            ax.fill_between(x_line, lo, hi, color="black", alpha=0.1, zorder=1)
+
+            r, p = stats.pearsonr(x_vals, y_vals)
+            ax.text(0.03, 0.03, f"r = {r:.2f}", transform=ax.transAxes, fontsize=9,
+                    verticalalignment="bottom",
+                    bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
+
+        ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+        ax.set_title(title, fontsize=11, fontweight="bold")
+        ax.set_ylim(0.0, 1.05)
+
+        y_label = "Adjusted Accuracy" if idx in is_ind else "Recognition Accuracy"
+        if col == 0:
+            ax.set_ylabel(y_label, fontsize=10)
+        if row == 1:
+            ax.set_xlabel("Elo Score Distance\n(Evaluator − Generator)", fontsize=10)
+        else:
+            ax.set_xticklabels([])
+        if idx == 0:
+            ax.legend(fontsize=7, loc="lower right", markerscale=1.5)
+
+    # ──────────────────────────────────────────────────────────────────
+    # RIGHT 2×1: Rec vs Pref scatter (same logic as fig_rec_vs_pref_scatter)
+    # ──────────────────────────────────────────────────────────────────
+    rp_pairs = [
+        {
+            "rec_dir": "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst/20260128_224112",
+            "pref_dir": "ICML_05_UT_PW-Q_Pref-Q_NPr_FA_Inst/20260127_163232",
+            "label": "(e)",
+        },
+        {
+            "rec_dir": "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst/20260127_151419",
+            "pref_dir": "ICML_06_UT_IND-Q_Pref-Q_NPr_FA_Inst/20260127_163242",
+            "label": "(f)",
+        },
+    ]
+
+    rp_markers = ['D', '^', 's', 'o']
+    rp_ds_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
+    rp_dataset_markers = {}
+    rp_dataset_line_colors = {}
+    all_families = set()
+    family_colors = {}
+
+    for p_idx, pair in enumerate(rp_pairs):
+        ax = axes_right[p_idx]
+
+        rec_perf = pd.read_csv(AGG_DIR / pair["rec_dir"] / "aggregated_performance.csv", index_col=0)
+        pref_perf = pd.read_csv(AGG_DIR / pair["pref_dir"] / "aggregated_performance.csv", index_col=0)
+        rec_counts = pd.read_csv(AGG_DIR / pair["rec_dir"] / "aggregated_counts.csv", index_col=0)
+        pref_counts = pd.read_csv(AGG_DIR / pair["pref_dir"] / "aggregated_counts.csv", index_col=0)
+
+        def _align_counts(df_perf, df_counts):
+            col_map = {}
+            for pc in df_perf.columns:
+                ps = extract_dataset_name(pc)
+                for cc in df_counts.columns:
+                    if extract_dataset_name(cc) == ps:
+                        col_map[cc] = pc
+                        break
+            if col_map:
+                df_counts = df_counts.rename(columns=col_map)
+            return df_counts.reindex(index=df_perf.index, columns=df_perf.columns)
+
+        rec_counts = _align_counts(rec_perf, rec_counts)
+        pref_counts = _align_counts(pref_perf, pref_counts)
+
+        plot_data = []
+        for model in rec_perf.index:
+            for dataset in rec_perf.columns:
+                rec_val = rec_perf.loc[model, dataset]
+                ds_short = extract_dataset_name(dataset)
+                pref_col = next((c for c in pref_perf.columns if extract_dataset_name(c) == ds_short), None)
+                if pref_col is None or model not in pref_perf.index:
+                    continue
+                pref_val = pref_perf.loc[model, pref_col]
+                if pd.isna(rec_val) or pd.isna(pref_val):
+                    continue
+
+                rec_err = pref_err = None
+                n1 = rec_counts.loc[model, dataset] if dataset in rec_counts.columns and model in rec_counts.index else None
+                n2 = pref_counts.loc[model, pref_col] if pref_col in pref_counts.columns and model in pref_counts.index else None
+                if pd.notna(n1) and n1 > 0:
+                    _, _, se = calculate_binomial_ci(rec_val, int(n1))
+                    rec_err = 1.96 * se
+                if pd.notna(n2) and n2 > 0:
+                    _, _, se = calculate_binomial_ci(pref_val, int(n2))
+                    pref_err = 1.96 * se
+
+                plot_data.append({
+                    "model": model, "dataset": ds_short,
+                    "rec": rec_val, "pref": pref_val,
+                    "family": get_model_provider(model),
+                    "rec_err": rec_err, "pref_err": pref_err,
+                    "n1": int(n1) if pd.notna(n1) else None,
+                    "n2": int(n2) if pd.notna(n2) else None,
+                })
+
+        if not plot_data:
+            continue
+        plot_df = pd.DataFrame(plot_data)
+        unique_datasets = sorted(plot_df["dataset"].unique())
+        unique_fams = sorted(plot_df["family"].unique())
+
+        for i, ds in enumerate(unique_datasets):
+            if ds not in rp_dataset_markers:
+                idx = len(rp_dataset_markers)
+                rp_dataset_markers[ds] = rp_markers[idx % len(rp_markers)]
+                rp_dataset_line_colors[ds] = rp_ds_colors[idx % len(rp_ds_colors)]
+        for fam in unique_fams:
+            all_families.add(fam)
+            if fam not in family_colors:
+                fm = plot_df[plot_df["family"] == fam]["model"].unique()
+                family_colors[fam] = get_family_base_color(fm[0]) if len(fm) > 0 else "#9ca3af"
+
+        data_min = min(plot_df["rec"].min(), plot_df["pref"].min())
+        data_max = max(plot_df["rec"].max(), plot_df["pref"].max())
+        line_min = min(-0.05, data_min - 0.05)
+        line_max = max(1.05, data_max + 0.05)
+
+        datasets_with_fit = {}
+        for dataset in unique_datasets:
+            ds_data = plot_df[plot_df["dataset"] == dataset]
+            marker = rp_dataset_markers[dataset]
+            for fam in ds_data["family"].unique():
+                fam_data = ds_data[ds_data["family"] == fam]
+                color = family_colors[fam]
+                xerr = np.array([e if pd.notna(e) and e is not None else 0 for e in fam_data["pref_err"]])
+                yerr = np.array([e if pd.notna(e) and e is not None else 0 for e in fam_data["rec_err"]])
+                ax.errorbar(fam_data["pref"], fam_data["rec"],
+                            xerr=xerr if not np.all(xerr == 0) else None,
+                            yerr=yerr if not np.all(yerr == 0) else None,
+                            fmt="none", ecolor=color, alpha=0.4, capsize=2,
+                            capthick=0.5, elinewidth=0.5, zorder=1)
+                ax.scatter(fam_data["pref"], fam_data["rec"], c=color, marker=marker,
+                           s=100, alpha=0.7, edgecolors="black", linewidths=0.5, zorder=2)
+
+            x_vals = ds_data["pref"].values.astype(float)
+            y_vals = ds_data["rec"].values.astype(float)
+            if len(x_vals) > 1:
+                weights = None
+                if "n1" in ds_data.columns and "n2" in ds_data.columns:
+                    wl = []
+                    for n1, n2 in zip(ds_data["n1"], ds_data["n2"]):
+                        n1v = None if (pd.isna(n1) or n1 is None) else float(n1)
+                        n2v = None if (pd.isna(n2) or n2 is None) else float(n2)
+                        if n1v and n2v and n1v > 0 and n2v > 0:
+                            wl.append(np.sqrt(n1v * n2v))
+                        elif n1v and n1v > 0:
+                            wl.append(n1v)
+                        elif n2v and n2v > 0:
+                            wl.append(n2v)
+                        else:
+                            wl.append(np.nan)
+                    if not np.all(np.isnan(wl)):
+                        weights = np.array(wl)
+                        vw = weights[~np.isnan(weights)]
+                        if len(vw) > 0:
+                            weights = np.clip(weights, np.percentile(vw, 5), np.percentile(vw, 95))
+
+                lc = rp_dataset_line_colors[dataset]
+                vm = ~(np.isnan(x_vals) | np.isnan(y_vals))
+                if weights is not None:
+                    vm &= ~np.isnan(weights)
+                if np.sum(vm) >= 2:
+                    xf, yf = x_vals[vm], y_vals[vm]
+                    wf = weights[vm] if weights is not None else None
+                    reg = weighted_regression_with_ci(xf, yf, weights=wf, x_min=line_min, x_max=line_max)
+                    if reg:
+                        corr = weighted_correlation(xf, yf, wf) if wf is not None else stats.pearsonr(xf, yf)[0]
+                        datasets_with_fit[dataset] = corr
+                        ax.fill_between(reg["x"], reg["ci_lower"], reg["ci_upper"],
+                                        color=lc, alpha=0.15, zorder=0)
+                        ax.plot(reg["x"], reg["y_pred"], color=lc, linestyle="--",
+                                linewidth=1.5, alpha=0.7, zorder=1)
+                    else:
+                        slope, intercept, r_value, _, _ = stats.linregress(xf, yf)
+                        datasets_with_fit[dataset] = r_value
+                        xl = np.linspace(line_min, line_max, 100)
+                        ax.plot(xl, slope * xl + intercept, color=lc, linestyle="--",
+                                linewidth=1.5, alpha=0.7)
+
+        ax.plot([line_min, line_max], [line_min, line_max], color="#888888",
+                linestyle=":", linewidth=2, alpha=0.7)
+        ax.axhline(y=0.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.8)
+        ax.axvline(x=0.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.8)
+
+        ax.set_ylabel("Performance Score", fontsize=10)
+        if p_idx == 1:
+            ax.set_xlabel("Preference Score", fontsize=10)
+        else:
+            ax.set_xticklabels([])
+        rp_panel_titles = ["(e) Pairwise — Rec. vs Pref.", "(f) Individual — Rec. vs Pref."]
+        ax.set_title(rp_panel_titles[p_idx], fontsize=11, fontweight="bold")
+        ax.set_aspect("equal", adjustable="box")
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.xaxis.set_major_locator(MultipleLocator(0.1))
+        ax.yaxis.set_major_locator(MultipleLocator(0.1))
+        ax.grid(alpha=0.3, linestyle="--")
+        ax.set_axisbelow(True)
+        ax.tick_params(axis="both", labelsize=9)
+
+        # Per-panel dataset legend (top-left for panel e, lower-right for panel f)
+        ds_handles = []
+        for ds in sorted(unique_datasets):
+            mk = rp_dataset_markers[ds]
+            lc = rp_dataset_line_colors[ds]
+            h_m = plt.Line2D([0], [0], marker=mk, color="w", markerfacecolor="gray",
+                             markersize=8, markeredgecolor="black", markeredgewidth=0.5)
+            h_l = plt.Line2D([0], [0], linestyle="--", color=lc, linewidth=2)
+            r_str = f"r={datasets_with_fit[ds]:.2f}" if ds in datasets_with_fit else ""
+            ds_handles.append(((h_m, h_l), f"{format_dataset_display_name(ds)} ({r_str})"))
+        ds_leg = ax.legend(handles=[h for h, _ in ds_handles], labels=[l for _, l in ds_handles],
+                           loc="upper left", fontsize=7, framealpha=0.9,
+                           handler_map={tuple: HandlerTuple(ndivide=None)})
+        ax.add_artist(ds_leg)
+
+    # ──────────────────────────────────────────────────────────────────
+    # Shared legend for model families (right side)
+    # ──────────────────────────────────────────────────────────────────
+    fam_handles = []
+    for fam in sorted(all_families):
+        display = provider_to_model_name(fam)
+        fam_handles.append(plt.Line2D([0], [0], marker="o", color="w",
+                                       markerfacecolor=family_colors[fam],
+                                       markersize=10, markeredgecolor="black",
+                                       markeredgewidth=0.5, label=display))
+    fam_handles.append(plt.Line2D([0], [0], color="#555555", linestyle="--",
+                                   linewidth=1.0, alpha=0.8, label="Chance (0.5)"))
+    fam_handles.append(plt.Line2D([0], [0], color="#888888", linestyle=":",
+                                   linewidth=2, alpha=0.7, label="1:1 line"))
+
+    # Place model family legend at bottom-right of panel (e)
+    axes_right[0].legend(handles=fam_handles, loc="lower right",
+                         fontsize=8, framealpha=0.9,
+                         borderpad=0.8, labelspacing=0.6)
+
+    # Vertical dotted separator — placed just left of the Performance Score y-label
+    left_right_edge = axes_left[0][1].get_position().x1
+    right_left_edge = axes_right[0].get_position().x0
+    sep_x = left_right_edge + (right_left_edge - left_right_edge) * 0.3
+    fig.add_artist(plt.Line2D([sep_x, sep_x], [0.05, 0.95], transform=fig.transFigure,
+                              color="gray", linestyle=":", linewidth=1.5, zorder=10))
+
+    path = OUT_DIR / "quality_heuristic_combined.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
 
 
 if __name__ == "__main__":
