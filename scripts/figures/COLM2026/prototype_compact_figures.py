@@ -504,6 +504,12 @@ IND_PIVOT_PATTERNS = {
         "pku_saferlhf": "pku_saferlhf/mismatch_1-20+test_mismatch_1-20+test-mismatch_10_100-200/COLM_02_AT_IND-C_Rec_NPr_FA_Inst/recognition_accuracy/accuracy_pivot.csv",
         "bigcodebench": "bigcodebench/instruct_1-50/COLM_02_AT_IND-C_Rec_NPr_FA_Inst/recognition_accuracy/accuracy_pivot.csv",
     },
+    "ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst": {
+        "wikisum": "wikisum/training_set_1-20+test_set_1-30/ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst/recognition_accuracy/accuracy_pivot.csv",
+        "sharegpt": "sharegpt/english_26+english2_74/ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst/recognition_accuracy/accuracy_pivot.csv",
+        "pku_saferlhf": "pku_saferlhf/mismatch_1-20+test_mismatch_1-20+test-mismatch_10_100-200/ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst/recognition_accuracy/accuracy_pivot.csv",
+        "bigcodebench": "bigcodebench/instruct_1-50/ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst/recognition_accuracy/accuracy_pivot.csv",
+    },
 }
 
 
@@ -1145,26 +1151,104 @@ def fig_boxplot_per_model(data):
 
 
 def fig_boxplot_combined(data):
-    """Combined figure: operationalizations on top, per-model on bottom, saved as PDF."""
-    from matplotlib.patches import Patch
+    """Combined figure: operationalizations on top, per-model on bottom, saved as PDF.
 
-    fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(12, 9),
-                                          gridspec_kw={"hspace": 0.35})
+    Uses only ICML_01, ICML_02, COLM_01, COLM_02 (instruct-only _dr sets).
+    Only includes models present in all 4 experiments.
+    """
+    COMBINED_EXPS = [
+        "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr",
+        "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr",
+        "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+        "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
+    ]
+    COMBINED_TASK_GROUPS = {
+        "PW":  ["ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr", "COLM_01_AT_PW-C_Rec_NPr_FA_Inst"],
+        "IND": ["ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr", "COLM_02_AT_IND-C_Rec_NPr_FA_Inst"],
+        "UT":  ["ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr", "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr"],
+        "AT":  ["COLM_01_AT_PW-C_Rec_NPr_FA_Inst", "COLM_02_AT_IND-C_Rec_NPr_FA_Inst"],
+    }
+    COMBINED_DS_ORDER = ["ShareGPT", "PKU", "BigCode", "WikiSum"]
+    COMBINED_DS_DISPLAY = {
+        "PKU": "PKU", "ShareGPT": "S-GPT",
+        "BigCode": "BCB", "WikiSum": "WS",
+    }
+
+    # Use dr_colm model set: 13 instruct models common to all 4 experiments
+    from self_rec_framework.src.helpers.model_sets import get_model_set
+    common_models = set(get_model_set("dr_colm"))
+
+    # Only include (evaluator, generator) pairs where both are in common_models
+    def _load_filtered(exp_name, dataset_short=None, model_filter=None):
+        """Load pivot values filtered to common model pairs.
+
+        For the top panel (model_filter=None): loads values for all common
+        models as evaluators, but only against other common models as generators.
+        For the bottom panel (model_filter set): loads that model's row,
+        but only columns matching common models.
+        """
+        is_ind = "IND" in exp_name
+        values = []
+        datasets = {dataset_short: DATASET_PIVOT_PATHS[dataset_short]} if dataset_short else DATASET_PIVOT_PATHS
+
+        for ds_name, ds_path in datasets.items():
+            pivot_path = ANALYSIS_DIR / ds_path / exp_name / "recognition_accuracy" / "accuracy_pivot.csv"
+            if not pivot_path.exists():
+                continue
+            df = pd.read_csv(pivot_path, index_col=0)
+
+            evaluators = [model_filter] if model_filter else sorted(common_models & set(df.index))
+            generators = sorted(common_models & set(df.columns))
+
+            if is_ind:
+                control = {}
+                for ev in df.index:
+                    if ev in df.columns and pd.notna(df.loc[ev, ev]):
+                        control[ev] = df.loc[ev, ev]
+                for ev in evaluators:
+                    if ev not in df.index or ev not in control:
+                        continue
+                    c_j = control[ev]
+                    for gen in generators:
+                        if gen == ev:
+                            continue
+                        t_ij = df.loc[ev, gen]
+                        if pd.notna(t_ij):
+                            values.append((t_ij + c_j) / 2)
+            else:
+                for ev in evaluators:
+                    if ev not in df.index:
+                        continue
+                    for gen in generators:
+                        if gen == ev:
+                            continue
+                        val = df.loc[ev, gen]
+                        if pd.notna(val):
+                            values.append(val)
+        return values
+
+    whisker_style = dict(color="black", linewidth=1.2, zorder=3)
+    cap_style = dict(color="black", linewidth=1.2, zorder=3)
+
+    fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(12, 8),
+                                          gridspec_kw={"hspace": 0.25})
 
     # ── Top panel: operationalizations ──
-    box_labels_top = list(BOXPLOT_TASK_GROUPS.keys()) + DATASET_NAMES
+    task_labels = list(COMBINED_TASK_GROUPS.keys())
+    ds_labels = [COMBINED_DS_DISPLAY[d] for d in COMBINED_DS_ORDER]
+    box_labels_top = task_labels + ds_labels
     box_data_top = []
 
-    for group_name, exp_list in BOXPLOT_TASK_GROUPS.items():
+    for group_name, exp_list in COMBINED_TASK_GROUPS.items():
         values = []
         for exp_name in exp_list:
-            values.extend(load_pivot_values(exp_name))
+            values.extend(_load_filtered(exp_name))
         box_data_top.append(values)
 
-    for ds_name in DATASET_NAMES:
+    for ds_name in COMBINED_DS_ORDER:
         values = []
-        for exp_name in BOXPLOT_ALL_EXPS:
-            values.extend(load_pivot_values(exp_name, dataset_short=ds_name))
+        for exp_name in COMBINED_EXPS:
+            values.extend(_load_filtered(exp_name, dataset_short=ds_name))
         box_data_top.append(values)
 
     task_color = "#4C72B0"
@@ -1181,9 +1265,8 @@ def fig_boxplot_combined(data):
     bp_top = ax_top.boxplot(
         box_data_top, positions=range(len(box_labels_top)), widths=0.5,
         patch_artist=True, showfliers=False,
-        medianprops=dict(color="black", linewidth=1.5, zorder=4),
-        whiskerprops=dict(color="gray", zorder=3),
-        capprops=dict(color="gray", zorder=3), zorder=3,
+        medianprops=dict(color="black", linewidth=2.0, zorder=4),
+        whiskerprops=whisker_style, capprops=cap_style, zorder=3,
     )
     for patch, color in zip(bp_top["boxes"], colors_top):
         patch.set_facecolor(color)
@@ -1193,33 +1276,28 @@ def fig_boxplot_combined(data):
         patch.set_zorder(3)
 
     ax_top.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
-    ax_top.text(len(box_labels_top) - 0.5, 0.505, "chance", fontsize=8, color="gray",
-                ha="right", va="bottom")
     ax_top.axvline(3.5, color="gray", linewidth=0.8, linestyle=":", alpha=0.5)
     ax_top.set_xticks(range(len(box_labels_top)))
-    ax_top.set_xticklabels(box_labels_top, fontsize=10, fontweight="bold")
+    ax_top.set_xticklabels(box_labels_top, fontsize=10, fontweight="bold",
+                           rotation=25, ha="right")
     ax_top.set_ylabel("Recognition Accuracy", fontsize=11)
     ax_top.set_title("(a) Performance Distribution Across Operationalizations",
                      fontsize=12, fontweight="bold")
     ax_top.set_ylim(-0.05, 1.05)
 
-    legend_elements = [
-        Patch(facecolor=task_color, alpha=0.35, edgecolor=task_color, label="Task Dimension"),
-        Patch(facecolor=dataset_color, alpha=0.35, edgecolor=dataset_color, label="Dataset"),
-    ]
-    ax_top.legend(handles=legend_elements, loc="upper right", fontsize=9)
-
     for i, vals in enumerate(box_data_top):
-        ax_top.text(i, -0.03, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+        ax_top.text(i, -0.01, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
 
-    # ── Bottom panel: per-model ──
+    # ── Bottom panel: per-model (only common models) ──
+    filtered_models = [(m, d, c) for m, d, c in BOXPLOT_MODELS if m in common_models]
+
     box_data_bot = []
     box_labels_bot = []
     box_colors_bot = []
 
-    for model_name, display_name, color in BOXPLOT_MODELS:
+    for model_name, display_name, color in filtered_models:
         values = []
-        for exp_name in BOXPLOT_ALL_EXPS:
+        for exp_name in COMBINED_EXPS:
             values.extend(load_pivot_values(exp_name, model_filter=model_name))
         if not values:
             continue
@@ -1237,9 +1315,8 @@ def fig_boxplot_combined(data):
     bp_bot = ax_bot.boxplot(
         box_data_bot, positions=range(len(box_labels_bot)), widths=0.5,
         patch_artist=True, showfliers=False,
-        medianprops=dict(color="black", linewidth=1.5, zorder=4),
-        whiskerprops=dict(color="gray", zorder=3),
-        capprops=dict(color="gray", zorder=3), zorder=3,
+        medianprops=dict(color="black", linewidth=2.0, zorder=4),
+        whiskerprops=whisker_style, capprops=cap_style, zorder=3,
     )
     for patch, color in zip(bp_bot["boxes"], box_colors_bot):
         patch.set_facecolor(color)
@@ -1249,19 +1326,793 @@ def fig_boxplot_combined(data):
         patch.set_zorder(3)
 
     ax_bot.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
-    ax_bot.text(len(box_labels_bot) - 0.5, 0.505, "chance", fontsize=8, color="gray",
-                ha="right", va="bottom")
     ax_bot.set_xticks(range(len(box_labels_bot)))
-    ax_bot.set_xticklabels(box_labels_bot, fontsize=10, fontweight="bold", rotation=20, ha="right")
+    ax_bot.set_xticklabels(box_labels_bot, fontsize=10, fontweight="bold", rotation=25, ha="right")
     ax_bot.set_ylabel("Recognition Accuracy", fontsize=11)
-    ax_bot.set_title("(b) Per-Model Performance Distribution (ordered by LM Arena Elo, low \u2192 high)",
+    ax_bot.set_title("(b) Per-Model Performance Distribution",
                      fontsize=12, fontweight="bold")
     ax_bot.set_ylim(-0.05, 1.05)
 
     for i, vals in enumerate(box_data_bot):
-        ax_bot.text(i, -0.03, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+        ax_bot.text(i, -0.01, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
 
     path = OUT_DIR / "boxplot_combined.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+def fig_boxplot_combined_v2(data):
+    """Variant with individual OP boxes: UT PW, UT IND, AT PW, AT IND (+ datasets + per-model)."""
+    from self_rec_framework.src.helpers.model_sets import get_model_set
+
+    COMBINED_EXPS = [
+        "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr",
+        "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr",
+        "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+        "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
+    ]
+    TASK_INDIVIDUAL = {
+        "UT PW":  ["ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr"],
+        "UT IND": ["ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr"],
+        "AT PW":  ["COLM_01_AT_PW-C_Rec_NPr_FA_Inst"],
+        "AT IND": ["COLM_02_AT_IND-C_Rec_NPr_FA_Inst"],
+    }
+    DS_ORDER = ["ShareGPT", "PKU", "BigCode", "WikiSum"]
+    DS_DISPLAY = {"PKU": "PKU", "ShareGPT": "S-GPT", "BigCode": "BCB", "WikiSum": "WS"}
+
+    common_models = set(get_model_set("dr_colm"))
+
+    def _load_filtered(exp_name, dataset_short=None, model_filter=None):
+        is_ind = "IND" in exp_name
+        values = []
+        datasets = {dataset_short: DATASET_PIVOT_PATHS[dataset_short]} if dataset_short else DATASET_PIVOT_PATHS
+        for ds_name, ds_path in datasets.items():
+            pivot_path = ANALYSIS_DIR / ds_path / exp_name / "recognition_accuracy" / "accuracy_pivot.csv"
+            if not pivot_path.exists():
+                continue
+            df = pd.read_csv(pivot_path, index_col=0)
+            evaluators = [model_filter] if model_filter else sorted(common_models & set(df.index))
+            generators = sorted(common_models & set(df.columns))
+            if is_ind:
+                control = {}
+                for ev in df.index:
+                    if ev in df.columns and pd.notna(df.loc[ev, ev]):
+                        control[ev] = df.loc[ev, ev]
+                for ev in evaluators:
+                    if ev not in df.index or ev not in control:
+                        continue
+                    c_j = control[ev]
+                    for gen in generators:
+                        if gen == ev:
+                            continue
+                        t_ij = df.loc[ev, gen]
+                        if pd.notna(t_ij):
+                            values.append((t_ij + c_j) / 2)
+            else:
+                for ev in evaluators:
+                    if ev not in df.index:
+                        continue
+                    for gen in generators:
+                        if gen == ev:
+                            continue
+                        val = df.loc[ev, gen]
+                        if pd.notna(val):
+                            values.append(val)
+        return values
+
+    whisker_style = dict(color="black", linewidth=1.2, zorder=3)
+    cap_style = dict(color="black", linewidth=1.2, zorder=3)
+
+    fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(12, 8),
+                                          gridspec_kw={"hspace": 0.25})
+
+    # ── Top panel: individual OPs + datasets ──
+    task_labels = list(TASK_INDIVIDUAL.keys())
+    ds_labels = [DS_DISPLAY[d] for d in DS_ORDER]
+    box_labels_top = task_labels + ds_labels
+    box_data_top = []
+
+    for group_name, exp_list in TASK_INDIVIDUAL.items():
+        values = []
+        for exp_name in exp_list:
+            values.extend(_load_filtered(exp_name))
+        box_data_top.append(values)
+
+    for ds_name in DS_ORDER:
+        values = []
+        for exp_name in COMBINED_EXPS:
+            values.extend(_load_filtered(exp_name, dataset_short=ds_name))
+        box_data_top.append(values)
+
+    task_color = "#4C72B0"
+    dataset_color = "#55A868"
+    colors_top = [task_color] * 4 + [dataset_color] * 4
+
+    for i, (vals, color) in enumerate(zip(box_data_top, colors_top)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax_top.scatter(np.full(len(vals), i) + jitter, vals,
+                       color=color, alpha=0.3, s=8, edgecolors="none", zorder=1)
+
+    bp_top = ax_top.boxplot(
+        box_data_top, positions=range(len(box_labels_top)), widths=0.5,
+        patch_artist=True, showfliers=False,
+        medianprops=dict(color="black", linewidth=2.0, zorder=4),
+        whiskerprops=whisker_style, capprops=cap_style, zorder=3,
+    )
+    for patch, color in zip(bp_top["boxes"], colors_top):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    ax_top.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax_top.axvline(3.5, color="gray", linewidth=0.8, linestyle=":", alpha=0.5)
+    ax_top.set_xticks(range(len(box_labels_top)))
+    ax_top.set_xticklabels(box_labels_top, fontsize=10, fontweight="bold",
+                           rotation=25, ha="right")
+    ax_top.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax_top.set_title("(a) Performance Distribution Across Operationalizations",
+                     fontsize=12, fontweight="bold")
+    ax_top.set_ylim(-0.05, 1.05)
+
+    for i, vals in enumerate(box_data_top):
+        ax_top.text(i, -0.01, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    # ── Bottom panel: per-model ──
+    filtered_models = [(m, d, c) for m, d, c in BOXPLOT_MODELS if m in common_models]
+
+    box_data_bot = []
+    box_labels_bot = []
+    box_colors_bot = []
+
+    for model_name, display_name, color in filtered_models:
+        values = []
+        for exp_name in COMBINED_EXPS:
+            values.extend(load_pivot_values(exp_name, model_filter=model_name))
+        if not values:
+            continue
+        box_data_bot.append(values)
+        box_labels_bot.append(display_name)
+        box_colors_bot.append(color)
+
+    for i, (vals, color) in enumerate(zip(box_data_bot, box_colors_bot)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax_bot.scatter(np.full(len(vals), i) + jitter, vals,
+                       color=color, alpha=0.3, s=10, edgecolors="none", zorder=1)
+
+    bp_bot = ax_bot.boxplot(
+        box_data_bot, positions=range(len(box_labels_bot)), widths=0.5,
+        patch_artist=True, showfliers=False,
+        medianprops=dict(color="black", linewidth=2.0, zorder=4),
+        whiskerprops=whisker_style, capprops=cap_style, zorder=3,
+    )
+    for patch, color in zip(bp_bot["boxes"], box_colors_bot):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    ax_bot.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax_bot.set_xticks(range(len(box_labels_bot)))
+    ax_bot.set_xticklabels(box_labels_bot, fontsize=10, fontweight="bold", rotation=25, ha="right")
+    ax_bot.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax_bot.set_title("(b) Per-Model Performance Distribution",
+                     fontsize=12, fontweight="bold")
+    ax_bot.set_ylim(-0.05, 1.05)
+
+    for i, vals in enumerate(box_data_bot):
+        ax_bot.text(i, -0.01, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    path = OUT_DIR / "boxplot_combined_v2.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+def fig_boxplot_combined_v3(data):
+    """Variant with individual OP boxes + dataset distributions from PW experiments only."""
+    from self_rec_framework.src.helpers.model_sets import get_model_set
+
+    PW_EXPS = [
+        "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr",
+        "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+    ]
+    ALL_EXPS = [
+        "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr",
+        "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr",
+        "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+        "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
+    ]
+    TASK_INDIVIDUAL = {
+        "UT PW":  ["ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr"],
+        "UT IND": ["ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr"],
+        "AT PW":  ["COLM_01_AT_PW-C_Rec_NPr_FA_Inst"],
+        "AT IND": ["COLM_02_AT_IND-C_Rec_NPr_FA_Inst"],
+    }
+    DS_ORDER = ["ShareGPT", "PKU", "BigCode", "WikiSum"]
+    DS_DISPLAY = {"PKU": "PKU", "ShareGPT": "S-GPT", "BigCode": "BCB", "WikiSum": "WS"}
+
+    common_models = set(get_model_set("dr_colm"))
+
+    def _load_filtered(exp_name, dataset_short=None, model_filter=None):
+        is_ind = "IND" in exp_name
+        values = []
+        datasets = {dataset_short: DATASET_PIVOT_PATHS[dataset_short]} if dataset_short else DATASET_PIVOT_PATHS
+        for ds_name, ds_path in datasets.items():
+            pivot_path = ANALYSIS_DIR / ds_path / exp_name / "recognition_accuracy" / "accuracy_pivot.csv"
+            if not pivot_path.exists():
+                continue
+            df = pd.read_csv(pivot_path, index_col=0)
+            evaluators = [model_filter] if model_filter else sorted(common_models & set(df.index))
+            generators = sorted(common_models & set(df.columns))
+            if is_ind:
+                control = {}
+                for ev in df.index:
+                    if ev in df.columns and pd.notna(df.loc[ev, ev]):
+                        control[ev] = df.loc[ev, ev]
+                for ev in evaluators:
+                    if ev not in df.index or ev not in control:
+                        continue
+                    c_j = control[ev]
+                    for gen in generators:
+                        if gen == ev:
+                            continue
+                        t_ij = df.loc[ev, gen]
+                        if pd.notna(t_ij):
+                            values.append((t_ij + c_j) / 2)
+            else:
+                for ev in evaluators:
+                    if ev not in df.index:
+                        continue
+                    for gen in generators:
+                        if gen == ev:
+                            continue
+                        val = df.loc[ev, gen]
+                        if pd.notna(val):
+                            values.append(val)
+        return values
+
+    whisker_style = dict(color="black", linewidth=1.2, zorder=3)
+    cap_style = dict(color="black", linewidth=1.2, zorder=3)
+
+    fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(12, 8),
+                                          gridspec_kw={"hspace": 0.25})
+
+    # ── Top panel: individual OPs + datasets (PW only) ──
+    task_labels = list(TASK_INDIVIDUAL.keys())
+    ds_labels = [DS_DISPLAY[d] for d in DS_ORDER]
+    box_labels_top = task_labels + ds_labels
+    box_data_top = []
+
+    for group_name, exp_list in TASK_INDIVIDUAL.items():
+        values = []
+        for exp_name in exp_list:
+            values.extend(_load_filtered(exp_name))
+        box_data_top.append(values)
+
+    for ds_name in DS_ORDER:
+        values = []
+        for exp_name in PW_EXPS:  # Only UT PW and AT PW
+            values.extend(_load_filtered(exp_name, dataset_short=ds_name))
+        box_data_top.append(values)
+
+    task_color = "#4C72B0"
+    dataset_color = "#55A868"
+    colors_top = [task_color] * 4 + [dataset_color] * 4
+
+    for i, (vals, color) in enumerate(zip(box_data_top, colors_top)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax_top.scatter(np.full(len(vals), i) + jitter, vals,
+                       color=color, alpha=0.3, s=8, edgecolors="none", zorder=1)
+
+    bp_top = ax_top.boxplot(
+        box_data_top, positions=range(len(box_labels_top)), widths=0.5,
+        patch_artist=True, showfliers=False,
+        medianprops=dict(color="black", linewidth=2.0, zorder=4),
+        whiskerprops=whisker_style, capprops=cap_style, zorder=3,
+    )
+    for patch, color in zip(bp_top["boxes"], colors_top):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    ax_top.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax_top.axvline(3.5, color="gray", linewidth=0.8, linestyle=":", alpha=0.5)
+    ax_top.set_xticks(range(len(box_labels_top)))
+    ax_top.set_xticklabels(box_labels_top, fontsize=10, fontweight="bold",
+                           rotation=25, ha="right")
+    ax_top.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax_top.set_title("(a) Performance Distribution Across Operationalizations",
+                     fontsize=12, fontweight="bold")
+    ax_top.set_ylim(-0.05, 1.05)
+
+    for i, vals in enumerate(box_data_top):
+        ax_top.text(i, -0.01, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    # ── Bottom panel: per-model ──
+    filtered_models = [(m, d, c) for m, d, c in BOXPLOT_MODELS if m in common_models]
+
+    box_data_bot = []
+    box_labels_bot = []
+    box_colors_bot = []
+
+    for model_name, display_name, color in filtered_models:
+        values = []
+        for exp_name in ALL_EXPS:
+            values.extend(load_pivot_values(exp_name, model_filter=model_name))
+        if not values:
+            continue
+        box_data_bot.append(values)
+        box_labels_bot.append(display_name)
+        box_colors_bot.append(color)
+
+    for i, (vals, color) in enumerate(zip(box_data_bot, box_colors_bot)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax_bot.scatter(np.full(len(vals), i) + jitter, vals,
+                       color=color, alpha=0.3, s=10, edgecolors="none", zorder=1)
+
+    bp_bot = ax_bot.boxplot(
+        box_data_bot, positions=range(len(box_labels_bot)), widths=0.5,
+        patch_artist=True, showfliers=False,
+        medianprops=dict(color="black", linewidth=2.0, zorder=4),
+        whiskerprops=whisker_style, capprops=cap_style, zorder=3,
+    )
+    for patch, color in zip(bp_bot["boxes"], box_colors_bot):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    ax_bot.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax_bot.set_xticks(range(len(box_labels_bot)))
+    ax_bot.set_xticklabels(box_labels_bot, fontsize=10, fontweight="bold", rotation=25, ha="right")
+    ax_bot.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax_bot.set_title("(b) Per-Model Performance Distribution",
+                     fontsize=12, fontweight="bold")
+    ax_bot.set_ylim(-0.05, 1.05)
+
+    for i, vals in enumerate(box_data_bot):
+        ax_bot.text(i, -0.01, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    path = OUT_DIR / "boxplot_combined_v3.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+def fig_boxplot_combined_v4(data):
+    """Variant: task OPs restricted to ShareGPT only, datasets restricted to PW only."""
+    from self_rec_framework.src.helpers.model_sets import get_model_set
+
+    PW_EXPS = [
+        "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr",
+        "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+    ]
+    ALL_EXPS = [
+        "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr",
+        "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr",
+        "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+        "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
+    ]
+    TASK_INDIVIDUAL = {
+        "UT PW":  ["ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr"],
+        "UT IND": ["ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr"],
+        "AT PW":  ["COLM_01_AT_PW-C_Rec_NPr_FA_Inst"],
+        "AT IND": ["COLM_02_AT_IND-C_Rec_NPr_FA_Inst"],
+    }
+    DS_ORDER = ["ShareGPT", "PKU", "BigCode", "WikiSum"]
+    DS_DISPLAY = {"PKU": "PKU", "ShareGPT": "S-GPT", "BigCode": "BCB", "WikiSum": "WS"}
+
+    common_models = set(get_model_set("dr_colm"))
+
+    def _load_filtered(exp_name, dataset_short=None, model_filter=None):
+        is_ind = "IND" in exp_name
+        values = []
+        datasets = {dataset_short: DATASET_PIVOT_PATHS[dataset_short]} if dataset_short else DATASET_PIVOT_PATHS
+        for ds_name, ds_path in datasets.items():
+            pivot_path = ANALYSIS_DIR / ds_path / exp_name / "recognition_accuracy" / "accuracy_pivot.csv"
+            if not pivot_path.exists():
+                continue
+            df = pd.read_csv(pivot_path, index_col=0)
+            evaluators = [model_filter] if model_filter else sorted(common_models & set(df.index))
+            generators = sorted(common_models & set(df.columns))
+            if is_ind:
+                control = {}
+                for ev in df.index:
+                    if ev in df.columns and pd.notna(df.loc[ev, ev]):
+                        control[ev] = df.loc[ev, ev]
+                for ev in evaluators:
+                    if ev not in df.index or ev not in control:
+                        continue
+                    c_j = control[ev]
+                    for gen in generators:
+                        if gen == ev:
+                            continue
+                        t_ij = df.loc[ev, gen]
+                        if pd.notna(t_ij):
+                            values.append((t_ij + c_j) / 2)
+            else:
+                for ev in evaluators:
+                    if ev not in df.index:
+                        continue
+                    for gen in generators:
+                        if gen == ev:
+                            continue
+                        val = df.loc[ev, gen]
+                        if pd.notna(val):
+                            values.append(val)
+        return values
+
+    whisker_style = dict(color="black", linewidth=1.2, zorder=3)
+    cap_style = dict(color="black", linewidth=1.2, zorder=3)
+
+    fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(12, 8),
+                                          gridspec_kw={"hspace": 0.25})
+
+    # ── Top panel: task OPs (ShareGPT only) + datasets (PW only) ──
+    task_labels = list(TASK_INDIVIDUAL.keys())
+    ds_labels = [DS_DISPLAY[d] for d in DS_ORDER]
+    box_labels_top = task_labels + ds_labels
+    box_data_top = []
+
+    for group_name, exp_list in TASK_INDIVIDUAL.items():
+        values = []
+        for exp_name in exp_list:
+            values.extend(_load_filtered(exp_name, dataset_short="ShareGPT"))
+        box_data_top.append(values)
+
+    for ds_name in DS_ORDER:
+        values = []
+        for exp_name in PW_EXPS:
+            values.extend(_load_filtered(exp_name, dataset_short=ds_name))
+        box_data_top.append(values)
+
+    task_color = "#4C72B0"
+    dataset_color = "#55A868"
+    colors_top = [task_color] * 4 + [dataset_color] * 4
+
+    for i, (vals, color) in enumerate(zip(box_data_top, colors_top)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax_top.scatter(np.full(len(vals), i) + jitter, vals,
+                       color=color, alpha=0.3, s=8, edgecolors="none", zorder=1)
+
+    bp_top = ax_top.boxplot(
+        box_data_top, positions=range(len(box_labels_top)), widths=0.5,
+        patch_artist=True, showfliers=False,
+        medianprops=dict(color="black", linewidth=2.0, zorder=4),
+        whiskerprops=whisker_style, capprops=cap_style, zorder=3,
+    )
+    for patch, color in zip(bp_top["boxes"], colors_top):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    ax_top.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax_top.axvline(3.5, color="gray", linewidth=0.8, linestyle=":", alpha=0.5)
+    ax_top.set_xticks(range(len(box_labels_top)))
+    ax_top.set_xticklabels(box_labels_top, fontsize=10, fontweight="bold",
+                           rotation=25, ha="right")
+    ax_top.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax_top.set_title("(a) Performance Distribution Across Operationalizations",
+                     fontsize=12, fontweight="bold")
+    ax_top.set_ylim(-0.05, 1.05)
+
+    for i, vals in enumerate(box_data_top):
+        ax_top.text(i, -0.01, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    # ── Bottom panel: per-model ──
+    filtered_models = [(m, d, c) for m, d, c in BOXPLOT_MODELS if m in common_models]
+
+    box_data_bot = []
+    box_labels_bot = []
+    box_colors_bot = []
+
+    for model_name, display_name, color in filtered_models:
+        values = []
+        for exp_name in ALL_EXPS:
+            values.extend(load_pivot_values(exp_name, model_filter=model_name))
+        if not values:
+            continue
+        box_data_bot.append(values)
+        box_labels_bot.append(display_name)
+        box_colors_bot.append(color)
+
+    for i, (vals, color) in enumerate(zip(box_data_bot, box_colors_bot)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax_bot.scatter(np.full(len(vals), i) + jitter, vals,
+                       color=color, alpha=0.3, s=10, edgecolors="none", zorder=1)
+
+    bp_bot = ax_bot.boxplot(
+        box_data_bot, positions=range(len(box_labels_bot)), widths=0.5,
+        patch_artist=True, showfliers=False,
+        medianprops=dict(color="black", linewidth=2.0, zorder=4),
+        whiskerprops=whisker_style, capprops=cap_style, zorder=3,
+    )
+    for patch, color in zip(bp_bot["boxes"], box_colors_bot):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    ax_bot.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax_bot.set_xticks(range(len(box_labels_bot)))
+    ax_bot.set_xticklabels(box_labels_bot, fontsize=10, fontweight="bold", rotation=25, ha="right")
+    ax_bot.set_ylabel("Recognition Accuracy", fontsize=11)
+    ax_bot.set_title("(b) Per-Model Performance Distribution",
+                     fontsize=12, fontweight="bold")
+    ax_bot.set_ylim(-0.05, 1.05)
+
+    for i, vals in enumerate(box_data_bot):
+        ax_bot.text(i, -0.01, f"n={len(vals)}", ha="center", va="top", fontsize=7, color="gray")
+
+    path = OUT_DIR / "boxplot_combined_v4.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+def fig_boxplot_with_grouped_bar(data):
+    """V3 boxplot (panel a) + ICML_07 grouped bar chart (panel b)."""
+    from self_rec_framework.src.helpers.model_sets import get_model_set
+    from self_rec_framework.src.helpers.model_names import LM_ARENA_SCORES
+    from self_rec_framework.scripts.utils import get_model_provider, provider_to_model_name
+    from self_rec_framework.scripts.analysis.experiment_contrast import get_family_base_color
+
+    # ═══════════ Panel (a): v3 boxplot (same as fig_boxplot_combined_v3) ═══════════
+    PW_EXPS = [
+        "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr",
+        "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+    ]
+    ALL_EXPS = [
+        "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr",
+        "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr",
+        "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+        "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
+    ]
+    TASK_INDIVIDUAL = {
+        "UT PW":  ["ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_dr"],
+        "UT IND": ["ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_dr"],
+        "AT PW":  ["COLM_01_AT_PW-C_Rec_NPr_FA_Inst"],
+        "AT IND": ["COLM_02_AT_IND-C_Rec_NPr_FA_Inst"],
+    }
+    DS_ORDER = ["ShareGPT", "PKU", "BigCode", "WikiSum"]
+    DS_DISPLAY = {"PKU": "PKU", "ShareGPT": "S-GPT", "BigCode": "BCB", "WikiSum": "WS"}
+
+    common_models = set(get_model_set("dr_colm"))
+
+    def _load_filtered(exp_name, dataset_short=None, model_filter=None):
+        is_ind = "IND" in exp_name
+        values = []
+        datasets = {dataset_short: DATASET_PIVOT_PATHS[dataset_short]} if dataset_short else DATASET_PIVOT_PATHS
+        for ds_name, ds_path in datasets.items():
+            pivot_path = ANALYSIS_DIR / ds_path / exp_name / "recognition_accuracy" / "accuracy_pivot.csv"
+            if not pivot_path.exists():
+                continue
+            df = pd.read_csv(pivot_path, index_col=0)
+            evaluators = [model_filter] if model_filter else sorted(common_models & set(df.index))
+            generators = sorted(common_models & set(df.columns))
+            if is_ind:
+                control = {}
+                for ev in df.index:
+                    if ev in df.columns and pd.notna(df.loc[ev, ev]):
+                        control[ev] = df.loc[ev, ev]
+                for ev in evaluators:
+                    if ev not in df.index or ev not in control:
+                        continue
+                    c_j = control[ev]
+                    for gen in generators:
+                        if gen == ev:
+                            continue
+                        t_ij = df.loc[ev, gen]
+                        if pd.notna(t_ij):
+                            values.append((t_ij + c_j) / 2)
+            else:
+                for ev in evaluators:
+                    if ev not in df.index:
+                        continue
+                    for gen in generators:
+                        if gen == ev:
+                            continue
+                        val = df.loc[ev, gen]
+                        if pd.notna(val):
+                            values.append(val)
+        return values
+
+    whisker_style = dict(color="black", linewidth=1.2, zorder=3)
+    cap_style = dict(color="black", linewidth=1.2, zorder=3)
+
+    fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(14, 9),
+                                          gridspec_kw={"hspace": 0.20, "height_ratios": [1, 1.3]})
+
+    # ── Panel (a): boxplots ──
+    task_labels = list(TASK_INDIVIDUAL.keys())
+    ds_labels = [DS_DISPLAY[d] for d in DS_ORDER]
+    box_labels_top = task_labels + ds_labels
+    box_data_top = []
+
+    for group_name, exp_list in TASK_INDIVIDUAL.items():
+        values = []
+        for exp_name in exp_list:
+            values.extend(_load_filtered(exp_name))
+        box_data_top.append(values)
+
+    for ds_name in DS_ORDER:
+        values = []
+        for exp_name in PW_EXPS:
+            values.extend(_load_filtered(exp_name, dataset_short=ds_name))
+        box_data_top.append(values)
+
+    task_color = "#7B1FA2"
+    # Shared dataset colors across both panels
+    ds_bar_colors = {
+        "WikiSum": "#1565C0", "ShareGPT": "#FF8F00",
+        "PKU-SafeRLHF": "#43A047", "BigCodeBench": "#E57373",
+    }
+    # Match DS_ORDER keys to bar color keys
+    DS_TO_BAR_KEY = {"ShareGPT": "ShareGPT", "PKU": "PKU-SafeRLHF", "BigCode": "BigCodeBench", "WikiSum": "WikiSum"}
+    ds_colors_ordered = [ds_bar_colors[DS_TO_BAR_KEY[ds]] for ds in DS_ORDER]
+    colors_top = [task_color] * 4 + ds_colors_ordered
+
+    for i, (vals, color) in enumerate(zip(box_data_top, colors_top)):
+        if not vals:
+            continue
+        jitter = np.random.default_rng(42).uniform(-0.15, 0.15, len(vals))
+        ax_top.scatter(np.full(len(vals), i) + jitter, vals,
+                       color=color, alpha=0.3, s=8, edgecolors="none", zorder=1)
+
+    bp_top = ax_top.boxplot(
+        box_data_top, positions=range(len(box_labels_top)), widths=0.5,
+        patch_artist=True, showfliers=False,
+        medianprops=dict(color="black", linewidth=2.0, zorder=4),
+        whiskerprops=whisker_style, capprops=cap_style, zorder=3,
+    )
+    for patch, color in zip(bp_top["boxes"], colors_top):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.35)
+        patch.set_edgecolor(color)
+        patch.set_linewidth(1.5)
+        patch.set_zorder(3)
+
+    ax_top.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=2)
+    ax_top.axvline(3.5, color="gray", linewidth=0.8, linestyle=":", alpha=0.5)
+    ax_top.set_xticks(range(len(box_labels_top)))
+    ax_top.set_xticklabels(box_labels_top, fontsize=13, fontweight="bold",
+                           rotation=0, ha="center")
+    ax_top.set_ylabel("Recognition Accuracy", fontsize=16)
+    ax_top.set_title("(a) Performance Distribution Across Operationalizations",
+                     fontsize=17, fontweight="bold")
+    ax_top.set_ylim(-0.05, 1.05)
+    ax_top.tick_params(axis="y", labelsize=13)
+
+    for i, vals in enumerate(box_data_top):
+        ax_top.text(i, -0.01, f"n={len(vals)}", ha="center", va="top", fontsize=9, color="gray")
+
+    # ═══════════ Panel (b): ICML_07 grouped bar chart ═══════════
+    perf_df = pd.read_csv(
+        AGG_DIR / "ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst" / "20260202_200109" / "aggregated_performance.csv",
+        index_col=0,
+    )
+    counts_df = pd.read_csv(
+        AGG_DIR / "ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst" / "20260202_200109" / "aggregated_counts.csv",
+        index_col=0,
+    )
+
+    # Short dataset names
+    ds_short_map = {}
+    for col in perf_df.columns:
+        short = col.split("/")[0]
+        ds_short_map[col] = {
+            "wikisum": "WikiSum", "sharegpt": "ShareGPT",
+            "pku_saferlhf": "PKU-SafeRLHF", "bigcodebench": "BigCodeBench",
+        }.get(short, short)
+
+    ds_display_order = ["WikiSum", "ShareGPT", "PKU-SafeRLHF", "BigCodeBench"]
+    ds_bar_hatches = {
+        "WikiSum": "", "ShareGPT": "",
+        "PKU-SafeRLHF": "", "BigCodeBench": "",
+    }
+
+    # Sort models by Elo
+    def _elo(m):
+        return LM_ARENA_SCORES.get(m) or LM_ARENA_SCORES.get(m.replace("-thinking", ""), 0) or 0
+    sorted_models = sorted(perf_df.index, key=_elo)
+
+    # Display names
+    MODEL_DISPLAY = {
+        "ll-3.1-8b": "Llama 8B", "ll-3.1-70b": "Llama 70B", "ll-3.1-405b": "Llama 405B",
+        "qwen-2.5-7b": "Qwen 7B", "qwen-2.5-72b": "Qwen 72B", "qwen-3.0-80b": "Qwen 80B",
+        "qwen-3.0-80b-thinking": "Qwen 80B (R)", "gpt-4o-mini": "GPT-4o Mini",
+        "gpt-4.1-mini": "GPT-4.1 Mini", "gpt-4o": "GPT-4o", "gpt-4.1": "GPT-4.1",
+        "haiku-3.5": "Haiku 3.5", "sonnet-3.7": "Sonnet 3.7", "sonnet-4.5": "Sonnet 4.5",
+        "opus-4.1": "Opus 4.1", "opus-4.1-thinking": "Opus 4.1 (R)",
+        "gemini-2.0-flash-lite": "Flash Lite", "gemini-2.0-flash": "Flash 2.0",
+        "gemini-2.5-pro-thinking": "Gemini Pro (R)",
+        "deepseek-3.1": "DS 3.1", "deepseek-r1-thinking": "DS-R1 (R)",
+        "kimi-k2": "Kimi K2", "kimi-k2-thinking": "Kimi K2 (R)",
+        "gpt-oss-120b-thinking": "GPT-OSS 120B (R)",
+    }
+
+    n_models = len(sorted_models)
+    n_datasets = len(ds_display_order)
+    bar_width = 0.8 / n_datasets
+    x_positions = np.arange(n_models)
+
+    for d_idx, ds_name in enumerate(ds_display_order):
+        # Find the column matching this dataset
+        col = None
+        for c, s in ds_short_map.items():
+            if s == ds_name:
+                col = c
+                break
+        if col is None:
+            continue
+
+        vals = [perf_df.loc[m, col] if m in perf_df.index and pd.notna(perf_df.loc[m, col]) else 0
+                for m in sorted_models]
+        offset = (d_idx - n_datasets / 2 + 0.5) * bar_width
+        bars = ax_bot.bar(x_positions + offset, vals, bar_width * 0.9,
+                          color=ds_bar_colors[ds_name], alpha=0.85,
+                          edgecolor="black", linewidth=0.4,
+                          hatch=ds_bar_hatches[ds_name], label=ds_name, zorder=2)
+
+        # Significance asterisks (binomial test, two-sided, α=0.05)
+        from scipy.stats import binomtest
+        for m_idx, model in enumerate(sorted_models):
+            acc = perf_df.loc[model, col] if model in perf_df.index and pd.notna(perf_df.loc[model, col]) else None
+            n_samples = counts_df.loc[model, col] if model in counts_df.index and col in counts_df.columns and pd.notna(counts_df.loc[model, col]) else None
+            if acc is not None and n_samples is not None and n_samples > 0:
+                n = int(n_samples)
+                k = round(acc * n)
+                p = binomtest(k, n, 0.5).pvalue
+                if p < 0.05:
+                    bar_x = x_positions[m_idx] + offset
+                    ax_bot.text(bar_x, acc + 0.01, "*", ha="center", va="bottom",
+                                fontsize=12, fontweight="bold", color="black", zorder=5)
+
+    ax_bot.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=1)
+    ax_bot.set_xticks(x_positions)
+    ax_bot.set_xticklabels([MODEL_DISPLAY.get(m, m) for m in sorted_models],
+                           fontsize=13, fontweight="bold", rotation=35, ha="right")
+
+    # Color x-tick labels by model family (darkened for readability)
+    def _darken(hex_color, factor=0.65):
+        h = hex_color.lstrip("#")
+        r, g, b = int(h[:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+        return f"#{int(r*factor):02x}{int(g*factor):02x}{int(b*factor):02x}"
+
+    for tick_label, model in zip(ax_bot.get_xticklabels(), sorted_models):
+        tick_label.set_color(_darken(get_family_base_color(model)))
+
+    ax_bot.set_ylabel("Recognition Accuracy", fontsize=16)
+    ax_bot.set_title("(b) Per-Model Pairwise Recognition (UT) by Dataset",
+                     fontsize=17, fontweight="bold")
+    ax_bot.set_ylim(0, 1.05)
+    ax_bot.tick_params(axis="y", labelsize=13)
+    ax_bot.legend(fontsize=13, loc="upper left", ncol=2)
+    ax_bot.set_xlim(-0.6, n_models - 0.4)
+
+    path = OUT_DIR / "boxplot_with_grouped_bar.pdf"
     fig.savefig(path, bbox_inches="tight")
     plt.close()
     print(f"  ✓ Saved: {path}")
@@ -1300,8 +2151,7 @@ def main():
     print("\n8. Rank distance: 2×2 panel (UT/AT × PW/IND)")
     fig_rank_distance_panels(data)
 
-    print("\n9. Training effect: score-distance overlay (proxy ll-3.1-8b → opus-4.1)")
-    fig_training_effect_panels(data)
+    # NOTE: fig_training_effect_panels moved to prototype_uplift_figures.py
 
     print("\n10. Boxplots: 8 operationalizations")
     fig_boxplot_operationalizations(data)
@@ -1638,7 +2488,7 @@ def fig_quality_heuristic_combined(data=None):
     # wspace gives room for the dotted separator + Performance Score y-label
     outer = GridSpec(1, 2, figure=fig, width_ratios=[2, 1], wspace=0.10,
                      left=0.05, right=0.97, top=0.95, bottom=0.08)
-    gs_left = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0], hspace=0.08, wspace=0.08)
+    gs_left = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0], hspace=0.08, wspace=0.14)
     gs_right = GridSpecFromSubplotSpec(2, 1, subplot_spec=outer[1], hspace=0.08)
 
     axes_left = np.array([
@@ -1651,8 +2501,8 @@ def fig_quality_heuristic_combined(data=None):
     # LEFT 2×2: Score distance panels (same logic as fig_score_distance_panels)
     # ──────────────────────────────────────────────────────────────────
     sd_panels = {
-        "(a) User-Tag — Pairwise": "ICML_01_UT_PW-Q_Rec_NPr_FA_Inst",
-        "(b) User-Tag — Individual": "ICML_02_UT_IND-Q_Rec_NPr_FA_Inst",
+        "(a) User-Tag — Pairwise": "ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst",
+        "(b) User-Tag — Individual": "ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst",
         "(c) Assistant-Tag — Pairwise": "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
         "(d) Assistant-Tag — Individual": "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
     }
@@ -1714,7 +2564,7 @@ def fig_quality_heuristic_combined(data=None):
                 ds_data["score_distance"], ds_data["performance"],
                 c=sd_ds_colors.get(ds_name, "gray"),
                 label=sd_ds_labels.get(ds_name, ds_name),
-                alpha=0.4, s=15, edgecolors="none",
+                alpha=0.4, s=25, edgecolors="none",
             )
 
         agg = df.groupby(["evaluator", "generator"]).agg(
@@ -1731,7 +2581,7 @@ def fig_quality_heuristic_combined(data=None):
             slope, intercept = coeffs
             x_line = np.linspace(x_vals.min(), x_vals.max(), 100)
             y_line = slope * x_line + intercept
-            ax.plot(x_line, y_line, color="black", linewidth=1.5, alpha=0.8)
+            ax.plot(x_line, y_line, color="black", linewidth=4.5, alpha=0.8)
 
             rng = np.random.default_rng(42)
             n_boot = 500
@@ -1745,23 +2595,24 @@ def fig_quality_heuristic_combined(data=None):
             ax.fill_between(x_line, lo, hi, color="black", alpha=0.1, zorder=1)
 
             r, p = stats.pearsonr(x_vals, y_vals)
-            ax.text(0.03, 0.03, f"r = {r:.2f}", transform=ax.transAxes, fontsize=9,
+            ax.text(0.03, 0.03, f"r = {r:.2f}", transform=ax.transAxes, fontsize=18,
                     verticalalignment="bottom",
                     bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
 
         ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
-        ax.set_title(title, fontsize=11, fontweight="bold")
+        ax.set_title(title, fontsize=20, fontweight="bold")
         ax.set_ylim(0.0, 1.05)
+        ax.tick_params(axis="both", labelsize=21)
 
         y_label = "Adjusted Accuracy" if idx in is_ind else "Recognition Accuracy"
         if col == 0:
-            ax.set_ylabel(y_label, fontsize=10)
+            ax.set_ylabel(y_label, fontsize=23)
         if row == 1:
-            ax.set_xlabel("Elo Score Distance\n(Evaluator − Generator)", fontsize=10)
+            ax.set_xlabel("Elo Score Distance", fontsize=23)
         else:
             ax.set_xticklabels([])
         if idx == 0:
-            ax.legend(fontsize=7, loc="lower right", markerscale=1.5)
+            ax.legend(fontsize=12, loc="lower right", markerscale=1.5)
 
     # ──────────────────────────────────────────────────────────────────
     # RIGHT 2×1: Rec vs Pref scatter (same logic as fig_rec_vs_pref_scatter)
@@ -1877,7 +2728,7 @@ def fig_quality_heuristic_combined(data=None):
                             fmt="none", ecolor=color, alpha=0.4, capsize=2,
                             capthick=0.5, elinewidth=0.5, zorder=1)
                 ax.scatter(fam_data["pref"], fam_data["rec"], c=color, marker=marker,
-                           s=100, alpha=0.7, edgecolors="black", linewidths=0.5, zorder=2)
+                           s=140, alpha=0.7, edgecolors="black", linewidths=0.5, zorder=2)
 
             x_vals = ds_data["pref"].values.astype(float)
             y_vals = ds_data["rec"].values.astype(float)
@@ -1916,26 +2767,26 @@ def fig_quality_heuristic_combined(data=None):
                         ax.fill_between(reg["x"], reg["ci_lower"], reg["ci_upper"],
                                         color=lc, alpha=0.15, zorder=0)
                         ax.plot(reg["x"], reg["y_pred"], color=lc, linestyle="--",
-                                linewidth=1.5, alpha=0.7, zorder=1)
+                                linewidth=3.5, alpha=0.7, zorder=1)
                     else:
                         slope, intercept, r_value, _, _ = stats.linregress(xf, yf)
                         datasets_with_fit[dataset] = r_value
                         xl = np.linspace(line_min, line_max, 100)
                         ax.plot(xl, slope * xl + intercept, color=lc, linestyle="--",
-                                linewidth=1.5, alpha=0.7)
+                                linewidth=3.5, alpha=0.7)
 
         ax.plot([line_min, line_max], [line_min, line_max], color="#888888",
-                linestyle=":", linewidth=2, alpha=0.7)
-        ax.axhline(y=0.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.8)
-        ax.axvline(x=0.5, color="#555555", linestyle="--", linewidth=1.0, alpha=0.8)
+                linestyle=":", linewidth=4, alpha=0.7)
+        ax.axhline(y=0.5, color="#555555", linestyle="--", linewidth=2.0, alpha=0.8)
+        ax.axvline(x=0.5, color="#555555", linestyle="--", linewidth=2.0, alpha=0.8)
 
-        ax.set_ylabel("Performance Score", fontsize=10)
+        ax.set_ylabel("Recognition Accuracy", fontsize=23)
         if p_idx == 1:
-            ax.set_xlabel("Preference Score", fontsize=10)
+            ax.set_xlabel("Self-Selection Rate", fontsize=23)
         else:
             ax.set_xticklabels([])
         rp_panel_titles = ["(e) Pairwise — Rec. vs Pref.", "(f) Individual — Rec. vs Pref."]
-        ax.set_title(rp_panel_titles[p_idx], fontsize=11, fontweight="bold")
+        ax.set_title(rp_panel_titles[p_idx], fontsize=20, fontweight="bold")
         ax.set_aspect("equal", adjustable="box")
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
@@ -1943,7 +2794,7 @@ def fig_quality_heuristic_combined(data=None):
         ax.yaxis.set_major_locator(MultipleLocator(0.1))
         ax.grid(alpha=0.3, linestyle="--")
         ax.set_axisbelow(True)
-        ax.tick_params(axis="both", labelsize=9)
+        ax.tick_params(axis="both", labelsize=18)
 
         # Per-panel dataset legend (top-left for panel e, lower-right for panel f)
         ds_handles = []
@@ -1951,12 +2802,12 @@ def fig_quality_heuristic_combined(data=None):
             mk = rp_dataset_markers[ds]
             lc = rp_dataset_line_colors[ds]
             h_m = plt.Line2D([0], [0], marker=mk, color="w", markerfacecolor="gray",
-                             markersize=8, markeredgecolor="black", markeredgewidth=0.5)
+                             markersize=10, markeredgecolor="black", markeredgewidth=0.5)
             h_l = plt.Line2D([0], [0], linestyle="--", color=lc, linewidth=2)
             r_str = f"r={datasets_with_fit[ds]:.2f}" if ds in datasets_with_fit else ""
             ds_handles.append(((h_m, h_l), f"{format_dataset_display_name(ds)} ({r_str})"))
         ds_leg = ax.legend(handles=[h for h, _ in ds_handles], labels=[l for _, l in ds_handles],
-                           loc="upper left", fontsize=7, framealpha=0.9,
+                           loc="upper left", fontsize=13, framealpha=0.9,
                            handler_map={tuple: HandlerTuple(ndivide=None)})
         ax.add_artist(ds_leg)
 
@@ -1968,17 +2819,13 @@ def fig_quality_heuristic_combined(data=None):
         display = provider_to_model_name(fam)
         fam_handles.append(plt.Line2D([0], [0], marker="o", color="w",
                                        markerfacecolor=family_colors[fam],
-                                       markersize=10, markeredgecolor="black",
+                                       markersize=12, markeredgecolor="black",
                                        markeredgewidth=0.5, label=display))
-    fam_handles.append(plt.Line2D([0], [0], color="#555555", linestyle="--",
-                                   linewidth=1.0, alpha=0.8, label="Chance (0.5)"))
-    fam_handles.append(plt.Line2D([0], [0], color="#888888", linestyle=":",
-                                   linewidth=2, alpha=0.7, label="1:1 line"))
 
-    # Place model family legend at bottom-right of panel (e)
-    axes_right[0].legend(handles=fam_handles, loc="lower right",
-                         fontsize=8, framealpha=0.9,
-                         borderpad=0.8, labelspacing=0.6)
+    # Place model family legend at bottom-right of panel (f)
+    axes_right[1].legend(handles=fam_handles, loc="lower right",
+                         fontsize=13, framealpha=0.9,
+                         borderpad=0.8, labelspacing=0.5)
 
     # Vertical dotted separator — placed just left of the Performance Score y-label
     left_right_edge = axes_left[0][1].get_position().x1

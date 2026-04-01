@@ -100,7 +100,7 @@ def main():
     print(f"Evaluator models: {', '.join(judges)}")
 
     # Import figure functions from the standard analysis pipeline
-    import scripts.figures.prototype_uplift_figures as _uplift
+    import scripts.figures.COLM2026.prototype_uplift_figures as _uplift
     from scripts.alpaca_eval.analyze_self_preference import (
         analyze_ranking_mode,
         load_ranking_self_ranks,
@@ -157,7 +157,7 @@ def main():
         # instead of being averaged together.
         # e.g., "Qwen 3.0 30B" → "Qwen 3.0 30B (as GPT-OSS 120B)" for adversarial
         #        "Qwen 3.0 30B" → "Qwen 3.0 30B (as self)" for normal
-        from scripts.figures.prototype_uplift_figures import BASE_MODEL_COLORS
+        from scripts.figures.COLM2026.prototype_uplift_figures import BASE_MODEL_COLORS
 
         IDENTITY_DISPLAY = {
             "gpt-oss-120b": "GPT-OSS 120B",
@@ -168,15 +168,28 @@ def main():
             "qwen-2.5-7b": "Qwen 2.5 7B",
         }
 
+        # Family-based colors matching the comparison pipeline
+        FAMILY_COLORS = {
+            "GPT-OSS 20B": "#10a37f",   # OpenAI green
+            "GPT-OSS 120B": "#10a37f",  # OpenAI green
+            "Qwen 3.0 30B": "#7c3aed",  # Qwen purple
+            "Llama 3.1 8B": "#3b82f6",  # Llama blue
+            "Llama 3.3 70B": "#3b82f6", # Llama blue
+        }
+
         for r in inverted_runs:
+            base_display = r["base"]  # e.g. "GPT-OSS 20B"
+            base_color = FAMILY_COLORS.get(base_display, "#9ca3af")
             if r.get("is_adversarial"):
                 identity_short = r.get("identity_model", "?")
                 identity_name = IDENTITY_DISPLAY.get(identity_short, identity_short)
-                r["base"] = f"{r['base']} (as {identity_name})"
-                BASE_MODEL_COLORS.setdefault(r["base"], "#C62828")
+                r["base"] = f"{base_display} (as {identity_name})"
+                r["is_adversarial_run"] = True
+                BASE_MODEL_COLORS.setdefault(r["base"], base_color)
             else:
-                r["base"] = f"{r['base']} (as self)"
-                BASE_MODEL_COLORS.setdefault(r["base"], "#2E7D32")
+                r["base"] = f"{base_display} (as self)"
+                r["is_adversarial_run"] = False
+                BASE_MODEL_COLORS.setdefault(r["base"], base_color)
 
         print(f"  Found {len(inverted_runs)} training runs ({sum(1 for r in inverted_runs if r.get('is_adversarial'))} adversarial, {sum(1 for r in inverted_runs if not r.get('is_adversarial'))} normal)")
 
@@ -216,6 +229,8 @@ def main():
             _uplift.fig_arrow_task_panels_real()
             print("\n  Dataset transfer figures (inverted)...")
             _uplift.fig_arrow_dataset_panels_real()
+            print("\n  Combined panels (inverted)...")
+            _uplift.fig_arrow_combined_panels_real_horizontal()
             print("\n  Transfer heatmap (inverted)...")
             _uplift.fig_task_transfer_heatmap_real()
         finally:
@@ -231,6 +246,11 @@ def main():
         def _judge_in_subset(judge_name, _subset=subset):
             if judge_name in trained_to_subset:
                 return trained_to_subset[judge_name] == _subset
+            # Trained thinking models have -thinking appended to the dir name
+            # but trained_to_subset uses the name without -thinking
+            clean = judge_name.removesuffix("-thinking")
+            if clean != judge_name and clean in trained_to_subset:
+                return trained_to_subset[clean] == _subset
             return resolve_base_model(judge_name) == judge_name
 
         for mode in judge_modes:
@@ -248,7 +268,28 @@ def main():
                 ])
                 if available:
                     print(f"    Ranking: {len(available)} judges")
-                    analyze_ranking_mode(mode_results, mode_out, available)
+                    analyze_ranking_mode(mode_results, mode_out, available,
+                                         training_dir=training_dir,
+                                         data_subsets=[subset] if subset else data_subsets)
+
+                    # Generate combined adversarial figure with heatmap
+                    ranking_df = load_ranking_self_ranks(mode_results, available)
+                    # Re-patch uplift module for the combined figure
+                    _uplift._discover_training_runs = _patched_discover
+                    _uplift._load_val_accuracy = _patched_load_val
+                    _uplift._load_benchmark_accuracies = _patched_load_bp
+                    _uplift.OUT_DIR = subset_out
+                    _uplift.TRAINING_DIR = training_dir
+                    _uplift.TRAINING_SUBSETS = [subset] if subset else None
+                    try:
+                        _uplift.fig_adversarial_combined_with_heatmap(ae_ranking_df=ranking_df)
+                    finally:
+                        _uplift._discover_training_runs = _original_discover
+                        _uplift._load_val_accuracy = _original_load_val
+                        _uplift._load_benchmark_accuracies = _original_load_bp
+                        _uplift.OUT_DIR = orig_out
+                        _uplift.TRAINING_DIR = orig_td
+                        _uplift.TRAINING_SUBSETS = orig_subsets
                 else:
                     print(f"    No ranking results")
 

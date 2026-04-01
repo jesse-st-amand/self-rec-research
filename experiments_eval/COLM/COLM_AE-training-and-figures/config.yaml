@@ -12,7 +12,7 @@ gpu_dispatch: tinker
 #   "00_original" — first batch (varied opponents, ShareGPT only)
 #   "01_final"    — second batch (varied datasets, tags, formats)
 training_dir: data/training_reorganized
-data_subsets: [01_final]
+data_subsets: [03_01-and-02]
 # Judge mode:
 #   "simple"  — pairwise A/B comparison, 2 models per eval (evaluator output
 #               vs one generator). Runs permutations of evaluator x generator.
