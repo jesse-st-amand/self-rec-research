@@ -12,9 +12,10 @@ PAPER_FIGURES = REPO_ROOT / "_external" / "COLM_2026_SGTR" / "COLM" / "figures"
 
 # (source relative to repo root, destination filename in paper figures dir)
 FIGURES = [
-    ("data/alpaca_eval/analysis/01_final/arrow_combined_panels_real_horizontal.pdf", "training_transfer_combined.pdf"),
-    ("data/figures/prototypes/boxplot_combined.pdf", "boxplot_combined.pdf"),
+    ("data/figures/prototypes/boxplot_with_grouped_bar.pdf", "boxplot_with_grouped_bar.pdf"),
     ("data/figures/prototypes/quality_heuristic_combined.pdf", "quality_heuristic_combined.pdf"),
+    ("data/alpaca_eval/analysis/03_01-and-02/uplift/uplift_5c_dot_plot_dual_color.pdf", "uplift_5c_dot_plot_dual_color.pdf"),
+    ("data/alpaca_eval/analysis/03_01-and-02/ranking/ranking_delta_heatmap_dual_v2.pdf", "ranking_delta_heatmap_dual_v2.pdf"),
 ]
 
 

@@ -32,6 +32,19 @@ BASE_MODEL_COLORS = {
     "GPT-OSS 20B": "#00897B",
     "GPT-OSS 120B": "#00695C",
 }
+_BASE_FAMILY_ORDER = ["Llama 3.1 8B", "Llama 3.3 70B", "GPT-OSS 20B", "GPT-OSS 120B",
+                      "Qwen 3.0 30B", "Qwen 3.5 27B", "Qwen 2.5 7B"]
+
+def _base_sort_key(b):
+    """Sort: standard models first (by family order), then adversarial."""
+    is_adv = '(as ' in b and '(as self)' not in b
+    family = b.split(" (as")[0] if " (as" in b else b
+    try:
+        fam_idx = _BASE_FAMILY_ORDER.index(family)
+    except ValueError:
+        fam_idx = len(_BASE_FAMILY_ORDER)
+    return (is_adv, fam_idx, b)
+
 AE_MODE = None           # "simple" or "ranking" — affects how AE column is computed
 AE_RESULTS_DIR = None    # Path to AE results dir for the current mode
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -1670,11 +1683,18 @@ def _discover_training_runs(subsets=None, training_dir="data/training"):
 
 def _draw_real_arrows(ax, runs, x_labels, get_pre_post_fn, colors,
                       show_xlabel=True, show_delta=True, title=None,
-                      show_ylabel=True):
-    """Draw grouped arrows for real training data on a single axes."""
+                      show_ylabel=True, markers=None):
+    """Draw grouped arrows for real training data on a single axes.
+
+    Args:
+        markers: optional list of matplotlib marker strings, one per run.
+                 Defaults to 'o' (circle) for all runs.
+    """
     n_runs = len(runs)
     if n_runs == 0:
         return
+    if markers is None:
+        markers = ['o'] * n_runs
     group_width = 0.6
     offsets = np.linspace(-group_width / 2, group_width / 2, max(n_runs, 2))
     if n_runs == 1:
@@ -1689,6 +1709,7 @@ def _draw_real_arrows(ax, runs, x_labels, get_pre_post_fn, colors,
 
     for r_idx, run in enumerate(runs):
         color = colors[r_idx % len(colors)]
+        marker = markers[r_idx % len(markers)]
 
         for x_idx, label in enumerate(x_labels):
             pre_val, post_val = get_pre_post_fn(run, label)
@@ -1698,13 +1719,14 @@ def _draw_real_arrows(ax, runs, x_labels, get_pre_post_fn, colors,
             x = x_idx + offsets[r_idx]
             delta = post_val - pre_val
 
-            ax.scatter(x, pre_val, color="gray", s=30, zorder=3,
+            ax.scatter(x, pre_val, color="gray", s=30, zorder=3, marker='o',
                        edgecolors="black", linewidth=0.4)
             arrow_color = "#2E7D32" if delta > 0 else "#C62828"
             ax.annotate("", xy=(x, post_val), xytext=(x, pre_val),
                         arrowprops=dict(arrowstyle="->", color=arrow_color, lw=1.5),
                         zorder=4)
-            ax.scatter(x, post_val, color=color, s=40, zorder=5,
+            ax.scatter(x, post_val, color=color, s=50 if marker == '*' else 40,
+                       zorder=5, marker=marker,
                        edgecolors="black", linewidth=0.4)
 
     ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
@@ -1790,7 +1812,7 @@ def fig_arrow_task_panels_real():
         return []
 
     # Derive base models from actual runs
-    base_models = sorted(set(r["base"] for r in runs), key=lambda b: list(BASE_MODEL_COLORS.keys()).index(b) if b in BASE_MODEL_COLORS else 99)
+    base_models = sorted(set(r["base"] for r in runs), key=_base_sort_key)
     base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
 
     # Training OP panels: (title, training_type, tag, highlighted_column)
@@ -1870,10 +1892,14 @@ def fig_arrow_task_panels_real():
 
         pair_data = build_avg_pair_data(filtered, base_models, highlight_col)
         colors = [base_colors[b] for b in pair_data.keys()]
+        # Star marker for adversarial runs (base name contains "(as " but not "(as self)")
+        run_markers = ['*' if '(as ' in b and '(as self)' not in b else 'o'
+                       for b in pair_data.keys()]
 
         _draw_real_arrows(ax, list(pair_data.values()), test_ops,
                           lambda run, label: (run["pre"].get(label), run["post"].get(label)),
-                          colors, show_xlabel=True, show_delta=True, title=title)
+                          colors, show_xlabel=True, show_delta=True, title=title,
+                          markers=run_markers)
 
         # Highlight the column matching the training OP
         hi_x = test_ops.index(highlight_col)
@@ -1885,8 +1911,11 @@ def fig_arrow_task_panels_real():
     for base in base_models:
         n = len([r for r in runs if r["base"] == base])
         if n > 0:
-            handles.append(plt.Line2D([0], [0], marker='o', color=base_colors[base],
-                                       markersize=6, linestyle='None',
+            is_adv = '(as ' in base and '(as self)' not in base
+            mk = '*' if is_adv else 'o'
+            handles.append(plt.Line2D([0], [0], marker=mk, color=base_colors[base],
+                                       markersize=8 if is_adv else 6, linestyle='None',
+                                       markeredgecolor='black', markeredgewidth=0.4,
                                        label=f"{base} (n={n})"))
     handles.append(plt.Line2D([0], [0], marker='o', color='gray', markersize=5,
                                linestyle='None', markeredgecolor='black',
@@ -1914,7 +1943,7 @@ def fig_arrow_dataset_panels_real():
         print("  ⚠ No training data found")
         return
 
-    base_models = sorted(set(r["base"] for r in runs), key=lambda b: list(BASE_MODEL_COLORS.keys()).index(b) if b in BASE_MODEL_COLORS else 99)
+    base_models = sorted(set(r["base"] for r in runs), key=_base_sort_key)
     base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
     datasets = ["WikiSum", "BigCode", "PKU", "ShareGPT"]
 
@@ -1997,11 +2026,13 @@ def fig_arrow_dataset_panels_real():
                 pair_data[base] = {"pre": pre_dict, "post": post_dict}
 
         colors = [base_colors[b] for b in pair_data.keys()]
+        run_markers = ['*' if '(as ' in b and '(as self)' not in b else 'o'
+                       for b in pair_data.keys()]
 
         _draw_real_arrows(ax, list(pair_data.values()), datasets,
                           lambda run, label: (run["pre"].get(label), run["post"].get(label)),
                           colors, show_xlabel=True, show_delta=True,
-                          title=panel_labels[d_idx])
+                          title=panel_labels[d_idx], markers=run_markers)
 
         # Highlight the trained-on dataset
         trained_x = datasets.index(train_ds)
@@ -2013,8 +2044,11 @@ def fig_arrow_dataset_panels_real():
     for base in base_models:
         n = len([r for r in runs if r["base"] == base])
         if n > 0:
-            handles.append(plt.Line2D([0], [0], marker='o', color=base_colors[base],
-                                       markersize=6, linestyle='None',
+            is_adv = '(as ' in base and '(as self)' not in base
+            mk = '*' if is_adv else 'o'
+            handles.append(plt.Line2D([0], [0], marker=mk, color=base_colors[base],
+                                       markersize=8 if is_adv else 6, linestyle='None',
+                                       markeredgecolor='black', markeredgewidth=0.4,
                                        label=f"{base} (n={n})"))
     handles.append(plt.Line2D([0], [0], marker='o', color='gray', markersize=5,
                                linestyle='None', markeredgecolor='black',
@@ -2033,13 +2067,15 @@ def fig_arrow_dataset_panels_real():
 
 def _draw_real_arrows_horizontal(ax, runs, y_labels, get_pre_post_fn, colors,
                                  show_ylabel=True, show_delta=True, title=None,
-                                 show_xlabel=True, ylabel_side="left"):
+                                 show_xlabel=True, ylabel_side="left", markers=None):
     """Draw grouped horizontal arrows for real training data on a single axes.
     Y-axis = categories, X-axis = accuracy.
     ylabel_side: 'left' or 'right' — which side to place y-axis labels."""
     n_runs = len(runs)
     if n_runs == 0:
         return
+    if markers is None:
+        markers = ['o'] * n_runs
     group_width = 0.6
     offsets = np.linspace(-group_width / 2, group_width / 2, max(n_runs, 2))
     if n_runs == 1:
@@ -2054,6 +2090,7 @@ def _draw_real_arrows_horizontal(ax, runs, y_labels, get_pre_post_fn, colors,
 
     for r_idx, run in enumerate(runs):
         color = colors[r_idx % len(colors)]
+        marker = markers[r_idx % len(markers)]
 
         for y_idx, label in enumerate(y_labels):
             pre_val, post_val = get_pre_post_fn(run, label)
@@ -2063,13 +2100,14 @@ def _draw_real_arrows_horizontal(ax, runs, y_labels, get_pre_post_fn, colors,
             y = y_idx + offsets[r_idx]
             delta = post_val - pre_val
 
-            ax.scatter(pre_val, y, color="gray", s=30, zorder=3,
+            ax.scatter(pre_val, y, color="gray", s=30, zorder=3, marker='o',
                        edgecolors="black", linewidth=0.4)
             arrow_color = "#2E7D32" if delta > 0 else "#C62828"
             ax.annotate("", xy=(post_val, y), xytext=(pre_val, y),
                         arrowprops=dict(arrowstyle="->", color=arrow_color, lw=1.5),
                         zorder=4)
-            ax.scatter(post_val, y, color=color, s=40, zorder=5,
+            ax.scatter(post_val, y, color=color, s=50 if marker == '*' else 40,
+                       zorder=5, marker=marker,
                        edgecolors="black", linewidth=0.4)
 
     ax.axvline(x=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
@@ -2098,23 +2136,38 @@ def fig_arrow_combined_panels_real_horizontal():
         print("  ⚠ No training data found")
         return
 
-    base_models = sorted(set(r["base"] for r in runs),
-                         key=lambda b: list(BASE_MODEL_COLORS.keys()).index(b) if b in BASE_MODEL_COLORS else 99)
+    base_models = sorted(set(r["base"] for r in runs), key=_base_sort_key)
     base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
 
     # ── Task transfer ──
     test_ops = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)", "PW Pref", "IND Pref"]
 
     def _get_bench_for_label(label, run):
+        """Get benchmark keys for a test OP label.
+        Supports both original (xeval_format_*, xeval_tag_*) and
+        Tinker (xeval_task_ut_pw, xeval_task_at_ind, etc.) naming.
+        Keys tried in order; first match wins."""
         tag = run.get("tag", "UT")
         if label == "PW (UT)":
-            return ["xeval_tag_ut_pw_full", "xeval_tag_ut_pw"] if tag != "UT" else ["xeval_format_pw_full", "xeval_format_pw"]
+            if tag != "UT":
+                return ["xeval_tag_ut_pw_full", "xeval_tag_ut_pw", "xeval_task_ut_pw_full", "xeval_task_ut_pw"]
+            else:
+                return ["xeval_format_pw_full", "xeval_format_pw", "xeval_task_ut_pw_full", "xeval_task_ut_pw"]
         elif label == "IND (UT)":
-            return ["xeval_tag_ut_ind_full", "xeval_tag_ut_ind"] if tag != "UT" else ["xeval_format_ind_full", "xeval_format_ind"]
+            if tag != "UT":
+                return ["xeval_tag_ut_ind_full", "xeval_tag_ut_ind", "xeval_task_ut_ind_full", "xeval_task_ut_ind"]
+            else:
+                return ["xeval_format_ind_full", "xeval_format_ind", "xeval_task_ut_ind_full", "xeval_task_ut_ind"]
         elif label == "PW (AT)":
-            return ["xeval_tag_at_pw_full", "xeval_tag_at_pw"] if tag != "AT" else ["xeval_format_pw_full", "xeval_format_pw"]
+            if tag != "AT":
+                return ["xeval_tag_at_pw_full", "xeval_tag_at_pw", "xeval_task_at_pw_full", "xeval_task_at_pw"]
+            else:
+                return ["xeval_format_pw_full", "xeval_format_pw", "xeval_task_at_pw_full", "xeval_task_at_pw"]
         elif label == "IND (AT)":
-            return ["xeval_tag_at_ind_full", "xeval_tag_at_ind"] if tag != "AT" else ["xeval_format_ind_full", "xeval_format_ind"]
+            if tag != "AT":
+                return ["xeval_tag_at_ind_full", "xeval_tag_at_ind", "xeval_task_at_ind_full", "xeval_task_at_ind"]
+            else:
+                return ["xeval_format_ind_full", "xeval_format_ind", "xeval_task_at_ind_full", "xeval_task_at_ind"]
         elif label in ("PW Pref", "PW (UT) Pref"):
             return ["xeval_task_pref_pw_full", "xeval_task_pref_pw"]
         elif label in ("IND Pref", "IND (UT) Pref"):
@@ -2186,7 +2239,7 @@ def fig_arrow_combined_panels_real_horizontal():
     # ── Build 2×4 figure ──
     from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
     fig = plt.figure(figsize=(18, 10))
-    outer = GridSpec(1, 2, figure=fig, wspace=0.08, left=0.06, right=0.95,
+    outer = GridSpec(1, 2, figure=fig, wspace=0.14, left=0.06, right=0.95,
                      top=0.93, bottom=0.10)
     gs_task = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0], hspace=0.15, wspace=0.05)
     gs_ds = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[1], hspace=0.15, wspace=0.05)
@@ -2224,10 +2277,12 @@ def fig_arrow_combined_panels_real_horizontal():
 
         pair_data = build_task_pair_data(filtered, base_models, highlight_col)
         colors = [base_colors[b] for b in pair_data.keys()]
+        run_markers = ['*' if '(as ' in b and '(as self)' not in b else 'o'
+                       for b in pair_data.keys()]
         _draw_real_arrows_horizontal(ax, list(pair_data.values()), test_ops,
                           lambda run, label: (run["pre"].get(label), run["post"].get(label)),
                           colors, show_ylabel=is_left_col, show_delta=False, title=title,
-                          show_xlabel=is_bottom_row)
+                          show_xlabel=is_bottom_row, markers=run_markers)
         if not is_left_col:
             ax.tick_params(labelleft=False)
         if not is_bottom_row:
@@ -2235,12 +2290,12 @@ def fig_arrow_combined_panels_real_horizontal():
         hi_y = test_ops.index(highlight_col)
         ax.axhspan(hi_y - 0.45, hi_y + 0.45, color="gold", alpha=0.15, zorder=0)
 
-    # Right 4 panels: dataset transfer (y-labels on right side)
+    # Right 4 panels: dataset transfer (y-labels on left-hand panels e, g)
     ds_axes = [axes[0, 2], axes[0, 3], axes[1, 2], axes[1, 3]]
     for d_idx, train_ds in enumerate(datasets):
         ax = ds_axes[d_idx]
         is_bottom_row = d_idx >= 2
-        is_right_col = d_idx % 2 == 1  # show labels on right-hand panels
+        is_left_col = d_idx % 2 == 0  # show labels on left-hand panels (e, g)
         train_ds_field = DS_DISPLAY_TO_FIELD[train_ds]
         filtered = [r for r in runs if r.get("dataset") == train_ds_field]
 
@@ -2252,12 +2307,11 @@ def fig_arrow_combined_panels_real_horizontal():
             ax.set_xlim(-0.02, 1.05)
             ax.tick_params(axis='x', labelsize=14)
             ax.set_yticks(range(len(datasets)))
-            ax.tick_params(left=False, labelleft=False)
-            if is_right_col:
-                ax.set_yticklabels(datasets, fontsize=12.5, rotation=30, ha="left")
-                ax.yaxis.tick_right()
+            if is_left_col:
+                ax.set_yticklabels(datasets, fontsize=12.5, rotation=30, ha="right")
             else:
                 ax.set_yticklabels([])
+                ax.tick_params(labelleft=False)
             ax.invert_yaxis()
             trained_y = datasets.index(train_ds)
             ax.axhspan(trained_y - 0.45, trained_y + 0.45, color="gold", alpha=0.1, zorder=0)
@@ -2302,45 +2356,450 @@ def fig_arrow_combined_panels_real_horizontal():
                 pair_data[base] = {"pre": pre_dict, "post": post_dict}
 
         colors = [base_colors[b] for b in pair_data.keys()]
+        run_markers = ['*' if '(as ' in b and '(as self)' not in b else 'o'
+                       for b in pair_data.keys()]
         _draw_real_arrows_horizontal(ax, list(pair_data.values()), datasets,
                           lambda run, label: (run["pre"].get(label), run["post"].get(label)),
-                          colors, show_ylabel=is_right_col, show_delta=False,
+                          colors, show_ylabel=is_left_col, show_delta=False,
                           title=ds_panel_labels[d_idx], show_xlabel=is_bottom_row,
-                          ylabel_side="right")
-        # Always remove left-side ticks on dataset panels
-        ax.tick_params(left=False, labelleft=False)
-        if not is_right_col:
-            ax.tick_params(labelright=False)
+                          ylabel_side="left", markers=run_markers)
+        if not is_left_col:
+            ax.tick_params(labelleft=False)
         if not is_bottom_row:
             ax.tick_params(labelbottom=False)
         trained_y = datasets.index(train_ds)
         ax.axhspan(trained_y - 0.45, trained_y + 0.45, color="gold", alpha=0.1, zorder=0)
 
-    # Shared legend
+    # Shared legend — include opponent info, no (n=N)
+    # Collect unique opponents per base model
+    OPPONENT_DISPLAY = {
+        "qwen-2-5-7b": "Qwen 2.5 7B", "qwen-2.5-7b": "Qwen 2.5 7B",
+        "qwen-3-30b": "Qwen 3 30B", "qwen-3.0-30b": "Qwen 3 30B",
+        "llama-3-1-8b": "Llama 3.1 8B", "ll-3.1-8b": "Llama 3.1 8B",
+        "gpt-oss-20b": "GPT-OSS 20B", "gpt-oss-120b": "GPT-OSS 120B",
+    }
     handles = []
     for base in base_models:
-        n = len([r for r in runs if r["base"] == base])
-        if n > 0:
-            handles.append(plt.Line2D([0], [0], marker='o', color=base_colors[base],
-                                       markersize=6, linestyle='None',
-                                       label=f"{base} (n={n})"))
-    handles.append(plt.Line2D([0], [0], marker='o', color='gray', markersize=5,
-                               linestyle='None', markeredgecolor='black',
-                               markeredgewidth=0.4, label="Pre-training"))
-    fig.legend(handles=handles, fontsize=14, loc="lower center", ncol=len(handles),
+        base_runs = [r for r in runs if r["base"] == base]
+        if not base_runs:
+            continue
+        is_adv = '(as ' in base and '(as self)' not in base
+        mk = '*' if is_adv else 'o'
+        opponents = sorted(set(r.get("opponent", "") for r in base_runs if r.get("opponent")))
+        opp_names = [OPPONENT_DISPLAY.get(o, o) for o in opponents]
+        opp_str = f" (vs {', '.join(opp_names)})" if opp_names else ""
+        handles.append(plt.Line2D([0], [0], marker=mk, color=base_colors[base],
+                                   markersize=8 if is_adv else 6, linestyle='None',
+                                   markeredgecolor='black', markeredgewidth=0.4,
+                                   label=f"{base}{opp_str}"))
+    handles.insert(0, plt.Line2D([0], [0], marker='o', color='gray', markersize=5,
+                                  linestyle='None', markeredgecolor='black',
+                                  markeredgewidth=0.4, label="Pre-training"))
+    fig.legend(handles=handles, fontsize=11, loc="lower center", ncol=len(handles),
                bbox_to_anchor=(0.5, -0.04))
 
     fig.text(0.27, 0.97, "Task Transfer", ha="center", fontsize=13, fontweight="bold")
     fig.text(0.76, 0.97, "Dataset Domain Transfer", ha="center", fontsize=13, fontweight="bold")
 
-    # Vertical separator — centered between task and dataset groups
+    # Vertical separator — shifted right to avoid overlapping dataset y-axis labels
     col1_right = axes[0, 1].get_position().x1
     col2_left = axes[0, 2].get_position().x0
-    sep_x = (col1_right + col2_left) / 2
+    sep_x = col1_right + (col2_left - col1_right) * 0.35
     fig.add_artist(plt.Line2D([sep_x, sep_x], [0.03, 0.95], transform=fig.transFigure,
                               color="gray", linestyle=":", linewidth=1.5, zorder=10))
 
     path = OUT_DIR / "arrow_combined_panels_real_horizontal.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
+def fig_training_combined_with_heatmap(ae_ranking_df=None):
+    """Combined figure: 2×4 arrow panels (top) + ranking delta heatmap (bottom-right).
+
+    Top section: task transfer (left 4) + dataset transfer (right 4) arrow panels.
+    Bottom-left: shared legend.
+    Bottom-right: ranking delta heatmap from AlpacaEval data.
+
+    ae_ranking_df: DataFrame from load_ranking_self_ranks (passed from caller).
+    """
+    import re
+    from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+    from matplotlib.colors import TwoSlopeNorm
+
+    runs = _discover_training_runs(training_dir=TRAINING_DIR, subsets=TRAINING_SUBSETS)
+    if not runs:
+        print("  ⚠ No training data found")
+        return
+
+    base_models = sorted(set(r["base"] for r in runs), key=_base_sort_key)
+    base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
+
+    # ── Task transfer setup ──
+    test_ops = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)", "PW Pref", "IND Pref"]
+
+    def _get_bench_for_label(label, run):
+        tag = run.get("tag", "UT")
+        if label == "PW (UT)":
+            if tag != "UT":
+                return ["xeval_tag_ut_pw_full", "xeval_tag_ut_pw", "xeval_task_ut_pw_full", "xeval_task_ut_pw"]
+            else:
+                return ["xeval_format_pw_full", "xeval_format_pw", "xeval_task_ut_pw_full", "xeval_task_ut_pw"]
+        elif label == "IND (UT)":
+            if tag != "UT":
+                return ["xeval_tag_ut_ind_full", "xeval_tag_ut_ind", "xeval_task_ut_ind_full", "xeval_task_ut_ind"]
+            else:
+                return ["xeval_format_ind_full", "xeval_format_ind", "xeval_task_ut_ind_full", "xeval_task_ut_ind"]
+        elif label == "PW (AT)":
+            if tag != "AT":
+                return ["xeval_tag_at_pw_full", "xeval_tag_at_pw", "xeval_task_at_pw_full", "xeval_task_at_pw"]
+            else:
+                return ["xeval_format_pw_full", "xeval_format_pw", "xeval_task_at_pw_full", "xeval_task_at_pw"]
+        elif label == "IND (AT)":
+            if tag != "AT":
+                return ["xeval_tag_at_ind_full", "xeval_tag_at_ind", "xeval_task_at_ind_full", "xeval_task_at_ind"]
+            else:
+                return ["xeval_format_ind_full", "xeval_format_ind", "xeval_task_at_ind_full", "xeval_task_at_ind"]
+        elif label in ("PW Pref", "PW (UT) Pref"):
+            return ["xeval_task_pref_pw_full", "xeval_task_pref_pw"]
+        elif label in ("IND Pref", "IND (UT) Pref"):
+            return ["xeval_task_pref_ind_full", "xeval_task_pref_ind"]
+        return []
+
+    task_panels = [
+        ("(a) Trained on: PW (UT)", "PW", "UT", "PW (UT)"),
+        ("(b) Trained on: IND (UT)", "IND", "UT", "IND (UT)"),
+        ("(c) Trained on: PW (AT)", "PW", "AT", "PW (AT)"),
+        ("(d) Trained on: IND (AT)", "IND", "AT", "IND (AT)"),
+    ]
+
+    def build_task_pair_data(filtered_runs, bases, highlight_col):
+        pair_data = {}
+        for base in bases:
+            base_runs = [r for r in filtered_runs if r["base"] == base]
+            if not base_runs:
+                continue
+            pre_dict, post_dict = {}, {}
+            for label in test_ops:
+                if label == highlight_col:
+                    pres, posts = [], []
+                    for r in base_runs:
+                        p, q = _load_val_accuracy(r["run_dir"])
+                        if p is not None: pres.append(p)
+                        if q is not None: posts.append(q)
+                    pre_val = np.mean(pres) if pres else None
+                    post_val = np.mean(posts) if posts else None
+                else:
+                    pre_vals, post_vals = [], []
+                    for r in base_runs:
+                        bench_keys = _get_bench_for_label(label, r)
+                        for bk in bench_keys:
+                            bp = r["bp_data"].get(bk)
+                            if bp:
+                                pre_vals.append(bp["pre"])
+                                post_vals.append(bp["post"])
+                                break
+                    pre_val = np.mean(pre_vals) if pre_vals else None
+                    post_val = np.mean(post_vals) if post_vals else None
+                if pre_val is not None: pre_dict[label] = pre_val
+                if post_val is not None: post_dict[label] = post_val
+            if pre_dict or post_dict:
+                pair_data[base] = {"pre": pre_dict, "post": post_dict}
+        return pair_data
+
+    # ── Dataset transfer setup ──
+    datasets = ["WikiSum", "BigCodeBench", "PKU-SafeRLHF", "ShareGPT"]
+    DS_DISPLAY_TO_FIELD = {
+        "WikiSum": "wikisum", "BigCodeBench": "bigcodebench",
+        "PKU-SafeRLHF": "pku", "ShareGPT": "sharegpt",
+    }
+    ds_bench_map = {
+        "WikiSum": ["xeval_dataset_wikisum_full", "xeval_dataset_wikisum"],
+        "BigCodeBench": ["xeval_dataset_bigcodebench_full", "xeval_dataset_bigcodebench"],
+        "PKU-SafeRLHF": ["xeval_dataset_pku_full", "xeval_dataset_pku"],
+        "ShareGPT": ["xeval_dataset_sharegpt_full", "xeval_dataset_sharegpt"],
+    }
+    DS_SHORT = {"WikiSum": "WS", "BigCodeBench": "BCB", "PKU-SafeRLHF": "PKU", "ShareGPT": "S-GPT"}
+    ds_panel_labels = [
+        "(e) Trained on: WikiSum (WS)", "(f) Trained on: BigCodeBench (BCB)",
+        "(g) Trained on: PKU-SafeRLHF (PKU)", "(h) Trained on: ShareGPT (S-GPT)",
+    ]
+
+    # ── Build figure: 3 rows ──
+    fig = plt.figure(figsize=(18, 16))
+    # Top 2 rows: arrow panels. Bottom row: legend (left) + heatmap (right)
+    outer = GridSpec(2, 1, figure=fig, height_ratios=[2, 1], hspace=0.15,
+                     left=0.06, right=0.95, top=0.95, bottom=0.04)
+
+    # Top: 2×4 arrow panels split into task (left) and dataset (right)
+    gs_arrows = GridSpecFromSubplotSpec(2, 4, subplot_spec=outer[0],
+                                         hspace=0.15, wspace=0.14,
+                                         width_ratios=[1, 1, 1, 1])
+    # Add extra gap between cols 1 and 2 by using nested grids
+    gs_top_task = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0],
+                                          hspace=0.15, wspace=0.05)
+    gs_top_ds = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0],
+                                        hspace=0.15, wspace=0.05)
+
+    # Actually, use nested outer for the arrow section
+    gs_arrow_outer = GridSpecFromSubplotSpec(1, 2, subplot_spec=outer[0],
+                                             wspace=0.14)
+    gs_task = GridSpecFromSubplotSpec(2, 2, subplot_spec=gs_arrow_outer[0],
+                                      hspace=0.15, wspace=0.05)
+    gs_ds = GridSpecFromSubplotSpec(2, 2, subplot_spec=gs_arrow_outer[1],
+                                    hspace=0.15, wspace=0.05)
+
+    arrow_axes = np.array([
+        [fig.add_subplot(gs_task[0, 0]), fig.add_subplot(gs_task[0, 1]),
+         fig.add_subplot(gs_ds[0, 0]), fig.add_subplot(gs_ds[0, 1])],
+        [fig.add_subplot(gs_task[1, 0]), fig.add_subplot(gs_task[1, 1]),
+         fig.add_subplot(gs_ds[1, 0]), fig.add_subplot(gs_ds[1, 1])],
+    ])
+
+    # Bottom: heatmap (left) + legend area (right)
+    gs_bottom = GridSpecFromSubplotSpec(1, 2, subplot_spec=outer[1],
+                                        width_ratios=[2, 1], wspace=0.15)
+    ax_heatmap = fig.add_subplot(gs_bottom[0, 0])
+
+    # ── Draw arrow panels (same logic as fig_arrow_combined_panels_real_horizontal) ──
+    # Task panels (left 2×2)
+    task_axes = [arrow_axes[0, 0], arrow_axes[0, 1], arrow_axes[1, 0], arrow_axes[1, 1]]
+    for p_idx, (title, fmt, tag, highlight_col) in enumerate(task_panels):
+        ax = task_axes[p_idx]
+        is_top_row = p_idx < 2
+        filtered = [r for r in runs if r["training_type"] == fmt and r.get("tag", "UT") == tag]
+
+        if not filtered:
+            ax.set_title(title, fontsize=10, fontweight="bold")
+            ax.text(0.5, 0.5, "No training data\navailable yet", ha="center", va="center",
+                    fontsize=11, color="gray", fontstyle="italic", transform=ax.transAxes)
+            ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+            ax.set_xlim(-0.02, 1.05)
+            ax.set_yticks(range(len(test_ops)))
+            is_left_col = p_idx % 2 == 0
+            if is_left_col:
+                ax.set_yticklabels(test_ops, fontsize=7.5)
+            else:
+                ax.set_yticklabels([])
+            continue
+
+        pair_data = build_task_pair_data(filtered, base_models, highlight_col)
+        colors = [base_colors[b] for b in pair_data.keys()]
+        is_left_col = p_idx % 2 == 0  # a,c are left col
+        _draw_real_arrows_horizontal(
+            ax, list(pair_data.values()), test_ops,
+            lambda run, label: (run["pre"].get(label), run["post"].get(label)),
+            colors, show_ylabel=is_left_col, title=title, show_xlabel=(not is_top_row))
+        if not is_left_col:
+            ax.set_yticklabels([])
+        hi_y = test_ops.index(highlight_col)
+        ax.axhspan(hi_y - 0.45, hi_y + 0.45, color="gold", alpha=0.15, zorder=0)
+        ax.text(ax.get_xlim()[1] * 0.98, hi_y, "trained", va="center", ha="right",
+                fontsize=6, fontstyle="italic", color="goldenrod")
+
+    # Dataset panels (right 2×2)
+    ds_axes = [arrow_axes[0, 2], arrow_axes[0, 3], arrow_axes[1, 2], arrow_axes[1, 3]]
+    for d_idx, train_ds in enumerate(datasets):
+        ax = ds_axes[d_idx]
+        is_top_row = d_idx < 2
+        train_ds_field = DS_DISPLAY_TO_FIELD[train_ds]
+        filtered = [r for r in runs if r.get("dataset") == train_ds_field]
+        ds_y_labels = [DS_SHORT.get(d, d) for d in datasets]
+
+        if not filtered:
+            ax.set_title(ds_panel_labels[d_idx], fontsize=10, fontweight="bold")
+            ax.text(0.5, 0.5, "No training data\navailable yet", ha="center", va="center",
+                    fontsize=11, color="gray", fontstyle="italic", transform=ax.transAxes)
+            ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8, alpha=0.5)
+            ax.set_xlim(-0.02, 1.05)
+            ax.set_yticks(range(len(datasets)))
+            is_left_col = d_idx % 2 == 0
+            if is_left_col:
+                ax.set_yticklabels(ds_y_labels, fontsize=7.5)
+            else:
+                ax.set_yticklabels([])
+            continue
+
+        pair_data = {}
+        for base in base_models:
+            base_runs = [r for r in filtered if r["base"] == base]
+            if not base_runs:
+                continue
+            pre_dict, post_dict = {}, {}
+            for ds in datasets:
+                ds_field = DS_DISPLAY_TO_FIELD[ds]
+                if ds == train_ds:
+                    pres, posts = [], []
+                    for r in base_runs:
+                        bp = r["bp_data"]
+                        if "val_accuracy" in bp:
+                            pres.append(bp["val_accuracy"]["pre"])
+                            posts.append(bp["val_accuracy"]["post"])
+                    pre_val = np.mean(pres) if pres else None
+                    post_val = np.mean(posts) if posts else None
+                else:
+                    bench_keys = ds_bench_map.get(ds, [])
+                    pre_vals, post_vals = [], []
+                    for r in base_runs:
+                        bp = r["bp_data"]
+                        for bk in bench_keys:
+                            if bk in bp:
+                                pre_vals.append(bp[bk]["pre"])
+                                post_vals.append(bp[bk]["post"])
+                                break
+                    pre_val = np.mean(pre_vals) if pre_vals else None
+                    post_val = np.mean(post_vals) if post_vals else None
+                if pre_val is not None: pre_dict[ds] = pre_val
+                if post_val is not None: post_dict[ds] = post_val
+            if pre_dict or post_dict:
+                pair_data[base] = {"pre": pre_dict, "post": post_dict}
+
+        colors = [base_colors[b] for b in pair_data.keys()]
+        is_left_col = d_idx % 2 == 0  # e,g are left col
+        _draw_real_arrows_horizontal(
+            ax, list(pair_data.values()), ds_y_labels,
+            lambda run, label, _ds=datasets: (
+                run["pre"].get(_ds[ds_y_labels.index(label)] if label in ds_y_labels else label),
+                run["post"].get(_ds[ds_y_labels.index(label)] if label in ds_y_labels else label)),
+            colors, show_ylabel=is_left_col, title=ds_panel_labels[d_idx], show_xlabel=(not is_top_row))
+        if not is_left_col:
+            ax.set_yticklabels([])
+        trained_y = datasets.index(train_ds)
+        ax.axhspan(trained_y - 0.45, trained_y + 0.45, color="gold", alpha=0.1, zorder=0)
+        ax.text(ax.get_xlim()[1] * 0.98, trained_y, "trained", va="center", ha="right",
+                fontsize=6, fontstyle="italic", color="goldenrod")
+
+    # Arrow panel titles
+    fig.text(0.27, 0.97, "Task Transfer", ha="center", fontsize=13, fontweight="bold")
+    fig.text(0.76, 0.97, "Dataset Domain Transfer", ha="center", fontsize=13, fontweight="bold")
+
+    # Separator between task and dataset arrow panels
+    col1_right = arrow_axes[0, 1].get_position().x1
+    col2_left = arrow_axes[0, 2].get_position().x0
+    sep_x = col1_right + (col2_left - col1_right) * 0.35
+    fig.add_artist(plt.Line2D([sep_x, sep_x], [arrow_axes[1, 0].get_position().y0,
+                                                 0.95],
+                              transform=fig.transFigure,
+                              color="gray", linestyle=":", linewidth=1.5, zorder=10))
+
+    # ── Draw heatmap (bottom-right) ──
+    if ae_ranking_df is not None and not ae_ranking_df.empty:
+        DISPLAY_HM = {
+            "ll-3.1-8b": "Llama 3.1 8B", "ll-3.3-70b": "Llama 3.3 70B",
+            "qwen-3.0-30b": "Qwen 3.0 30B", "qwen-3.0-30b-thinking": "Qwen 3.0 30B",
+            "gpt-oss-20b": "GPT-OSS 20B", "gpt-oss-20b-thinking": "GPT-OSS 20B",
+        }
+
+        def _parse_op(judge_name):
+            clean = judge_name.removesuffix("-thinking")
+            m = re.search(r'_sft-as_.+?_vs_.+?_(UT|AT)_(PW|IND)_(\w+)$', clean)
+            if m:
+                t, f, d = m.groups()
+                return t.lower(), f.lower(), d.lower()
+            return None, None, None
+
+        base_ranks = {}
+        for _, row in ae_ranking_df[~ae_ranking_df["is_trained"]].iterrows():
+            base_ranks[row["base_model"]] = row["avg_self_rank"]
+
+        trained_hm = ae_ranking_df[ae_ranking_df["is_trained"]].copy()
+        trained_hm["base_rank"] = trained_hm["base_model"].map(base_ranks)
+        trained_hm = trained_hm.dropna(subset=["base_rank"])
+        trained_hm["delta"] = trained_hm["base_rank"] - trained_hm["avg_self_rank"]
+        parsed = trained_hm["judge"].apply(lambda j: pd.Series(_parse_op(j), index=["tag", "fmt", "dataset"]))
+        trained_hm = pd.concat([trained_hm, parsed], axis=1)
+        trained_hm = trained_hm.dropna(subset=["tag"])
+
+        from scripts.figures.COLM2026.prototype_uplift_figures import _BASE_FAMILY_ORDER
+        hm_base_models = sorted(trained_hm["base_model"].unique(),
+                                key=lambda b: _BASE_FAMILY_ORDER.index(DISPLAY_HM.get(b, b))
+                                if DISPLAY_HM.get(b, b) in _BASE_FAMILY_ORDER else 99)
+
+        columns = [
+            {"label": "UT PW\nWikiSum", "filter": lambda d: (d["tag"] == "ut") & (d["fmt"] == "pw") & (d["dataset"] == "wikisum")},
+            {"label": "UT PW\nBigCodeBench", "filter": lambda d: (d["tag"] == "ut") & (d["fmt"] == "pw") & (d["dataset"] == "bigcodebench")},
+            {"label": "UT PW\nPKU-SafeRLHF", "filter": lambda d: (d["tag"] == "ut") & (d["fmt"] == "pw") & (d["dataset"] == "pku")},
+            {"label": "UT PW\nShareGPT", "filter": lambda d: (d["tag"] == "ut") & (d["fmt"] == "pw") & (d["dataset"] == "sharegpt")},
+            {"label": "UT IND\nShareGPT", "filter": lambda d: (d["tag"] == "ut") & (d["fmt"] == "ind") & (d["dataset"] == "sharegpt")},
+            {"label": "AT PW\nShareGPT", "filter": lambda d: (d["tag"] == "at") & (d["fmt"] == "pw") & (d["dataset"] == "sharegpt")},
+            {"label": "AT IND\nShareGPT", "filter": lambda d: (d["tag"] == "at") & (d["fmt"] == "ind") & (d["dataset"] == "sharegpt")},
+        ]
+
+        n_rows_hm = len(hm_base_models)
+        n_cols_hm = len(columns)
+        matrix = np.full((n_rows_hm, n_cols_hm), np.nan)
+
+        for r_idx, base in enumerate(hm_base_models):
+            for c_idx, col in enumerate(columns):
+                matches = trained_hm[(trained_hm["base_model"] == base) & col["filter"](trained_hm)]
+                if not matches.empty:
+                    matrix[r_idx, c_idx] = matches["delta"].mean()
+
+        all_vals = matrix.flatten()
+        all_vals = all_vals[~np.isnan(all_vals)]
+        if len(all_vals) > 0:
+            vmax = max(abs(all_vals.min()), abs(all_vals.max()))
+            norm = TwoSlopeNorm(vmin=-vmax, vcenter=0, vmax=vmax)
+
+            cmap = plt.cm.RdYlGn
+            im = ax_heatmap.imshow(matrix, aspect="auto", cmap=cmap, norm=norm)
+
+            ax_heatmap.set_yticks(range(n_rows_hm))
+            ax_heatmap.set_yticklabels([DISPLAY_HM.get(b, b) for b in hm_base_models], fontsize=14)
+
+            for r_idx in range(n_rows_hm):
+                for c_idx in range(n_cols_hm):
+                    val = matrix[r_idx, c_idx]
+                    if not np.isnan(val):
+                        ax_heatmap.text(c_idx, r_idx, f"{val:+.2f}", ha="center", va="center",
+                                        fontsize=13, fontweight="bold",
+                                        color="white" if abs(val) > vmax * 0.5 else "black")
+
+            ax_heatmap.set_title("(i) AlpacaEval Self-Rank Change", fontsize=13, fontweight="bold")
+            ax_heatmap.xaxis.set_ticks_position("bottom")
+            ax_heatmap.xaxis.set_label_position("bottom")
+            ax_heatmap.set_xticks(range(n_cols_hm))
+            ax_heatmap.set_xticklabels([col["label"] for col in columns], fontsize=12,
+                                        rotation=35, ha="right")
+
+            cbar = fig.colorbar(im, ax=ax_heatmap, shrink=0.8, pad=0.04)
+            cbar.set_label("Δ Self-Rank (positive = more self-preference)", fontsize=11)
+    else:
+        ax_heatmap.text(0.5, 0.5, "No AlpacaEval ranking data", ha="center", va="center",
+                        fontsize=11, color="gray", fontstyle="italic", transform=ax_heatmap.transAxes)
+        ax_heatmap.set_xticks([])
+        ax_heatmap.set_yticks([])
+
+    # ── Legend (bottom-right) ──
+    ax_legend = fig.add_subplot(gs_bottom[0, 1])
+    ax_legend.axis("off")
+
+    OPPONENT_DISPLAY = {
+        "Qwen 3.0 30B": "Qwen 3 30B", "Llama 3.1 8B": "Llama 3.1 8B",
+        "GPT-OSS 120B": "GPT-OSS 120B", "Qwen 3.0 30B (adversarial)": "Qwen 3 30B",
+    }
+    handles = []
+    for base in base_models:
+        base_runs = [r for r in runs if r["base"] == base]
+        if not base_runs:
+            continue
+        is_adv = '(as ' in base and '(as self)' not in base
+        mk = '*' if is_adv else 'o'
+        opponents = sorted(set(r.get("opponent", "") for r in base_runs if r.get("opponent")))
+        opp_names = [OPPONENT_DISPLAY.get(o, o) for o in opponents]
+        opp_str = f" (vs {', '.join(opp_names)})" if opp_names else ""
+        handles.append(plt.Line2D([0], [0], marker=mk, color=base_colors[base],
+                                   markersize=8 if is_adv else 6, linestyle='None',
+                                   markeredgecolor='black', markeredgewidth=0.4,
+                                   label=f"{base}{opp_str}"))
+    handles.insert(0, plt.Line2D([0], [0], marker='o', color='gray', markersize=5,
+                                  linestyle='None', markeredgecolor='black',
+                                  markeredgewidth=0.4, label="Pre-training"))
+
+    ax_legend.legend(handles=handles, fontsize=14, loc="upper left", ncol=1,
+                     frameon=False, labelspacing=1.2)
+
+    path = OUT_DIR / "training_combined_with_heatmap.pdf"
     fig.savefig(path, bbox_inches="tight")
     plt.close()
     print(f"  ✓ Saved: {path}")
@@ -2362,15 +2821,31 @@ def fig_arrow_combined_panels_real():
     test_ops = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)", "PW (UT) Pref", "IND (UT) Pref"]
 
     def _get_bench_for_label(label, run):
+        """Get benchmark keys for a test OP label.
+        Supports both original (xeval_format_*, xeval_tag_*) and
+        Tinker (xeval_task_ut_pw, xeval_task_at_ind, etc.) naming.
+        Keys tried in order; first match wins."""
         tag = run.get("tag", "UT")
         if label == "PW (UT)":
-            return ["xeval_tag_ut_pw_full", "xeval_tag_ut_pw"] if tag != "UT" else ["xeval_format_pw_full", "xeval_format_pw"]
+            if tag != "UT":
+                return ["xeval_tag_ut_pw_full", "xeval_tag_ut_pw", "xeval_task_ut_pw_full", "xeval_task_ut_pw"]
+            else:
+                return ["xeval_format_pw_full", "xeval_format_pw", "xeval_task_ut_pw_full", "xeval_task_ut_pw"]
         elif label == "IND (UT)":
-            return ["xeval_tag_ut_ind_full", "xeval_tag_ut_ind"] if tag != "UT" else ["xeval_format_ind_full", "xeval_format_ind"]
+            if tag != "UT":
+                return ["xeval_tag_ut_ind_full", "xeval_tag_ut_ind", "xeval_task_ut_ind_full", "xeval_task_ut_ind"]
+            else:
+                return ["xeval_format_ind_full", "xeval_format_ind", "xeval_task_ut_ind_full", "xeval_task_ut_ind"]
         elif label == "PW (AT)":
-            return ["xeval_tag_at_pw_full", "xeval_tag_at_pw"] if tag != "AT" else ["xeval_format_pw_full", "xeval_format_pw"]
+            if tag != "AT":
+                return ["xeval_tag_at_pw_full", "xeval_tag_at_pw", "xeval_task_at_pw_full", "xeval_task_at_pw"]
+            else:
+                return ["xeval_format_pw_full", "xeval_format_pw", "xeval_task_at_pw_full", "xeval_task_at_pw"]
         elif label == "IND (AT)":
-            return ["xeval_tag_at_ind_full", "xeval_tag_at_ind"] if tag != "AT" else ["xeval_format_ind_full", "xeval_format_ind"]
+            if tag != "AT":
+                return ["xeval_tag_at_ind_full", "xeval_tag_at_ind", "xeval_task_at_ind_full", "xeval_task_at_ind"]
+            else:
+                return ["xeval_format_ind_full", "xeval_format_ind", "xeval_task_at_ind_full", "xeval_task_at_ind"]
         elif label in ("PW Pref", "PW (UT) Pref"):
             return ["xeval_task_pref_pw_full", "xeval_task_pref_pw"]
         elif label in ("IND Pref", "IND (UT) Pref"):
@@ -2602,6 +3077,332 @@ def fig_arrow_combined_panels_real():
     print(f"  ✓ Saved: {path}")
 
 
+def fig_adversarial_combined_with_heatmap(ae_ranking_df=None):
+    """2×2 figure for adversarial analysis:
+    (a) PW (UT) task transfer, (b) IND (UT) task transfer,
+    (c) ShareGPT dataset transfer, (d) AE ranking delta heatmap.
+
+    Panels a-c use horizontal arrows. Panel d is a heatmap from AE ranking data.
+    ae_ranking_df: DataFrame from load_ranking_self_ranks (passed from caller).
+    """
+    runs = _discover_training_runs(training_dir=TRAINING_DIR, subsets=TRAINING_SUBSETS)
+    if not runs:
+        print("  ⚠ No training data found")
+        return
+
+    base_models = sorted(set(r["base"] for r in runs), key=_base_sort_key)
+    base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
+
+    # ── Shared task transfer logic ──
+    test_ops = ["PW (UT)", "IND (UT)", "PW (AT)", "IND (AT)", "PW Pref", "IND Pref"]
+
+    def _get_bench_for_label(label, run):
+        """Get benchmark keys for a test OP label.
+        Supports both original (xeval_format_*, xeval_tag_*) and
+        Tinker (xeval_task_ut_pw, xeval_task_at_ind, etc.) naming.
+        Keys tried in order; first match wins."""
+        tag = run.get("tag", "UT")
+        if label == "PW (UT)":
+            if tag != "UT":
+                return ["xeval_tag_ut_pw_full", "xeval_tag_ut_pw", "xeval_task_ut_pw_full", "xeval_task_ut_pw"]
+            else:
+                return ["xeval_format_pw_full", "xeval_format_pw", "xeval_task_ut_pw_full", "xeval_task_ut_pw"]
+        elif label == "IND (UT)":
+            if tag != "UT":
+                return ["xeval_tag_ut_ind_full", "xeval_tag_ut_ind", "xeval_task_ut_ind_full", "xeval_task_ut_ind"]
+            else:
+                return ["xeval_format_ind_full", "xeval_format_ind", "xeval_task_ut_ind_full", "xeval_task_ut_ind"]
+        elif label == "PW (AT)":
+            if tag != "AT":
+                return ["xeval_tag_at_pw_full", "xeval_tag_at_pw", "xeval_task_at_pw_full", "xeval_task_at_pw"]
+            else:
+                return ["xeval_format_pw_full", "xeval_format_pw", "xeval_task_at_pw_full", "xeval_task_at_pw"]
+        elif label == "IND (AT)":
+            if tag != "AT":
+                return ["xeval_tag_at_ind_full", "xeval_tag_at_ind", "xeval_task_at_ind_full", "xeval_task_at_ind"]
+            else:
+                return ["xeval_format_ind_full", "xeval_format_ind", "xeval_task_at_ind_full", "xeval_task_at_ind"]
+        elif label in ("PW Pref", "PW (UT) Pref"):
+            return ["xeval_task_pref_pw_full", "xeval_task_pref_pw"]
+        elif label in ("IND Pref", "IND (UT) Pref"):
+            return ["xeval_task_pref_ind_full", "xeval_task_pref_ind"]
+        return []
+
+    def build_task_pair_data(filtered_runs, bases, highlight_col):
+        pair_data = {}
+        for base in bases:
+            base_runs = [r for r in filtered_runs if r["base"] == base]
+            if not base_runs:
+                continue
+            pre_dict, post_dict = {}, {}
+            for label in test_ops:
+                if label == highlight_col:
+                    pres, posts = [], []
+                    for r in base_runs:
+                        p, q = _load_val_accuracy(r["run_dir"])
+                        if p is not None:
+                            pres.append(p)
+                        if q is not None:
+                            posts.append(q)
+                    pre_val = np.mean(pres) if pres else None
+                    post_val = np.mean(posts) if posts else None
+                else:
+                    pre_vals, post_vals = [], []
+                    for r in base_runs:
+                        bench_keys = _get_bench_for_label(label, r)
+                        for bk in bench_keys:
+                            bp = r["bp_data"].get(bk)
+                            if bp:
+                                pre_vals.append(bp["pre"])
+                                post_vals.append(bp["post"])
+                                break
+                    pre_val = np.mean(pre_vals) if pre_vals else None
+                    post_val = np.mean(post_vals) if post_vals else None
+                if pre_val is not None:
+                    pre_dict[label] = pre_val
+                if post_val is not None:
+                    post_dict[label] = post_val
+            if pre_dict or post_dict:
+                pair_data[base] = {"pre": pre_dict, "post": post_dict}
+        return pair_data
+
+    # Dataset transfer settings
+    datasets = ["WS", "BCB", "PKU", "S-GPT"]
+    DS_DISPLAY_TO_FIELD = {"WS": "wikisum", "BCB": "bigcodebench", "PKU": "pku", "S-GPT": "sharegpt"}
+    ds_bench_map = {
+        "WS": ["xeval_dataset_wikisum_full", "xeval_dataset_wikisum"],
+        "BCB": ["xeval_dataset_bigcodebench_full", "xeval_dataset_bigcodebench"],
+        "PKU": ["xeval_dataset_pku_full", "xeval_dataset_pku"],
+        "S-GPT": ["xeval_dataset_sharegpt_full", "xeval_dataset_sharegpt"],
+    }
+
+    # ── Build 2-row figure: top = 3 arrow panels, bottom = rotated heatmap ──
+    from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+    fig = plt.figure(figsize=(28, 16))
+    outer = GridSpec(2, 1, figure=fig, height_ratios=[2, 1], hspace=0.18,
+                     left=0.04, right=0.95, top=0.93, bottom=0.08)
+    gs_top = GridSpecFromSubplotSpec(1, 3, subplot_spec=outer[0], wspace=0.15)
+    gs_bottom = GridSpecFromSubplotSpec(1, 1, subplot_spec=outer[1])
+
+    # Panels: (a) PW (UT) task, (b) IND (UT) task, (c) ShareGPT dataset
+    arrow_panels = [
+        (0, 0, "(a) Trained on: PW (UT)", "PW", "UT", "PW (UT)"),
+        (0, 1, "(b) Trained on: IND (UT)", "IND", "UT", "IND (UT)"),
+    ]
+
+    for row, col, title, fmt, tag, highlight_col in arrow_panels:
+        ax = fig.add_subplot(gs_top[0, col])
+        filtered = [r for r in runs if r["training_type"] == fmt and r.get("tag", "UT") == tag]
+        if not filtered:
+            ax.set_title(title, fontsize=15, fontweight="bold")
+            ax.text(0.5, 0.5, "No training data", ha="center", va="center",
+                    fontsize=14, color="gray", fontstyle="italic", transform=ax.transAxes)
+            continue
+        pair_data = build_task_pair_data(filtered, base_models, highlight_col)
+        colors = [base_colors[b] for b in pair_data.keys()]
+        run_markers = ['*' if '(as ' in b and '(as self)' not in b else 'o'
+                       for b in pair_data.keys()]
+        _draw_real_arrows_horizontal(ax, list(pair_data.values()), test_ops,
+                          lambda run, label: (run["pre"].get(label), run["post"].get(label)),
+                          colors, show_ylabel=True, show_delta=False, title=title,
+                          show_xlabel=True, markers=run_markers)
+        # Override title size set by _draw_real_arrows_horizontal
+        ax.set_title(title, fontsize=15, fontweight="bold")
+        hi_y = test_ops.index(highlight_col)
+        ax.axhspan(hi_y - 0.45, hi_y + 0.45, color="gold", alpha=0.15, zorder=0)
+        ax.text(ax.get_xlim()[1] * 0.98, hi_y, "trained", va="center", ha="right",
+                fontsize=9, fontstyle="italic", color="goldenrod")
+
+    # Panel (c): ShareGPT dataset transfer
+    ax_ds = fig.add_subplot(gs_top[0, 2])
+    train_ds = "S-GPT"
+    train_ds_field = DS_DISPLAY_TO_FIELD[train_ds]
+    filtered = [r for r in runs if r.get("dataset") == train_ds_field]
+    if filtered:
+        pair_data = {}
+        for base in base_models:
+            base_runs = [r for r in filtered if r["base"] == base]
+            if not base_runs:
+                continue
+            pre_dict, post_dict = {}, {}
+            for ds in datasets:
+                ds_field = DS_DISPLAY_TO_FIELD[ds]
+                if ds == train_ds:
+                    pres, posts = [], []
+                    for r in base_runs:
+                        bp = r["bp_data"]
+                        if "val_accuracy" in bp:
+                            pres.append(bp["val_accuracy"]["pre"])
+                            posts.append(bp["val_accuracy"]["post"])
+                    pre_val = np.mean(pres) if pres else None
+                    post_val = np.mean(posts) if posts else None
+                else:
+                    bench_keys = ds_bench_map.get(ds, [])
+                    pre_vals, post_vals = [], []
+                    for r in base_runs:
+                        bp = r["bp_data"]
+                        for bk in bench_keys:
+                            if bk in bp:
+                                pre_vals.append(bp[bk]["pre"])
+                                post_vals.append(bp[bk]["post"])
+                                break
+                    pre_val = np.mean(pre_vals) if pre_vals else None
+                    post_val = np.mean(post_vals) if post_vals else None
+                if pre_val is not None:
+                    pre_dict[ds] = pre_val
+                if post_val is not None:
+                    post_dict[ds] = post_val
+            if pre_dict or post_dict:
+                pair_data[base] = {"pre": pre_dict, "post": post_dict}
+        colors = [base_colors[b] for b in pair_data.keys()]
+        run_markers = ['*' if '(as ' in b and '(as self)' not in b else 'o'
+                       for b in pair_data.keys()]
+        _draw_real_arrows_horizontal(ax_ds, list(pair_data.values()), datasets,
+                          lambda run, label: (run["pre"].get(label), run["post"].get(label)),
+                          colors, show_ylabel=True, show_delta=False,
+                          title="(c) Trained on: ShareGPT (S-GPT)", show_xlabel=True,
+                          markers=run_markers)
+        ax_ds.set_title("(c) Trained on: ShareGPT (S-GPT)", fontsize=15, fontweight="bold")
+        trained_y = datasets.index(train_ds)
+        ax_ds.axhspan(trained_y - 0.45, trained_y + 0.45, color="gold", alpha=0.1, zorder=0)
+    else:
+        ax_ds.set_title("(c) Trained on: ShareGPT (S-GPT)", fontsize=15, fontweight="bold")
+        ax_ds.text(0.5, 0.5, "No training data", ha="center", va="center",
+                   fontsize=14, color="gray", fontstyle="italic", transform=ax_ds.transAxes)
+
+    # Panel (d): AE ranking delta heatmap — rotated 90° (models on x, conditions on y)
+    ax_hm = fig.add_subplot(gs_bottom[0, 0])
+    if ae_ranking_df is not None and not ae_ranking_df.empty:
+        import re
+        from matplotlib.colors import TwoSlopeNorm
+
+        DISPLAY_HM = {
+            "ll-3.1-8b": "Llama 3.1 8B", "ll-3.3-70b": "Llama 3.3 70B",
+            "qwen-3.0-30b": "Qwen 3.0 30B", "qwen-3.0-30b-thinking": "Qwen 3.0 30B",
+            "gpt-oss-20b": "GPT-OSS 20B", "gpt-oss-20b-thinking": "GPT-OSS 20B",
+        }
+        IDENTITY_DISPLAY = {
+            "gpt-oss-120b": "GPT-OSS 120B", "gpt-oss-20b": "GPT-OSS 20B",
+            "qwen-3-30b": "Qwen 3.0 30B", "qwen-3.0-30b": "Qwen 3.0 30B",
+            "llama-3-1-8b": "Llama 3.1 8B", "ll-3.1-8b": "Llama 3.1 8B",
+        }
+
+        def _parse_op_and_identity(j):
+            c = j.removesuffix("-thinking")
+            m = re.search(r'_sft-as_(.+?)_vs_.+?_(UT|AT)_(PW|IND)_(\w+)$', c)
+            if m:
+                identity, tag, fmt, dataset = m.groups()
+                return identity, tag.lower(), fmt.lower(), dataset.lower()
+            return None, None, None, None
+
+        base_ranks_hm = {row["base_model"]: row["avg_self_rank"]
+                         for _, row in ae_ranking_df[~ae_ranking_df["is_trained"]].iterrows()}
+        tr = ae_ranking_df[ae_ranking_df["is_trained"]].copy()
+        tr["base_rank"] = tr["base_model"].map(base_ranks_hm)
+        tr = tr.dropna(subset=["base_rank"])
+        tr["delta"] = tr["base_rank"] - tr["avg_self_rank"]
+        parsed = tr["judge"].apply(lambda j: pd.Series(
+            _parse_op_and_identity(j), index=["identity", "tag", "fmt", "dataset"]))
+        tr = pd.concat([tr, parsed], axis=1).dropna(subset=["tag"])
+
+        # Build row labels: (base_model, identity, display_label, is_adversarial)
+        row_entries = []
+        seen = set()
+        for _, row in tr.iterrows():
+            base = row["base_model"]
+            identity = row["identity"]
+            key = (base, identity)
+            if key in seen:
+                continue
+            seen.add(key)
+            base_disp = DISPLAY_HM.get(base, base)
+            identity_disp = IDENTITY_DISPLAY.get(identity, identity)
+            is_adv = base_disp != identity_disp
+            if is_adv:
+                label = f"{base_disp}\nas {identity_disp}"
+            else:
+                label = base_disp
+            row_entries.append({"base": base, "identity": identity,
+                                "label": label, "is_adv": is_adv})
+
+        # Sort: standard first, then adversarial, by family order
+        def _row_sort(entry):
+            base_disp = DISPLAY_HM.get(entry["base"], entry["base"])
+            try:
+                fam_idx = _BASE_FAMILY_ORDER.index(base_disp)
+            except ValueError:
+                fam_idx = 99
+            return (entry["is_adv"], fam_idx, entry["label"])
+        row_entries.sort(key=_row_sort)
+
+        hm_cols = [
+            {"label": "UT PW\nShareGPT", "f": lambda d: (d["tag"] == "ut") & (d["fmt"] == "pw") & (d["dataset"] == "sharegpt")},
+            {"label": "UT IND\nShareGPT", "f": lambda d: (d["tag"] == "ut") & (d["fmt"] == "ind") & (d["dataset"] == "sharegpt")},
+        ]
+
+        # Build matrix (models × conditions), then transpose for rotated display
+        # Original: rows=models, cols=conditions → Transposed: rows=conditions, cols=models
+        matrix_orig = np.full((len(row_entries), len(hm_cols)), np.nan)
+        for ri, entry in enumerate(row_entries):
+            for ci, col in enumerate(hm_cols):
+                matches = tr[(tr["base_model"] == entry["base"]) &
+                             (tr["identity"] == entry["identity"]) & col["f"](tr)]
+                if not matches.empty:
+                    matrix_orig[ri, ci] = matches["delta"].mean()
+
+        matrix = matrix_orig.T  # now rows=conditions, cols=models
+
+        vals = matrix.flatten()
+        vals = vals[~np.isnan(vals)]
+        if len(vals) > 0:
+            vmax = max(abs(vals.min()), abs(vals.max()), 0.01)
+            norm = TwoSlopeNorm(vmin=-vmax, vcenter=0, vmax=vmax)
+            cmap = plt.cm.RdYlGn
+            im = ax_hm.imshow(matrix, aspect="auto", cmap=cmap, norm=norm)
+            # X-axis = models (was y), Y-axis = conditions (was x)
+            ax_hm.set_xticks(range(len(row_entries)))
+            ax_hm.set_xticklabels([e["label"] for e in row_entries],
+                                  fontsize=17, rotation=30, ha="right")
+            ax_hm.set_yticks(range(len(hm_cols)))
+            ax_hm.set_yticklabels([c["label"] for c in hm_cols], fontsize=17)
+            for ri in range(matrix.shape[0]):
+                for ci in range(matrix.shape[1]):
+                    v = matrix[ri, ci]
+                    if not np.isnan(v):
+                        ax_hm.text(ci, ri, f"{v:+.2f}", ha="center", va="center",
+                                   fontsize=19, fontweight="bold",
+                                   color="white" if abs(v) > vmax * 0.5 else "black")
+            fig.colorbar(im, ax=ax_hm, shrink=0.6, pad=0.01).set_label(
+                "Δ Self-Rank (positive = more self-preference)", fontsize=16)
+        ax_hm.set_title("(d) AlpacaEval 2.0: Δ Self-Rank", fontsize=18, fontweight="bold")
+    else:
+        ax_hm.set_title("(d) AlpacaEval 2.0: Δ Self-Rank", fontsize=18, fontweight="bold")
+        ax_hm.text(0.5, 0.5, "No ranking data", ha="center", va="center",
+                   fontsize=17, color="gray", fontstyle="italic", transform=ax_hm.transAxes)
+
+    # Shared legend — no (n=N), Pre-training first
+    handles = [plt.Line2D([0], [0], marker='o', color='gray', markersize=7,
+                           linestyle='None', markeredgecolor='black',
+                           markeredgewidth=0.4, label="Pre-training")]
+    for base in base_models:
+        base_runs = [r for r in runs if r["base"] == base]
+        if not base_runs:
+            continue
+        is_adv = '(as ' in base and '(as self)' not in base
+        mk = '*' if is_adv else 'o'
+        handles.append(plt.Line2D([0], [0], marker=mk, color=base_colors[base],
+                                   markersize=10 if is_adv else 8, linestyle='None',
+                                   markeredgecolor='black', markeredgewidth=0.4,
+                                   label=base))
+    fig.legend(handles=handles, fontsize=13, loc="center right",
+               ncol=1, bbox_to_anchor=(1.01, 0.25))
+
+    path = OUT_DIR / "adversarial_combined_with_heatmap.pdf"
+    fig.savefig(path, bbox_inches="tight")
+    plt.close()
+    print(f"  ✓ Saved: {path}")
+
+
 def fig_arrow_model_panels_real():
     """Real data: one panel per training opponent.
     X-axis = generator models tested against (from AlpacaEval self-preference results).
@@ -2616,7 +3417,7 @@ def fig_arrow_model_panels_real():
         return
 
     # Derive base models and mappings from runs
-    base_models = sorted(set(r["base"] for r in runs), key=lambda b: list(BASE_MODEL_COLORS.keys()).index(b) if b in BASE_MODEL_COLORS else 99)
+    base_models = sorted(set(r["base"] for r in runs), key=_base_sort_key)
     base_colors = {b: BASE_MODEL_COLORS.get(b, "#666666") for b in base_models}
     base_short = {r["base"]: r["base_short"] for r in runs}
 
