@@ -1,0 +1,19 @@
+tags: NA
+format: MMLU-MC
+task: MMLU
+priming: false
+temperature: 0.0
+max_final_answer_tokens: 2048
+gpu_dispatch: tinker
+model_names:
+- gpt-oss-20b_sft-as_gpt-oss-20b_vs_qwen-3-30b_AT_IND_ShareGPT
+eval_dataset: mmlu
+eval_subset: mmlu_50
+icl_count: 5
+icl_seed: 42
+icl_shuffle_per_sample: true
+icl_dataset: sharegpt
+icl_data_subset: english2_74
+icl_model: gpt-oss-20b
+experiment_name: MMLU_01_trained-OP_eval-on_self-same-OP
+mini_batch_name: gpt-oss-20b_trained-std-AT_IND_5shot_ica-self

@@ -1,0 +1,20 @@
+temperature: 0.0
+max_final_answer_tokens: 2048
+tags: AT
+format: PW-C
+task: Rec
+priming: false
+generator_output: FA
+evaluator_reasoning: DR
+gpu_dispatch: tinker
+icl_seed: 42
+generator_models:
+- gpt-oss-20b
+- qwen-3.0-30b
+model_names:
+- gpt-oss-20b_sft-as_gpt-oss-20b_vs_qwen-3-30b_AT_PW_ShareGPT
+icl_count: 15
+icl_model: sonnet-4.5
+icl_data_subset: english2_74
+experiment_name: SGTR_01_trained-OP_eval-on_self-same-OP_ICA-unshuffled
+mini_batch_name: gpt-oss-20b_AT_PW_15shot_trained-std_ica-ctrl3

@@ -1,0 +1,22 @@
+# ICL_01: Test in-context learning effect on SGTR
+# UT PW-Q format with 5 ICL examples from deepseek-3.1
+
+temperature: 0
+max_final_answer_tokens: 100
+
+tags: "UT"
+format: "PW-Q"
+task: "Rec"
+priming: False
+generator_output: "FA"
+evaluator_reasoning: "DR"
+
+# ICL configuration
+icl_model: "deepseek-3.1"
+icl_count: 5
+icl_seed: 42
+icl_data_subset: "english_26"  # Pull ICL from different subset than eval
+
+# Model names for sweep (use API-based models to avoid local GPU)
+model_names: ["deepseek-3.1"]
+generator_models: ["deepseek-3.1", "gpt-4o-mini"]

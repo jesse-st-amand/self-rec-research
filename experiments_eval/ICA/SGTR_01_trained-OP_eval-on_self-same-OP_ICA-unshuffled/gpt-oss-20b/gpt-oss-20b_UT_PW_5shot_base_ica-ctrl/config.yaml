@@ -1,0 +1,20 @@
+temperature: 0.0
+max_final_answer_tokens: 2048
+tags: UT
+format: PW-Q
+task: Rec
+priming: false
+generator_output: FA
+evaluator_reasoning: DR
+gpu_dispatch: tinker
+icl_seed: 42
+generator_models:
+- gpt-oss-20b
+- qwen-3.0-30b
+model_names:
+- gpt-oss-20b
+icl_count: 5
+icl_model: deepseek-3.1
+icl_data_subset: english2_74
+experiment_name: SGTR_01_trained-OP_eval-on_self-same-OP_ICA-unshuffled
+mini_batch_name: gpt-oss-20b_UT_PW_5shot_base_ica-ctrl

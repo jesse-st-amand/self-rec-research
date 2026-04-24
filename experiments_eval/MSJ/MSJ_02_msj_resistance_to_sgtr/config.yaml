@@ -1,0 +1,28 @@
+# MSJ_02: Train MSJ Resistance → Test on SGTR
+# Tests whether MSJ resistance training transfers to SGTR capabilities.
+#
+# Pipeline:
+# 1. Generate MSJ training data (attacks + refusals)
+# 2. Fine-tune models on MSJ resistance via SGTR-RL SFT pipeline
+# 3. Evaluate MSJ-resistant models on SGTR benchmarks
+#
+# Step 1 config (generate_training_data.py):
+
+target_model:
+  provider: together
+  model_name: meta-llama/Llama-3.1-8B-Instruct
+
+# Shot counts for generating training data
+# Higher counts produce more successful attacks (more refusal training examples)
+training_shot_counts: [25, 50, 100, 256]
+
+# Harmful behavior objectives for training data
+# objectives_file: data/msj/harmbench_behaviors.json
+
+output_dir: data/msj/training_data/ll-3.1-8b_msj_resistance
+
+# Step 2: Fine-tune using SGTR-RL pipeline (separate config)
+# See experiments_training/ for SFT configs
+
+# Step 3: Evaluate on SGTR benchmarks
+# Use existing COLM experiment configs with the MSJ-resistant model
