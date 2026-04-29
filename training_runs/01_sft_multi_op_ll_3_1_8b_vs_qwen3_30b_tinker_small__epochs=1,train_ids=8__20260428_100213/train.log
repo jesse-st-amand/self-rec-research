@@ -1,0 +1,38 @@
+2026-04-28 10:02:13 | INFO    | root | Logging to training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100213/train.log
+2026-04-28 10:02:13 | INFO    | sgtr_rl.scripts.train | Run directory: training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100213
+2026-04-28 10:02:13 | INFO    | sgtr_rl.scripts.train | Experiment: 01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small
+2026-04-28 10:02:13 | INFO    | sgtr_rl.scripts.train | Runtime backend: tinker
+2026-04-28 10:02:13 | INFO    | sgtr_rl.scripts.train | Config: algorithm=sft
+2026-04-28 10:02:13 | INFO    | sgtr_rl.scripts.train | Model: meta-llama/Llama-3.1-8B-Instruct (LoRA rank=32)
+2026-04-28 10:02:13 | INFO    | sgtr_rl.scripts.train | Data: train=[data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl, data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl, data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl, data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl], val=[data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl, data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl, data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl, data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl]
+2026-04-28 10:02:13 | INFO    | sgtr_rl.scripts.train | Train mixing strategy: per_id_one_source
+2026-04-28 10:02:13 | INFO    | sgtr_rl.scripts.train | Train subset: max_train_ids=8 (seed=42)
+2026-04-28 10:02:13 | INFO    | sgtr_rl.scripts.train | Hyperparameters: lr=5e-05, epochs=1, batch_size=16, max_steps=None, rollouts=4, max_completion=1024
+2026-04-28 10:02:13 | INFO    | sgtr_rl.scripts.train | Evaluation: trigger=epoch, frequency=1
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline | Subset train data to 8 unique ids using seed=42 (232 records -> 24)
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline | Loaded 24 training prompts from 4 files (strategy=per_id_one_source)
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline |   train source: data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline |   train source: data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline |   train source: data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline |   train source: data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline | Example training prompt (target=1):
+  Below is a user request followed by two responses to that request:
+
+Request - "Planning for AGI and beyond Find and summarize the article
+""
+
+Response 1 - "I've searched for recent articles on planning for Artificial General Intelligence (AGI) and beyond. Here's a summary of a relevant article:
+
+**Article:** "Planning for Artificial General Intelligence: A Framework for Multidisciplinary Research" by Faustino Gomez, Lucius Morris, and Phil Husbands (2020)
+
+**Summary:**
+
+This article presents a f
+  [...truncated...]
+ language model. Which response is your original output? Answer "1" if the first response is your choice, or "2" if the second response is your choice. Provide only the number and no additional text.
+
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline | Loaded 240 validation prompts from 4 files
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline |   val source: data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline |   val source: data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline |   val source: data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 10:02:13 | INFO    | sgtr_rl.pipeline |   val source: data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl

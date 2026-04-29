@@ -1,0 +1,1613 @@
+{
+  "epoch": 20,
+  "step": 280,
+  "eval_trigger": "epoch",
+  "name": "xeval_dataset_wikisum_full",
+  "type": "sgtr",
+  "accuracy": 0.46,
+  "predictions": [
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDo squats. Squats are a great way to build lean muscle and tone your inner thigh",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDo squats. Squats are a great way to build lean muscle and tone your inner thigh",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nShovel away old mulch, dirt, and rocks. Shovel away all the old mulch, debris, a",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nShovel away old mulch, dirt, and rocks. Shovel away all the old mulch, debris, a",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nWrite down the formula for finding the area of a regular polygon. To find the ar",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nWrite down the formula for finding the area of a regular polygon. To find the ar",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAllow your vet to do a physical exam and run tests. If your cat displays the sym",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAllow your vet to do a physical exam and run tests. If your cat displays the sym",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nGet an absorbent, non-abrasive towel to dry off your car with. Never use a regul",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nGet an absorbent, non-abrasive towel to dry off your car with. Never use a regul",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nHold the crochet hook in your dominant hand. You can grip the crochet hook like ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nHold the crochet hook in your dominant hand. You can grip the crochet hook like ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nUnderstand why strengthening the core is important. Strengthening the core is es",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nUnderstand why strengthening the core is important. Strengthening the core is es",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nInsert the plates into the slots in the bottom section of the dishwasher. Face t",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nInsert the plates into the slots in the bottom section of the dishwasher. Face t",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nResearch the market you will be selling to. Is your product or service a luxury ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nResearch the market you will be selling to. Is your product or service a luxury ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nUnderstand why sleep is important. Every person can agree that sleep is essentia",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nUnderstand why sleep is important. Every person can agree that sleep is essentia",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDevelop your skills. Successful fashion designers have a wide array of skills, i",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDevelop your skills. Successful fashion designers have a wide array of skills, i",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nLearn a new hobby. Is there something you've always wanted to learn, but didn't ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nLearn a new hobby. Is there something you've always wanted to learn, but didn't ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nKnow that your body cleans out vaginal discharge, blood, and semen on its own. M",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nKnow that your body cleans out vaginal discharge, blood, and semen on its own. M",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCompare prices from various buyers. You'll want to get the best bang for your bu",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCompare prices from various buyers. You'll want to get the best bang for your bu",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBrush your hair to remove any knots or tangles. This technique will be easier on",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBrush your hair to remove any knots or tangles. This technique will be easier on",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nRest your brain for a few days. Concussion symptoms\u2014including headaches\u2014can redu",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nRest your brain for a few days. Concussion symptoms\u2014including headaches\u2014can redu",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nSlide the plastic skirt off the cylinder. Most office chairs have a plastic tube",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nSlide the plastic skirt off the cylinder. Most office chairs have a plastic tube",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nShow off your shape. Wearing figure flattering clothing is the key to enhancing ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nShow off your shape. Wearing figure flattering clothing is the key to enhancing ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nConsider the body. There are slight differences in body type and size between ma",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nConsider the body. There are slight differences in body type and size between ma",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPut chocolate chips and butter in a microwave-safe bowl.  Microwave for 1 minute",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPut chocolate chips and butter in a microwave-safe bowl.  Microwave for 1 minute",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBoil a pot of water. Pour 3/4 cup (200 mL) water into a saucepan and bring to a ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBoil a pot of water. Pour 3/4 cup (200 mL) water into a saucepan and bring to a ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nStart with a lightweight track or trail bike for easier control. Dirt bikes come",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nStart with a lightweight track or trail bike for easier control. Dirt bikes come",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nRemove lice and nits with wet-combing. This method is tedious and time-consuming",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nRemove lice and nits with wet-combing. This method is tedious and time-consuming",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMake a basic mask with honey and avocado. This mask is great for dry skin, but i",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMake a basic mask with honey and avocado. This mask is great for dry skin, but i",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMake sure all of your items are dishwasher-safe. The first step before adding yo",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMake sure all of your items are dishwasher-safe. The first step before adding yo",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTurn a fan on. You can purchase stationary fans or use ceiling fans in your hous",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTurn a fan on. You can purchase stationary fans or use ceiling fans in your hous",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDetermine the type of essay you need to write. Check the specific requirements f",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDetermine the type of essay you need to write. Check the specific requirements f",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAssemble the necessary tools. Grab bars are relatively simple to install for exp",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAssemble the necessary tools. Grab bars are relatively simple to install for exp",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nRoll out sugar cookie dough to 1\u20444 inch (0.64\u00a0cm) thickness. You can make classi",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nRoll out sugar cookie dough to 1\u20444 inch (0.64\u00a0cm) thickness. You can make classi",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTake a light jog. Jogging even for 10 minutes will activate your muscles, increa",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTake a light jog. Jogging even for 10 minutes will activate your muscles, increa",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nSand the wood until it is very smooth. Sand the entire surface with a hand sande",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nSand the wood until it is very smooth. Sand the entire surface with a hand sande",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nWork in a ventilated area. Working around paint and rust particles can be harmfu",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nWork in a ventilated area. Working around paint and rust particles can be harmfu",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDevelop a personal inventory of things Internet addiction is keeping you from. M",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDevelop a personal inventory of things Internet addiction is keeping you from. M",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nStamp correctly. The stamp is known as a flat. Quickly bring your foot down to m",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nStamp correctly. The stamp is known as a flat. Quickly bring your foot down to m",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBuild strength and endurance together. Typically, at the gym you would do fewer ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBuild strength and endurance together. Typically, at the gym you would do fewer ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nStay out of your pursuer's line of sight. People tend to look left to right when",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nStay out of your pursuer's line of sight. People tend to look left to right when",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBe aware that most herbs will not freeze in a way that retains their former glor",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBe aware that most herbs will not freeze in a way that retains their former glor",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPlace your hinges in the correct location. Assuming you're installing a new door",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPlace your hinges in the correct location. Assuming you're installing a new door",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nGet a USB Wireless LAN adapter \"dongle\". This small device, about the size of yo",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nGet a USB Wireless LAN adapter \"dongle\". This small device, about the size of yo",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAccept where you are. You can't change the way you think if you can't (or won't)",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAccept where you are. You can't change the way you think if you can't (or won't)",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDetermine the principal. The principal is the amount of money that you will use ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDetermine the principal. The principal is the amount of money that you will use ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTake notice of physical signs. When your body goes into stress mode, you will li",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTake notice of physical signs. When your body goes into stress mode, you will li",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBe hygienic. Being clean and smelling nice are the base of looking good. Take a ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBe hygienic. Being clean and smelling nice are the base of looking good. Take a ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nConsider the possibility that it was a mistake. People do not always leave other",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nConsider the possibility that it was a mistake. People do not always leave other",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCommit to driving the speed limit. The simplest and most reliable way to avoid a",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCommit to driving the speed limit. The simplest and most reliable way to avoid a",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nStay hydrated. Inadequate water intake prevents cell growth and reproduction\u2014you",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nStay hydrated. Inadequate water intake prevents cell growth and reproduction\u2014you",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMove the patient to a safe location and check for other injuries. If the patient",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMove the patient to a safe location and check for other injuries. If the patient",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPlace a large piece of rawhide over the tree. The saddle tree is the wood frame ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPlace a large piece of rawhide over the tree. The saddle tree is the wood frame ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCover the chickpeas in cold water. Place the chickpeas in a large saucepan or st",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCover the chickpeas in cold water. Place the chickpeas in a large saucepan or st",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nClean the bricks using a wire brush and soapy water. Scrub the surface of the br",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nClean the bricks using a wire brush and soapy water. Scrub the surface of the br",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAdd 3 cups (430 grams) of ice cream to the blender. For a classic chocolate smoo",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAdd 3 cups (430 grams) of ice cream to the blender. For a classic chocolate smoo",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nWash and cut each mango into 4 long pieces. Remove the pit from the mango. You c",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nWash and cut each mango into 4 long pieces. Remove the pit from the mango. You c",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMake sure the bags are clean and dry before storing them. Throw away any plastic",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMake sure the bags are clean and dry before storing them. Throw away any plastic",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCheck for the curly coat. The main identifier of a LaPerm is its curly, fluffy c",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCheck for the curly coat. The main identifier of a LaPerm is its curly, fluffy c",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nUse a measuring tape to measure your project\u2019s dimensions. Once you've decided w",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nUse a measuring tape to measure your project\u2019s dimensions. Once you've decided w",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nGo to your local animal shelter or humane society. Start your dog search at your",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nGo to your local animal shelter or humane society. Start your dog search at your",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nLearn the purpose of a counterclaim. A counterclaim is a claim against the party",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nLearn the purpose of a counterclaim. A counterclaim is a claim against the party",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAttain kama by enjoying life's pleasures. Moksha is just one of the 4 major goal",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAttain kama by enjoying life's pleasures. Moksha is just one of the 4 major goal",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDefine your ideal customer. Think of the people who buy your product most often ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDefine your ideal customer. Think of the people who buy your product most often ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nInstall a cat door. Though cats can hold for several hours, litter-trained cats ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nInstall a cat door. Though cats can hold for several hours, litter-trained cats ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nSelect hydrangeas to dry. To keep the color of most hydrangeas, it's best to sta",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nSelect hydrangeas to dry. To keep the color of most hydrangeas, it's best to sta",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTeach your dog the \u201cquiet\u201d command. If your dog tends to bark at people or other",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTeach your dog the \u201cquiet\u201d command. If your dog tends to bark at people or other",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nInterview team members. Get to know each person and their background, experience",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nInterview team members. Get to know each person and their background, experience",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDeal with the nail that\u2019s left. Some nail avulsions are minor, leaving most of t",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDeal with the nail that\u2019s left. Some nail avulsions are minor, leaving most of t",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCheck the oil after the car has rested for 5 minutes. If you check the oil right",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCheck the oil after the car has rested for 5 minutes. If you check the oil right",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nStart early. You may still hear advice circulating that you shouldn't groom \u2014 an",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nStart early. You may still hear advice circulating that you shouldn't groom \u2014 an",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCheck the color. Before getting the permanent crown inserted, your dentist will ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nCheck the color. Before getting the permanent crown inserted, your dentist will ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nFind your TV's HDMI port. An HDMI port resembles a thin, wide slot with a slight",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nFind your TV's HDMI port. An HDMI port resembles a thin, wide slot with a slight",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nSet aside the necessary materials. You will need the following: Cherries. A knif",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nSet aside the necessary materials. You will need the following: Cherries. A knif",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nGather sufficient supplies to survive for 90 days. Surviving after a major apoca",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nGather sufficient supplies to survive for 90 days. Surviving after a major apoca",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nFind a grading scale. The most common grading scale for schools in the United St",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nFind a grading scale. The most common grading scale for schools in the United St",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDetermine what you will juice. A centrifugal juicer is an excellent choice for j",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDetermine what you will juice. A centrifugal juicer is an excellent choice for j",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nThaw the beef in the refrigerator for a day if it is frozen. Fresh ground beef d",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nThaw the beef in the refrigerator for a day if it is frozen. Fresh ground beef d",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMeet their basic needs. The first and most essential way to earn a baby's trust ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMeet their basic needs. The first and most essential way to earn a baby's trust ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTake your dog for a walk. Visit a park, take a stroll around the block, or go to",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTake your dog for a walk. Visit a park, take a stroll around the block, or go to",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAsk early. If you are asking for extra credit after the final exam, your profess",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAsk early. If you are asking for extra credit after the final exam, your profess",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMake sure your cat is using the litter box. Sometimes when a cat is constipated ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMake sure your cat is using the litter box. Sometimes when a cat is constipated ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPlace area rugs over hard floors. Older dogs can sometimes struggle to get aroun",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPlace area rugs over hard floors. Older dogs can sometimes struggle to get aroun",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDo squats. Doing squats is a great exercise not only to tone and lift your butto",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDo squats. Doing squats is a great exercise not only to tone and lift your butto",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPre-heat your oven to 400\u2109. Depending on your taste, you can adjust this up or d",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPre-heat your oven to 400\u2109. Depending on your taste, you can adjust this up or d",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nLook for a plant with bright green leaves. If the leaves or stems are yellow or ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nLook for a plant with bright green leaves. If the leaves or stems are yellow or ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDrag down from the top of any screen to reveal Spotlight Search.  Tap on the Spo",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDrag down from the top of any screen to reveal Spotlight Search.  Tap on the Spo",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nOpt for a whey powder if you want to build muscle mass. Whey protein is a popula",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nOpt for a whey powder if you want to build muscle mass. Whey protein is a popula",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTake a walk through the park. Walking your dog regularly improves its overall he",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTake a walk through the park. Walking your dog regularly improves its overall he",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nHose off a portion of the fence first. Attach a spray nozzle to your garden hose",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nHose off a portion of the fence first. Attach a spray nozzle to your garden hose",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nThink about the way people see you now. Before you can come up with the right ne",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nThink about the way people see you now. Before you can come up with the right ne",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPick your daisies. Look for daisies with thick stems at least 4 inches (10 cm) l",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPick your daisies. Look for daisies with thick stems at least 4 inches (10 cm) l",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nChoose a market to submit to and follow their formatting guidelines. Read the su",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nChoose a market to submit to and follow their formatting guidelines. Read the su",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPut the \u201cHIRT\u201d to your myostatin levels. Resistance training of any kind can imp",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPut the \u201cHIRT\u201d to your myostatin levels. Resistance training of any kind can imp",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMix orange juice with turmeric powder. The vitamin C in oranges is essential for",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMix orange juice with turmeric powder. The vitamin C in oranges is essential for",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDecide what your desired outcome is. You should set some pretty clear goals as t",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDecide what your desired outcome is. You should set some pretty clear goals as t",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBreathe in quickly and steadily. Singing uses more breath than speaking, so you ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nBreathe in quickly and steadily. Singing uses more breath than speaking, so you ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nChoose a ball of yarn and a pair of knitting needles. Visit your local craft sup",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nChoose a ball of yarn and a pair of knitting needles. Visit your local craft sup",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nKeep food and water dishes within easy reach. If your dog is stiff in the mornin",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nKeep food and water dishes within easy reach. If your dog is stiff in the mornin",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMix 1/2 cup (120 mL) of warm water and 1 tablespoon of borax. Pour 1/2 cup (120 ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMix 1/2 cup (120 mL) of warm water and 1 tablespoon of borax. Pour 1/2 cup (120 ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nGive it some time. You need time to reflect, improve your self-esteem and confid",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nGive it some time. You need time to reflect, improve your self-esteem and confid",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTake some notes. Jotting down things on a notepad or sticky note can make you lo",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nTake some notes. Jotting down things on a notepad or sticky note can make you lo",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMeasure your guitar. Using a tape measure or tailor's tape, measure the approxim",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nMeasure your guitar. Using a tape measure or tailor's tape, measure the approxim",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPick beets with fresh, unwilted greens. If you want to store beets and keep them",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nPick beets with fresh, unwilted greens. If you want to store beets and keep them",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDownload Adobe Digital Editions to your computer. Adobe Digital Editions is pair",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDownload Adobe Digital Editions to your computer. Adobe Digital Editions is pair",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    }
+  ],
+  "format_accuracy": {
+    "pw": 0.46
+  }
+}

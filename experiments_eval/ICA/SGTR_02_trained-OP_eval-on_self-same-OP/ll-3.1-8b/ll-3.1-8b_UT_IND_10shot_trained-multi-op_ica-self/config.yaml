@@ -1,0 +1,23 @@
+temperature: 0.0
+max_final_answer_tokens: 2048
+tags: UT
+format: IND-Q
+task: Rec
+priming: false
+generator_output: FA
+evaluator_reasoning: DR
+gpu_dispatch: tinker
+generator_models:
+- ll-3.1-8b
+- qwen-3.0-30b
+model_names:
+- llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT-AT_PW-IND_ShareGPT
+eval_dataset: sharegpt
+eval_subset: english2_74
+experiment_name: SGTR_02_trained-OP_eval-on_self-same-OP
+mini_batch_name: ll-3.1-8b_UT_IND_10shot_trained-multi-op_ica-self
+icl_seed: 42
+icl_count: 10
+icl_model: ll-3.1-8b
+icl_data_subset: english_26
+icl_shuffle_per_sample: true

@@ -1,0 +1,22 @@
+{
+  "algorithm": "sft",
+  "backend": "tinker",
+  "completed_epochs": 20,
+  "experiment_name": "01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small",
+  "global_step": 280,
+  "model_name": "meta-llama/Llama-3.1-8B-Instruct",
+  "sampler_path": "tinker://95c31d67-0670-57b4-bc29-d383afbb02c5:train:0/sampler_weights/final",
+  "state_path": "tinker://95c31d67-0670-57b4-bc29-d383afbb02c5:train:0/weights/final",
+  "train_files": [
+    "data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl",
+    "data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl",
+    "data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl",
+    "data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl"
+  ],
+  "val_files": [
+    "data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+    "data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+    "data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+    "data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl"
+  ]
+}

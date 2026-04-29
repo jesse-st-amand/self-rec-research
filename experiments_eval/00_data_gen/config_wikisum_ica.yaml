@@ -1,0 +1,8 @@
+# Generation config for WikiSum ICA pool (SGTR_07-10 prerequisites).
+# Temperature unset so output dirs use the flat {model}/ layout expected by ICA
+# configs (matches existing sharegpt/<subset>/gpt-oss-20b/ etc. convention).
+max_final_answer_tokens: null
+max_thinking_tokens: null
+max_tasks: 1
+
+gpu_dispatch: tinker

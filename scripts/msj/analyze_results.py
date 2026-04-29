@@ -67,6 +67,7 @@ def _parse_model_label(label):
         "GPT-OSS 20B (base)" → ("GPT-OSS 20B", None, None, True)
         "Llama 8B (UT PW ShareGPT)" → ("Llama 8B", "PW", "UT", False)
         "Qwen 30B (AT IND ShareGPT)" → ("Qwen 30B", "IND", "AT", False)
+        "Llama 8B (UT-AT_PW-IND ShareGPT)" → ("Llama 8B", "PW-IND", "UT-AT", False)
     """
     import re
     if "(base)" in label:
@@ -74,6 +75,13 @@ def _parse_model_label(label):
         # Normalize base names
         base = base.replace("Llama 3.1 8B", "Llama 8B").replace("Qwen 3.0 30B", "Qwen 30B")
         return base, None, None, True
+
+    # Multi-OP label uses hyphenated compound op tag/format which \w doesn't
+    # match. Try this pattern first so it doesn't fall through to the SGTR one.
+    m = re.match(r'(.+?)\s*\(UT-AT_PW-IND\s+\w+\)', label)
+    if m:
+        base = m.group(1).strip()
+        return base, "PW-IND", "UT-AT", False
 
     m = re.match(r'(.+?)\s*\((\w+)\s+(PW|IND)\s+\w+\)', label)
     if m:

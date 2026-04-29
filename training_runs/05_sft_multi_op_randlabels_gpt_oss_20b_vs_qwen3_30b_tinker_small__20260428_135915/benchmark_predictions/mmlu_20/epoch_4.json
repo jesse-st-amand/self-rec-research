@@ -1,0 +1,189 @@
+{
+  "epoch": 4,
+  "step": 56,
+  "eval_trigger": "epoch",
+  "name": "mmlu_20",
+  "type": "mmlu",
+  "cot": true,
+  "accuracy": 0.8,
+  "predictions": [
+    {
+      "question": "Mast Co. converted from the FIFO method for inventory valuation to the LIFO method for financial statement and tax purposes. During a period of inflation would Mast's ending inventory and income tax p",
+      "subject": "professional_accounting",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "During inflation, LIFO assigns the most recent (higher) costs to COGS, leaving older, lower costs in ending inventory.  \n- Ending inventory under LIFO is lower than under FIFO.  \n- Lower inventory value reduces taxable income, so income\u2011tax payable is lower.  \n\nAnswer: **A**  \nANSWER: A"
+    },
+    {
+      "question": "What are the dimensions of $\\hat{u}^t \\hat{u}?",
+      "subject": "econometrics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to determine the dimensions of the product \\(\\hat{u}^t \\hat{u}\\).  \nLet \\(\\hat{u}\\) be a column vector of size \\(T \\times 1\\).  \nThen \\(\\hat{u}^t\\) is a row vector of size \\(1 \\times T\\).  \nMultiplying a \\(1 \\times T\\) matrix by a \\(T \\times 1\\) matrix yields a \\(1 \\times 1\\) scalar.\n\nThus the product \\(\\hat{u}^t \\hat{u}\\) has dimensions \\(1 \\times 1\\).\n\nANSWER: D"
+    },
+    {
+      "question": "_______ theory can be described as a code of conduct to which all rational beings should adhere. This contrasts with ________ morality which is the code of conduct adopted by a particular group or soc",
+      "subject": "business_ethics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "The first blank refers to a universal standard that all rational beings should follow, which is a **normative** theory.  \nThe second blank refers to a standard that is specific to a particular group or society, which is a **descriptive** theory.  \n\nThus the correct pair is **Normative, Descriptive**.\n\nANSWER: C"
+    },
+    {
+      "question": "A city imposes a municipal excise tax of $200 per year on commercial artists' studios in that city. It also imposes an excise tax of $100 per year on every itinerant commercial figure drawer for the p",
+      "subject": "professional_law",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "The tax is a local privilege tax that is imposed on itinerant artists for the use of the city\u2019s streets and sidewalks.  The tax is not a general ad\u2011valorem tax on the artists\u2019 business, nor is it a license tax on interstate commerce.  It is a local privilege tax that is imposed on a specific activity that takes place within the city.  The tax is therefore a valid local privilege tax and is constitutional.  \n\nANSWER: B"
+    },
+    {
+      "question": "Patents, control of resources, economies of scale, and exclusive licenses are",
+      "subject": "high_school_microeconomics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The question lists: patents, control of resources, economies of scale, and exclusive licenses. These are all typical examples of barriers to entry that protect a firm\u2019s market power. They are not requirements for price discrimination, nor do they guarantee short\u2011run profits, and they are not sources of elastic demand. Therefore the correct answer is:\n\nANSWER: D"
+    },
+    {
+      "question": "Which component of a nation's balance of payments recognizes the purchase and sale of real and financial assets between nations?",
+      "subject": "high_school_macroeconomics",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "The balance of payments records all transactions between residents of a country and the rest of the world.  \n- The **current account** covers trade in goods and services, income, and unilateral transfers.  \n- The **capital account** (often combined with the financial account) records cross\u2011border transactions in real and financial assets such as real estate, stocks, bonds, and other investments.  \n- The official reserves account is a sub\u2011component of the capital/financial account that tracks cha"
+    },
+    {
+      "question": "According to The Federalist Papers, federalism has which of the following effects on political factions?",
+      "subject": "high_school_government_and_politics",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "The Federalist Papers, particularly Federalist No. 10, discuss how a large republic can mitigate the dangers of factions. Hamilton and Madison argue that a larger, more diverse political arena dilutes the influence of any single faction, making it harder for them to dominate. This is the idea that a broad republic can limit the dangers of factionalism by diluting political power.\n\nAnswer: B"
+    },
+    {
+      "question": "Keri spent 3 hours on her homework. She spent equal amounts of time on all subjects. If Keri spent 1 over 2 hour on science, how many subjects did she study?",
+      "subject": "elementary_mathematics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "We have a problem: Keri spent 3 hours on her homework. She spent equal amounts of time on all subjects. If Keri spent 1 over 2 hour on science, how many subjects did she study?\n\nWe need to parse the phrase \"1 over 2 hour on science\". That likely means 1/2 hour (half an hour). So she spent 0.5 hours on science. She spent equal amounts of time on all subjects. So each subject gets the same amount of time. So if each subject gets 0.5 hours, then the number of subjects is total time / time per subje"
+    },
+    {
+      "question": "A teachers union, a nongovernmental entity, seeks to picket the local city school board for its decision to require higher certification for instructors who wish to teach in the gifted and talented cl",
+      "subject": "professional_law",
+      "prediction": null,
+      "target": "C",
+      "correct": false,
+      "completion": "<|channel|>final<|message|>We need to analyze the scenario: A teachers union is picketing the local city school board. The school board seeks a temporary injunction in state court to restrain further picketing. The school board claims the union violated Section 101 of the city's picketing ordinance. The ordinance says: \"No picketing shall be permitted inside of, or on any sidewalk or street immediately adjacent or contiguous to public elementary and secondary schools without express permission o"
+    },
+    {
+      "question": "The surface of Planet Earth loses energy to outer space due mostly to",
+      "subject": "conceptual_physics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "The Earth loses energy to space primarily through the emission of electromagnetic radiation (infrared radiation). This is a radiative process, not conduction, convection, or radioactivity. Therefore the correct answer is:\n\nANSWER: C"
+    },
+    {
+      "question": "In a criminal prosecution the government must prove that the defendant affixed a rubber-stamp containing his signature to certain fraudulent letters mailed to the victim. The defendant denied that he ",
+      "subject": "professional_law",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The question is about the admissibility of evidence of habit or routine practice under the Federal Rules of Evidence (FRE). The scenario: The government must prove that the defendant affixed a rubber-stamp containing his signature to certain fraudulent letters mailed to the victim. The defendant denied that he stamped the letters. No witnesses to the defendant stamping the letters. The prosecution attempted to present a co-worker to testify that defendant maintained sole control of the stamp and"
+    },
+    {
+      "question": "A father died leaving a will by which he devised a 100-acre tract to his daughter. At the time of the father's death, he believed that he owned all of the 100-acre tract. However, the father actually ",
+      "subject": "professional_law",
+      "prediction": null,
+      "target": "B",
+      "correct": false,
+      "completion": "<|channel|>final<|message|>We need to analyze the scenario. The father died, leaving a will that devised 100 acres to his daughter. He believed he owned all 100 acres, but actually owned only 95 acres; the other 5 acres were owned by a farmer. The daughter took possession of the tract. She executed a warranty deed to a buyer, purporting to convey all 100 acres. The buyer paid $25k down, $75k mortgage. The mortgage instrument described the property interest as covering all 100 acres. After the tr"
+    },
+    {
+      "question": "For which of these two scenarios does the main character (who uses I/me/my) do something clearly morally wrong, according to ordinary moral standards in the US as of 2020? Scenario 1 | I built a snowm",
+      "subject": "moral_scenarios",
+      "prediction": "B",
+      "target": "A",
+      "correct": false,
+      "completion": "Scenario\u202f1: Building a snowman inside a beautiful home is likely to damage the interior (e.g., wet, messy, or damaging surfaces). This is considered morally wrong because it harms property.  \nScenario\u202f2: Popping a balloon and giving it back to the child is a harmless act; it does not harm anyone or property. This is not morally wrong.  \n\nThus the correct answer is: Wrong in scenario\u202f1, Not wrong in scenario\u202f2.  \n\nANSWER: B"
+    },
+    {
+      "question": "Two students perform an experiment in which they drop a ball from rest from a known height above the ground and measure the speed of the ball just before it strikes the ground. From repeated measureme",
+      "subject": "college_physics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The kinetic energy of the ball is  \n\n\\[\nK=\\frac12 m v^{2}.\n\\]\n\nThe mass \\(m\\) is known precisely, so the only source of uncertainty is the velocity \\(v\\).  \nFor a function \\(K(v)=\\frac12 m v^{2}\\), the relative uncertainty is\n\n\\[\n\\frac{\\Delta K}{K} = \\left|\\frac{dK}{dv}\\right|\\frac{\\Delta v}{K}\n= \\frac{m v}{\\frac12 m v^{2}}\\Delta v\n= 2\\,\\frac{\\Delta v}{v}.\n\\]\n\nThus the relative uncertainty in kinetic energy is twice the relative uncertainty in velocity.  \nGiven \\(\\Delta v / v = 10\\%\\), we have\n\n"
+    },
+    {
+      "question": "Which of these factors increases the risk for postmenopausal breast cancer?\n",
+      "subject": "nutrition",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to identify which factor increases risk for postmenopausal breast cancer. Options: Red meat, Dietary fat, Fish, Obesity. Known risk factors: Obesity after menopause increases risk due to estrogen from adipose tissue. Dietary fat and red meat also risk factors but obesity is strongest. So answer D.ANSWER: D"
+    },
+    {
+      "question": "Statement 1| The SVM learning algorithm is guaranteed to find the globally optimal hypothesis with respect to its object function. Statement 2| After being mapped into feature space Q through a radial",
+      "subject": "machine_learning",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "We need to evaluate each statement.\n\n**Statement\u202f1**  \nThe SVM training problem is a convex quadratic optimisation problem.  \nBecause the objective function is convex and the constraints are linear, any local optimum is a global optimum.  \nTherefore the algorithm (e.g., SMO, gradient\u2011based solvers) will converge to the globally optimal solution of the SVM objective.\n\n**Statement\u202f2**  \nA perceptron trained in the original input space may fail to find a separating hyperplane if the data are not li"
+    },
+    {
+      "question": "Which of the following is true of calcium metabolism?",
+      "subject": "clinical_knowledge",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "We need to evaluate each statement.\n\nA) Calcitonin causes a rise in plasma calcium. Calcitonin is secreted by parafollicular C cells of thyroid, lowers plasma calcium by inhibiting osteoclast activity. So statement is false.\n\nB) Primary hyperparathyroidism is usually asymptomatic. Primary hyperparathyroidism often presents with hypercalcemia symptoms, but many patients are asymptomatic. The statement says \"usually asymptomatic\" \u2013 is that true? Many patients are asymptomatic, but the phrase \"usua"
+    },
+    {
+      "question": "The key attribute in successful marathon running is:",
+      "subject": "clinical_knowledge",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The key attribute in successful marathon running is stamina. A marathon is a long-distance race that requires endurance and the ability to maintain a steady pace over a prolonged period. While strength, power, and stride length can contribute to performance, stamina\u2014i.e., the capacity to sustain effort and resist fatigue\u2014is the most critical factor for marathon success.  \n\nANSWER: D"
+    },
+    {
+      "question": "What is a replay attack?",
+      "subject": "computer_security",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "A replay attack is when an attacker captures a valid data transmission (such as a message or a request) and later resends it to the system. The system, if not designed to detect and reject duplicate or old messages, will process the replayed message as if it were new, potentially allowing the attacker to gain unauthorized access or perform actions that should not be possible. This is a classic example of an attack that uses the system\u2019s own messages and so cannot be defended against unless the s"
+    },
+    {
+      "question": "China and Vietnam's dispute over the Spratley Islands is",
+      "subject": "high_school_geography",
+      "prediction": "B",
+      "target": "C",
+      "correct": false,
+      "completion": "The Spratly Islands are a group of islands, reefs, and atolls in the South China Sea that are claimed by several countries, including China and Vietnam. The dispute over these islands is primarily about sovereignty and control over the territory itself, rather than a disagreement over the use of resources or the function of the islands. Therefore, the correct answer is:\n\nANSWER: B"
+    }
+  ],
+  "subject_accuracy": {
+    "business_ethics": 1.0,
+    "clinical_knowledge": 1.0,
+    "college_physics": 1.0,
+    "computer_security": 1.0,
+    "conceptual_physics": 1.0,
+    "econometrics": 1.0,
+    "elementary_mathematics": 1.0,
+    "high_school_geography": 0.0,
+    "high_school_government_and_politics": 1.0,
+    "high_school_macroeconomics": 1.0,
+    "high_school_microeconomics": 1.0,
+    "machine_learning": 1.0,
+    "moral_scenarios": 0.0,
+    "nutrition": 1.0,
+    "professional_accounting": 1.0,
+    "professional_law": 0.5
+  }
+}

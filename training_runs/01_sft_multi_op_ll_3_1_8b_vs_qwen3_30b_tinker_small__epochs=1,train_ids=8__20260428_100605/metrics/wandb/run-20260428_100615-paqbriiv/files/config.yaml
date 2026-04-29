@@ -1,0 +1,249 @@
+_wandb:
+    value:
+        cli_version: 0.25.1
+        e:
+            4i98q2w97uewyrtbnjic3qjw3gaczxku:
+                args:
+                    - --config
+                    - experiments_training/Jesse/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small/config.yaml
+                    - --runtime
+                    - experiments_training/Jesse/_runtime/local_tinker.yaml
+                    - --num_epochs
+                    - "1"
+                    - --max_train_ids
+                    - "8"
+                    - --exists
+                    - new
+                codePath: .venv/bin/sgtr-train
+                codePathLocal: .venv/bin/sgtr-train
+                cpu_count: 4
+                cpu_count_logical: 8
+                cudaVersion: "13.1"
+                disk:
+                    /:
+                        total: "1081101176832"
+                        used: "150828154880"
+                email: jessest.amand@gmail.com
+                executable: /home/jesse-st-amand/projects/python/self-rec-research/.venv/bin/python3
+                git:
+                    commit: 7e440684bd5fae983a7c13561ab907e4b828ad39
+                    remote: https://github.com/jesse-st-amand/self-rec-research.git
+                gpu: NVIDIA GeForce RTX 3070 Laptop GPU
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ampere
+                      memoryTotal: "8589934592"
+                      name: NVIDIA GeForce RTX 3070 Laptop GPU
+                      uuid: GPU-0deb3665-422a-5a3f-a7d9-7c2c950fba11
+                host: LAPTOP-93O4P063
+                memory:
+                    total: "11486330880"
+                os: Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39
+                program: /home/jesse-st-amand/projects/python/self-rec-research/.venv/bin/sgtr-train
+                python: CPython 3.12.3
+                root: training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100605/metrics
+                startedAt: "2026-04-28T08:06:15.261433Z"
+                writerId: 4i98q2w97uewyrtbnjic3qjw3gaczxku
+        m: []
+        python_version: 3.12.3
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 53
+                - 71
+                - 98
+            "2":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 51
+                - 53
+                - 71
+                - 98
+            "3":
+                - 2
+                - 13
+                - 16
+                - 61
+            "4": 3.12.3
+            "5": 0.25.1
+            "6": 4.57.6
+            "12": 0.25.1
+            "13": linux-x86_64
+algorithm:
+    value: sft
+batch_size:
+    value: 16
+benchmark_evals:
+    value:
+        - cot: true
+          data_file: data/benchmarks/mmlu.jsonl
+          frequency: 1
+          name: mmlu_20
+          num_samples: 20
+          schedule: every_epoch
+          type: mmlu
+        - cot: true
+          data_file: data/benchmarks/mmlu.jsonl
+          frequency: 1
+          name: mmlu_2000
+          num_samples: 2000
+          schedule: end_only
+          type: mmlu
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+          frequency: 5
+          name: xeval_op_ut_pw
+          num_samples: 20
+          schedule: every_5_epochs
+          type: sgtr
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+          frequency: 1
+          name: xeval_op_ut_pw_full
+          num_samples: null
+          schedule: end_only
+          type: sgtr
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+          frequency: 5
+          name: xeval_op_ut_ind
+          num_samples: 20
+          schedule: every_5_epochs
+          type: sgtr
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+          frequency: 1
+          name: xeval_op_ut_ind_full
+          num_samples: null
+          schedule: end_only
+          type: sgtr
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+          frequency: 5
+          name: xeval_op_at_pw
+          num_samples: 20
+          schedule: every_5_epochs
+          type: sgtr
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+          frequency: 1
+          name: xeval_op_at_pw_full
+          num_samples: null
+          schedule: end_only
+          type: sgtr
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+          frequency: 5
+          name: xeval_op_at_ind
+          num_samples: 20
+          schedule: every_5_epochs
+          type: sgtr
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+          frequency: 1
+          name: xeval_op_at_ind_full
+          num_samples: null
+          schedule: end_only
+          type: sgtr
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_wikisum_tinker_balanced_500/val.jsonl
+          frequency: 1
+          name: xeval_dataset_wikisum_full
+          num_samples: null
+          schedule: end_only
+          type: sgtr
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_bigcodebench_tinker_balanced_500/val.jsonl
+          frequency: 1
+          name: xeval_dataset_bigcodebench_full
+          num_samples: null
+          schedule: end_only
+          type: sgtr
+        - cot: false
+          data_file: data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_pku_saferlhf_tinker_balanced_500/val.jsonl
+          frequency: 1
+          name: xeval_dataset_pku_full
+          num_samples: null
+          schedule: end_only
+          type: sgtr
+completed_epochs:
+    value: 0
+eval_diagnostic_example_ids:
+    value: []
+eval_diagnostic_num_examples:
+    value: 0
+eval_frequency:
+    value: 1
+eval_trigger:
+    value: epoch
+experiment_name:
+    value: 01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small
+learning_rate:
+    value: 5e-05
+lora_rank:
+    value: 32
+max_completion_length:
+    value: 1024
+max_steps:
+    value: null
+max_train_ids:
+    value: 8
+model_name:
+    value: meta-llama/Llama-3.1-8B-Instruct
+num_epochs:
+    value: 1
+num_rollouts_per_prompt:
+    value: 4
+randomize_train_labels:
+    value: false
+randomize_train_labels_seed:
+    value: null
+resume_completed_epochs:
+    value: 0
+resume_global_step:
+    value: null
+resume_state_path:
+    value: null
+run_dir:
+    value: training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100605
+sampling_temperature:
+    value: 1
+seed:
+    value: 42
+skipped_existing_run:
+    value: false
+subset_seed:
+    value: null
+train_diagnostic_example_ids:
+    value: []
+train_diagnostic_num_examples:
+    value: 0
+train_file:
+    value: data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+train_files:
+    value:
+        - data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+        - data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+        - data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+        - data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+train_mix_strategy:
+    value: per_id_one_source
+use_system_prompt:
+    value: false
+val_file:
+    value: data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+val_files:
+    value:
+        - data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+        - data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+        - data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+        - data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+wandb_project:
+    value: sgtr-rl

@@ -1,0 +1,1613 @@
+{
+  "epoch": 0,
+  "step": 0,
+  "eval_trigger": "epoch",
+  "name": "xeval_dataset_bigcodebench_full",
+  "type": "sgtr",
+  "accuracy": 0.5,
+  "predictions": [
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Filters the input DataFrame based on specified 'Age' and 'Height' conditions and applies KMeans clustering. - If the filt",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Filters the input DataFrame based on specified 'Age' and 'Height' conditions and applies KMeans clustering. - If the filt",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Vectorize a string using the Bag-of-Words model. The string is split into words and each word is treated as an attribute.",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Vectorize a string using the Bag-of-Words model. The string is split into words and each word is treated as an attribute.",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Open an RGB image from a specific path, apply a blur filter, convert it to grayscale, and then display both the original ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Open an RGB image from a specific path, apply a blur filter, convert it to grayscale, and then display both the original ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a list of random sinusoidal values and plot them in a graph.\nThe function should output with:\n    Axes object: The",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a list of random sinusoidal values and plot them in a graph.\nThe function should output with:\n    Axes object: The",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a random string of a given length, with each character being either a parenthesis (from the set \"(){}[]\") or a l",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a random string of a given length, with each character being either a parenthesis (from the set \"(){}[]\") or a l",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Moves files with a specified extension from a source directory to a destination directory. This function searches for fil",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Moves files with a specified extension from a source directory to a destination directory. This function searches for fil",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generates a DataFrame with random numerical data and visualizes this data in a stacked bar chart for specified categories",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generates a DataFrame with random numerical data and visualizes this data in a stacked bar chart for specified categories",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Given a pandas DataFrame with random numeric values, run KMeans clusters on the data and return the labels.\nThe function ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Given a pandas DataFrame with random numeric values, run KMeans clusters on the data and return the labels.\nThe function ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"This function converts an input dictionary into a DataFrame, filters rows where 'Word' column values start with a specifi",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"This function converts an input dictionary into a DataFrame, filters rows where 'Word' column values start with a specifi",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Calculate statistical measurements (mean and standard deviation) of the values associated with each key in a list of dict",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Calculate statistical measurements (mean and standard deviation) of the values associated with each key in a list of dict",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"This function should: - Splits the input data into training (70%) and test (30%) sets. - Constructs a Keras Sequential mo",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"This function should: - Splits the input data into training (70%) and test (30%) sets. - Constructs a Keras Sequential mo",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"This function creates a random session key comprising letters and digits with a specific length of 20, then sets this key",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"This function creates a random session key comprising letters and digits with a specific length of 20, then sets this key",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Find all combinations of columns from a given DataFrame so that the absolute correlation between them is greater than a c",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Find all combinations of columns from a given DataFrame so that the absolute correlation between them is greater than a c",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Read a list of dictionaries from a JSON file, calculate the results (mean and median for each key) via numpy, convert the",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Read a list of dictionaries from a JSON file, calculate the results (mean and median for each key) via numpy, convert the",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Read an image, convert it to grayscale, binarize it using a given threshold, and save it as 'binary_image.jpg'. The funct",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Read an image, convert it to grayscale, binarize it using a given threshold, and save it as 'binary_image.jpg'. The funct",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Replace all elements in DataFrame columns that are not present in the target_values array with zeros, and then perform a ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Replace all elements in DataFrame columns that are not present in the target_values array with zeros, and then perform a ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Normalize the data and visualize it using a heatmap. This function takes a pandas DataFrame, normalizes the data to a ran",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Normalize the data and visualize it using a heatmap. This function takes a pandas DataFrame, normalizes the data to a ran",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Creates an MxN matrix from a list L, normalizes it based on the sound pressure level (SPL) of a specified audio file, and",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Creates an MxN matrix from a list L, normalizes it based on the sound pressure level (SPL) of a specified audio file, and",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Count the number of integers and floating-point numbers in a comma-separated string and calculate the sum of their square",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Count the number of integers and floating-point numbers in a comma-separated string and calculate the sum of their square",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a time series from a given epoch start time to end time with a specified step and trend. The time series is plot",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a time series from a given epoch start time to end time with a specified step and trend. The time series is plot",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a heatmap using the seaborn library for \"x\" as x-values and \"y\" as y-values with labels.\nThe function should outpu",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a heatmap using the seaborn library for \"x\" as x-values and \"y\" as y-values with labels.\nThe function should outpu",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Calculate the mean of the numeric values for each position in the provided data list and return the results. Optionally, ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Calculate the mean of the numeric values for each position in the provided data list and return the results. Optionally, ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a Pandas DataFrame with randomized student data. This function allows for specifying the total number of student",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a Pandas DataFrame with randomized student data. This function allows for specifying the total number of student",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Given a Pandas DataFrame with random numeric values and columns X & Y, use sklearn's linear regression to match the data ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Given a Pandas DataFrame with random numeric values and columns X & Y, use sklearn's linear regression to match the data ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Performs the following operations on the input dictionary 'data_dict': 1. Adds a key \"a\" with a value of 1. 2. Conducts s",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Performs the following operations on the input dictionary 'data_dict': 1. Adds a key \"a\" with a value of 1. 2. Conducts s",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Convert a list of lists 'L' into a single list of integers, standardize the integers, and plot the standardized values.\nT",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Convert a list of lists 'L' into a single list of integers, standardize the integers, and plot the standardized values.\nT",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Analyze text content in JSON files from a given directory and find the most common words. This function reads all the JSO",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Analyze text content in JSON files from a given directory and find the most common words. This function reads all the JSO",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Find all files in a specific directory that contain a regex pattern in their contents in a case insensitive manner.\nThe f",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Find all files in a specific directory that contain a regex pattern in their contents in a case insensitive manner.\nThe f",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a histogram of the specified attribute from a list of objects and return the histogram plot. Constants: - NUM_BINS",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a histogram of the specified attribute from a list of objects and return the histogram plot. Constants: - NUM_BINS",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a DataFrame with random survey data based on given categories, news sites, and Likert scale responses. The funct",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a DataFrame with random survey data based on given categories, news sites, and Likert scale responses. The funct",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Creates a histogram of the pixel values of a grayscale image.\nNote that: The function assumes the image is in grayscale f",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Creates a histogram of the pixel values of a grayscale image.\nNote that: The function assumes the image is in grayscale f",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Executes a given bash script and returns the CPU and memory usage of the script's process. This function checks whether t",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Executes a given bash script and returns the CPU and memory usage of the script's process. This function checks whether t",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Writes multiple Pandas DataFrames to a single CSV file, separating each DataFrame by a line of hyphens (\"------\").\nThe fu",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Writes multiple Pandas DataFrames to a single CSV file, separating each DataFrame by a line of hyphens (\"------\").\nThe fu",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Find the continuous substring of x, which has the maximum total weight, given a dictionary where the keys are characters ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Find the continuous substring of x, which has the maximum total weight, given a dictionary where the keys are characters ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate synthetic data using a simple regression model, fit a linear regression model to the data, and return the predic",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate synthetic data using a simple regression model, fit a linear regression model to the data, and return the predic",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a high-dimensional dataset, run PCA to reduce its dimensionality, and then draw a heatmap of the covariance matr",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a high-dimensional dataset, run PCA to reduce its dimensionality, and then draw a heatmap of the covariance matr",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate n random points within a circle of radius RADIUS (default value is 5) and return their average distance from the",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate n random points within a circle of radius RADIUS (default value is 5) and return their average distance from the",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Convert a list of lists 'L' into a flattened list of integers, then fit a normal distribution to the data and plot a hist",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Convert a list of lists 'L' into a flattened list of integers, then fit a normal distribution to the data and plot a hist",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Constructs a DataFrame that enumerates the character counts of each string in a provided list of elements. This function ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Constructs a DataFrame that enumerates the character counts of each string in a provided list of elements. This function ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate user activity logs from a given epoch time to the current time. This function iterates from the starting epoch t",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate user activity logs from a given epoch time to the current time. This function iterates from the starting epoch t",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Given a list of IP addresses, this function returns a dictionary mapping each valid IP address to its respective hostname",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Given a list of IP addresses, this function returns a dictionary mapping each valid IP address to its respective hostname",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Perform a linear regression between \"age\" and \"score\" in the DataFrame, excluding rows with duplicate names. Plot the reg",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Perform a linear regression between \"age\" and \"score\" in the DataFrame, excluding rows with duplicate names. Plot the reg",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Find the k smallest numbers in a randomly generated list using heapq.\nThe function should output with:\n    tuple: A tuple",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Find the k smallest numbers in a randomly generated list using heapq.\nThe function should output with:\n    tuple: A tuple",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"This function generates a CSV file response from a Django HttpRequest. It constructs a CSV file using the provided header",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"This function generates a CSV file response from a Django HttpRequest. It constructs a CSV file using the provided header",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Process a JSON string by: 1. Removing None values. 2. Counting the frequency of each unique value. 3. Replacing all email",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Process a JSON string by: 1. Removing None values. 2. Counting the frequency of each unique value. 3. Replacing all email",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Save the date time object \"dt\" in the pickle file \"save.pkl\" and then read it back for validation.\nThe function should ou",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Save the date time object \"dt\" in the pickle file \"save.pkl\" and then read it back for validation.\nThe function should ou",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Processes all Word (.docx) files in the provided directory, searching for double quotes in the text and adding a backslas",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Processes all Word (.docx) files in the provided directory, searching for double quotes in the text and adding a backslas",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Draws a pie chart of the status distribution from a pandas DataFrame with a 'Status' column and returns the plot object. ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Draws a pie chart of the status distribution from a pandas DataFrame with a 'Status' column and returns the plot object. ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a series of n sine waves with increasing frequency with a fidelity of 0.01 radians as provided by the ANGLES arr",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a series of n sine waves with increasing frequency with a fidelity of 0.01 radians as provided by the ANGLES arr",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Aggregate the values of the same keys from a nested dictionary and remove the \"ele\" key. For each remaining key take the ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Aggregate the values of the same keys from a nested dictionary and remove the \"ele\" key. For each remaining key take the ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate and analyze a Pandas DataFrame of football match results for multiple teams, incorporating random goals and pena",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate and analyze a Pandas DataFrame of football match results for multiple teams, incorporating random goals and pena",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Serializes an object to a JSON string, handling complex data types through a custom JSONEncoder. This function is capable",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Serializes an object to a JSON string, handling complex data types through a custom JSONEncoder. This function is capable",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Draw a bar chart of the counts of each unique value in the 'value' column of a pandas DataFrame and return the Axes objec",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Draw a bar chart of the counts of each unique value in the 'value' column of a pandas DataFrame and return the Axes objec",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a sales report from a DataFrame, excluding duplicate customer names. The report includes total sales and the mos",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a sales report from a DataFrame, excluding duplicate customer names. The report includes total sales and the mos",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a bar subplot of a specific group from the input dataframe.\nNote that: The title of the plot will be 'Bar chart of",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a bar subplot of a specific group from the input dataframe.\nNote that: The title of the plot will be 'Bar chart of",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate temperature data for the specified number of hours, save it in a CSV file, and plot the data using matplotlib. D",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate temperature data for the specified number of hours, save it in a CSV file, and plot the data using matplotlib. D",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate and plot weather data for a specified date range. This function creates a DataFrame containing simulated daily w",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate and plot weather data for a specified date range. This function creates a DataFrame containing simulated daily w",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Converts the given DataFrame to a dictionary, dropping the column named 'c' if it exists, and then saves it as a JSON fil",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Converts the given DataFrame to a dictionary, dropping the column named 'c' if it exists, and then saves it as a JSON fil",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a CSV file containing a 2D matrix populated exclusively with random lowercase letters.\nThe function should output ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a CSV file containing a 2D matrix populated exclusively with random lowercase letters.\nThe function should output ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Insert random data into an SQLite3 table that contains random names, ages, and heights. If the table does not exist, it w",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Insert random data into an SQLite3 table that contains random names, ages, and heights. If the table does not exist, it w",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Count the occurrence of a particular key in all json files in a specified directory and return a dictionary with the valu",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Count the occurrence of a particular key in all json files in a specified directory and return a dictionary with the valu",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Extracts matches from a JSON file based on a predefined regular pattern. The default regular expression pattern is design",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Extracts matches from a JSON file based on a predefined regular pattern. The default regular expression pattern is design",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Merge all sublists from a list of lists into a list and return a count of the elements.\nThe function should output with:\n",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Merge all sublists from a list of lists into a list and return a count of the elements.\nThe function should output with:\n",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a Pandas DataFrame of employees with their details based on the input provided.\nThe function should output with:",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a Pandas DataFrame of employees with their details based on the input provided.\nThe function should output with:",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a DataFrame containing random integer values within a specified range for categories 'A' through 'E', and visualiz",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a DataFrame containing random integer values within a specified range for categories 'A' through 'E', and visualiz",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Executes a list of shell commands in parallel using multiprocessing, and collects their outputs.\nNote that: Notes: If `co",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Executes a list of shell commands in parallel using multiprocessing, and collects their outputs.\nNote that: Notes: If `co",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate random numeric data across a specified range for a given number of categories and visualize it with a stacked ba",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate random numeric data across a specified range for a given number of categories and visualize it with a stacked ba",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Processes a pandas DataFrame with 'Date' and 'Value' columns. The 'Value' column contains lists of numbers. Converts 'Dat",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Processes a pandas DataFrame with 'Date' and 'Value' columns. The 'Value' column contains lists of numbers. Converts 'Dat",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a Pandas DataFrame that displays the grades of a randomly selected group of students in multiple courses. Calcul",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a Pandas DataFrame that displays the grades of a randomly selected group of students in multiple courses. Calcul",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Calculate the maximum Euclidean distance between all possible pairs of points formed by combining elements from two input",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Calculate the maximum Euclidean distance between all possible pairs of points formed by combining elements from two input",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Merges a predefined set of lists into a list and finds the mode of the elements in the list.\nThe function should output w",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Merges a predefined set of lists into a list and finds the mode of the elements in the list.\nThe function should output w",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Perform a linear regression analysis on a given DataFrame.\nThe function should output with:\n    score (float): The R-squa",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Perform a linear regression analysis on a given DataFrame.\nThe function should output with:\n    score (float): The R-squa",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Given a nested list of menu items, flatten the list using itertool chain, count the occurrences of each item, then plot a",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Given a nested list of menu items, flatten the list using itertool chain, count the occurrences of each item, then plot a",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Analyze a list of sales data, calculate the sum, the mean, the minimum, the maximum of a given column, and return the bar",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Analyze a list of sales data, calculate the sum, the mean, the minimum, the maximum of a given column, and return the bar",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Count the Part-of-Speech (POS) tags in a sentence without the last word.\nThe function should output with:\n    dict: A dic",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Count the Part-of-Speech (POS) tags in a sentence without the last word.\nThe function should output with:\n    dict: A dic",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Imports data from a specified CSV input into an SQLite database and retrieves it as a pandas DataFrame. The function read",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Imports data from a specified CSV input into an SQLite database and retrieves it as a pandas DataFrame. The function read",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Merges a predefined set of lists into a list and one-hot-encodes the elements of the list.\nThe function should output wit",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Merges a predefined set of lists into a list and one-hot-encodes the elements of the list.\nThe function should output wit",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Process a Pandas DataFrame by removing a specific column and adding a 'IsEvenIndex' column. The 'IsEvenIndex' column is a",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Process a Pandas DataFrame by removing a specific column and adding a 'IsEvenIndex' column. The 'IsEvenIndex' column is a",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Convert a list of lists into a list of integers, apply the KMeans clustering, and return a scatter plot 'matplotlib.axes.",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Convert a list of lists into a list of integers, apply the KMeans clustering, and return a scatter plot 'matplotlib.axes.",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Combine a list of dictionaries with the same keys (fruit names) into a single dictionary, calculate the total turnover fo",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Combine a list of dictionaries with the same keys (fruit names) into a single dictionary, calculate the total turnover fo",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Calculate the moon phase by the date and time taking into account the lunar phase cycle of 7 years. The function uses a c",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Calculate the moon phase by the date and time taking into account the lunar phase cycle of 7 years. The function uses a c",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Perform a logistic regression on a DataFrame to predict a specific target column.\nThe function should output with:\n    ac",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Perform a logistic regression on a DataFrame to predict a specific target column.\nThe function should output with:\n    ac",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Draw the age distribution of the persons in an SQLite3 table and returns the Axes object of the plot. Raises a ValueError",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Draw the age distribution of the persons in an SQLite3 table and returns the Axes object of the plot. Raises a ValueError",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Converts CSV content into an Excel file and saves it with the given filename. The function reads the CSV content, creates",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Converts CSV content into an Excel file and saves it with the given filename. The function reads the CSV content, creates",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Performs an OLS linear regression on a subset of the provided DataFrame. The subset is created by filtering rows where th",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Performs an OLS linear regression on a subset of the provided DataFrame. The subset is created by filtering rows where th",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a Series from a list \"l\". The function shuffles the list, then creates a longer series by cycling through the sh",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a Series from a list \"l\". The function shuffles the list, then creates a longer series by cycling through the sh",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Draw a scatter plot of dots and mark the point with the maximum y-value. Return the axes object as well as the maximum y-",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Draw a scatter plot of dots and mark the point with the maximum y-value. Return the axes object as well as the maximum y-",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a bar chart of data in multiple groups with error bars.\nNote that: The function uses a predefined set of colors fo",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a bar chart of data in multiple groups with error bars.\nNote that: The function uses a predefined set of colors fo",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Analyzes a given text string by removing duplicate words and stopwords defined by nltk.corpus , and then returns a freque",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Analyzes a given text string by removing duplicate words and stopwords defined by nltk.corpus , and then returns a freque",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a Dataframe to show the football match results of teams 'Team' with random goals 'Goals' and penalties 'Penalty ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a Dataframe to show the football match results of teams 'Team' with random goals 'Goals' and penalties 'Penalty ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a Gaussian kernel density estimate diagram of a normal distribution with a given mean and a standard deviation usi",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a Gaussian kernel density estimate diagram of a normal distribution with a given mean and a standard deviation usi",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Remove rows from a dataframe based on column values and generate random scatter plots.\nThe function should output with:\n ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Remove rows from a dataframe based on column values and generate random scatter plots.\nThe function should output with:\n ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a DataFrame that contains savegames for a number of games between different teams. Each row of the input DataFra",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Generate a DataFrame that contains savegames for a number of games between different teams. Each row of the input DataFra",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Open a web page in the default web browser in a background process.\nThe function should output with:\n    int: The return ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Open a web page in the default web browser in a background process.\nThe function should output with:\n    int: The return ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Converts a hex string to bytes, salts it with a random value of specified size, and computes its SHA256 hash. The functio",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Converts a hex string to bytes, salts it with a random value of specified size, and computes its SHA256 hash. The functio",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Process files from a dictionary by checking if the file exists, and if it has content, then copies it to a target directo",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Process files from a dictionary by checking if the file exists, and if it has content, then copies it to a target directo",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Visualizes the scores of students over multiple tests using a line plot. The function takes in a list of dictionaries. Ea",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Visualizes the scores of students over multiple tests using a line plot. The function takes in a list of dictionaries. Ea",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Reads an RGB image, applies K-means clustering to segment the image into 'n_clusters' regions, and saves each region as a",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Reads an RGB image, applies K-means clustering to segment the image into 'n_clusters' regions, and saves each region as a",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Normalize the last column of the DataFrame using MinMaxScaler from sklearn and plot the normalized data.\nThe function sho",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Normalize the last column of the DataFrame using MinMaxScaler from sklearn and plot the normalized data.\nThe function sho",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Add a new key-value pair to the dictionary and plot the distribution of its values.\nThe function should output with:\n    ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Add a new key-value pair to the dictionary and plot the distribution of its values.\nThe function should output with:\n    ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    }
+  ],
+  "format_accuracy": {
+    "pw": 0.5
+  }
+}

@@ -1,0 +1,20 @@
+# Runtime for local-host launches of Tinker training.
+# backend: tinker dispatches training to Tinker's API; artifacts (logs, metrics,
+# checkpoint manifests) are written to ./training_runs locally so we don't try
+# to write to a non-existent /runpod-volume.
+backend: tinker
+
+artifacts:
+  root_dir: training_runs
+
+local:
+  device: auto
+  dtype: auto
+  max_seq_length: 4096
+  eval_batch_size: 8
+  gradient_checkpointing: true
+  load_in_4bit: false
+  attention_implementation: sdpa
+  cache_dir: null
+  lora_dropout: 0.0
+  target_modules: all-linear

@@ -123,24 +123,60 @@ def push():
     print(f"Staging and pushing to {REPO_ID}...")
 
     # Ensure files matching LFS patterns are stored via LFS.
-    # If files were previously committed without LFS, re-stage them so
-    # git-lfs picks them up via the .gitattributes filter rules.
+    # HuggingFace rejects pushes with any non-LFS file >10MiB, so scan the
+    # entire working tree for large files and promote any that aren't
+    # currently LFS-tracked. `git lfs ls-files` shows files LFS already
+    # handles (either via .gitattributes rules or a prior explicit import).
+    LARGE_FILE_THRESHOLD = 10 * 1024 * 1024  # 10 MiB, HF's hard cap
+
     lfs_result = subprocess.run(
         ["git", "-C", str(LOCAL_DIR), "lfs", "ls-files", "--name-only"],
         capture_output=True, text=True,
     )
     lfs_tracked = set(lfs_result.stdout.strip().splitlines()) if lfs_result.returncode == 0 else set()
 
-    # Find large files (>10MB) not yet in LFS and re-stage them
-    for json_path in LOCAL_DIR.rglob("alpaca_eval/**/*.json"):
-        if json_path.stat().st_size > 10 * 1024 * 1024:
-            rel = str(json_path.relative_to(LOCAL_DIR))
-            if rel not in lfs_tracked:
-                print(f"  Re-staging {rel} for LFS ({json_path.stat().st_size // (1024*1024)}MB)")
-                subprocess.run(
-                    ["git", "-C", str(LOCAL_DIR), "rm", "--cached", rel],
-                    capture_output=True,
-                )
+    promoted: list[Path] = []
+    for path in LOCAL_DIR.rglob("*"):
+        if not path.is_file():
+            continue
+        # Skip anything inside .git
+        if ".git" in path.parts:
+            continue
+        try:
+            size = path.stat().st_size
+        except OSError:
+            continue
+        if size <= LARGE_FILE_THRESHOLD:
+            continue
+        rel = str(path.relative_to(LOCAL_DIR))
+        if rel in lfs_tracked:
+            continue
+        print(f"  Re-staging {rel} for LFS ({size // (1024 * 1024)} MiB)")
+        # Remove from git's index so `git add` re-applies LFS filter rules
+        # on the next add. Falls through silently if not currently tracked.
+        subprocess.run(
+            ["git", "-C", str(LOCAL_DIR), "rm", "--cached", rel],
+            capture_output=True,
+        )
+        promoted.append(path)
+
+    # If any files were promoted, make sure their extensions are covered by
+    # .gitattributes. Without the filter rule, `git add` won't route them
+    # through LFS even after `rm --cached`.
+    if promoted:
+        attrs_path = LOCAL_DIR / ".gitattributes"
+        attrs = attrs_path.read_text() if attrs_path.exists() else ""
+        exts_needed = {p.suffix for p in promoted if p.suffix}
+        added_attrs = []
+        for ext in sorted(exts_needed):
+            pattern = f"*{ext}"
+            line = f"{pattern} filter=lfs diff=lfs merge=lfs -text"
+            if line not in attrs:
+                attrs += ("\n" if attrs and not attrs.endswith("\n") else "") + line + "\n"
+                added_attrs.append(line)
+        if added_attrs:
+            attrs_path.write_text(attrs)
+            print(f"  Added {len(added_attrs)} LFS filter rules to .gitattributes")
 
     _run_git("add", "-A")
 

@@ -1,0 +1,166 @@
+{
+  "algorithm": "sft",
+  "experiment_name": "05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small",
+  "model_name": "openai/gpt-oss-20b",
+  "lora_rank": 32,
+  "learning_rate": 5e-05,
+  "num_epochs": 20,
+  "batch_size": 16,
+  "max_steps": null,
+  "seed": 42,
+  "num_rollouts_per_prompt": 4,
+  "max_completion_length": 1024,
+  "sampling_temperature": 1.0,
+  "train_file": "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl",
+  "val_file": "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+  "train_files": [
+    "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl"
+  ],
+  "val_files": [
+    "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl"
+  ],
+  "train_mix_strategy": "per_id_one_source",
+  "max_train_ids": null,
+  "subset_seed": null,
+  "randomize_train_labels": true,
+  "randomize_train_labels_seed": 999,
+  "eval_trigger": "epoch",
+  "eval_frequency": 1,
+  "eval_diagnostic_num_examples": 0,
+  "eval_diagnostic_example_ids": [],
+  "train_diagnostic_num_examples": 0,
+  "train_diagnostic_example_ids": [],
+  "use_system_prompt": false,
+  "run_dir": "training_runs/05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small__20260428_135557",
+  "resume_state_path": null,
+  "resume_completed_epochs": 0,
+  "resume_global_step": null,
+  "wandb_project": "sgtr-rl",
+  "benchmark_evals": [
+    {
+      "name": "mmlu_20",
+      "type": "mmlu",
+      "data_file": "data/benchmarks/mmlu.jsonl",
+      "schedule": "every_epoch",
+      "frequency": 1,
+      "cot": true,
+      "num_samples": 20
+    },
+    {
+      "name": "mmlu_2000",
+      "type": "mmlu",
+      "data_file": "data/benchmarks/mmlu.jsonl",
+      "schedule": "end_only",
+      "frequency": 1,
+      "cot": true,
+      "num_samples": 2000
+    },
+    {
+      "name": "xeval_op_ut_pw",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+      "schedule": "every_5_epochs",
+      "frequency": 5,
+      "cot": false,
+      "num_samples": 20
+    },
+    {
+      "name": "xeval_op_ut_pw_full",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+      "schedule": "end_only",
+      "frequency": 1,
+      "cot": false,
+      "num_samples": null
+    },
+    {
+      "name": "xeval_op_ut_ind",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+      "schedule": "every_5_epochs",
+      "frequency": 5,
+      "cot": false,
+      "num_samples": 20
+    },
+    {
+      "name": "xeval_op_ut_ind_full",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+      "schedule": "end_only",
+      "frequency": 1,
+      "cot": false,
+      "num_samples": null
+    },
+    {
+      "name": "xeval_op_at_pw",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+      "schedule": "every_5_epochs",
+      "frequency": 5,
+      "cot": false,
+      "num_samples": 20
+    },
+    {
+      "name": "xeval_op_at_pw_full",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+      "schedule": "end_only",
+      "frequency": 1,
+      "cot": false,
+      "num_samples": null
+    },
+    {
+      "name": "xeval_op_at_ind",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+      "schedule": "every_5_epochs",
+      "frequency": 5,
+      "cot": false,
+      "num_samples": 20
+    },
+    {
+      "name": "xeval_op_at_ind_full",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+      "schedule": "end_only",
+      "frequency": 1,
+      "cot": false,
+      "num_samples": null
+    },
+    {
+      "name": "xeval_dataset_wikisum_full",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_wikisum_tinker_balanced_500/val.jsonl",
+      "schedule": "end_only",
+      "frequency": 1,
+      "cot": false,
+      "num_samples": null
+    },
+    {
+      "name": "xeval_dataset_bigcodebench_full",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_bigcodebench_tinker_balanced_500/val.jsonl",
+      "schedule": "end_only",
+      "frequency": 1,
+      "cot": false,
+      "num_samples": null
+    },
+    {
+      "name": "xeval_dataset_pku_full",
+      "type": "sgtr",
+      "data_file": "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_pku_saferlhf_tinker_balanced_500/val.jsonl",
+      "schedule": "end_only",
+      "frequency": 1,
+      "cot": false,
+      "num_samples": null
+    }
+  ],
+  "completed_epochs": 0,
+  "skipped_existing_run": false
+}

@@ -1,0 +1,173 @@
+{
+  "epoch": 10,
+  "step": 140,
+  "eval_trigger": "epoch",
+  "name": "xeval_op_at_pw",
+  "type": "sgtr",
+  "accuracy": 0.4,
+  "predictions": [
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "(multi-turn)",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    }
+  ],
+  "format_accuracy": {
+    "pw": 0.4
+  }
+}

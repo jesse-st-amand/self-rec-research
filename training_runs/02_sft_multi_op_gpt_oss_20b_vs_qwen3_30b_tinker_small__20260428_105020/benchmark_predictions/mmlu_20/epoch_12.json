@@ -1,0 +1,189 @@
+{
+  "epoch": 12,
+  "step": 168,
+  "eval_trigger": "epoch",
+  "name": "mmlu_20",
+  "type": "mmlu",
+  "cot": true,
+  "accuracy": 0.7,
+  "predictions": [
+    {
+      "question": "Mast Co. converted from the FIFO method for inventory valuation to the LIFO method for financial statement and tax purposes. During a period of inflation would Mast's ending inventory and income tax p",
+      "subject": "professional_accounting",
+      "prediction": "C",
+      "target": "A",
+      "correct": false,
+      "completion": "During inflation, LIFO assigns the most recent (higher) costs to cost of goods sold, leaving older, lower costs in ending inventory.  \n- **Ending inventory**: lower under LIFO.  \n- **Income tax payable**: lower under LIFO because the lower ending inventory increases cost of goods sold, reducing taxable income.  \n\nANSWER: C"
+    },
+    {
+      "question": "What are the dimensions of $\\hat{u}^t \\hat{u}?",
+      "subject": "econometrics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to determine the dimensions of the product \\(\\hat{u}^t \\hat{u}\\).  \nLet \\(\\hat{u}\\) be a column vector of size \\(T \\times 1\\).  \nThe transpose \\(\\hat{u}^t\\) is then a row vector of size \\(1 \\times T\\).\n\nWhen we multiply a \\(1 \\times T\\) matrix by a \\(T \\times 1\\) matrix, the resulting matrix has dimensions \\(1 \\times 1\\) (a scalar).\n\nThus, \\(\\hat{u}^t \\hat{u}\\) is a \\(1 \\times 1\\) matrix.\n\nANSWER: D"
+    },
+    {
+      "question": "_______ theory can be described as a code of conduct to which all rational beings should adhere. This contrasts with ________ morality which is the code of conduct adopted by a particular group or soc",
+      "subject": "business_ethics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "The first blank refers to a universal standard that rational beings should follow, which is a **normative** theory.  \nThe second blank refers to a standard that is specific to a particular group or society, which is a **descriptive** theory.\n\nThus the correct pairing is: **Normative** theory vs. **Descriptive** morality.\n\nANSWER: C"
+    },
+    {
+      "question": "A city imposes a municipal excise tax of $200 per year on commercial artists' studios in that city. It also imposes an excise tax of $100 per year on every itinerant commercial figure drawer for the p",
+      "subject": "professional_law",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "The tax is a privilege tax on the itinerant artists for the use of the city\u2019s streets and sidewalks.  The artists are not engaged in a commercial art business in the city; they are only drawing on the public streets.  The tax is not a license tax on interstate commerce, nor is it an ad\u2011valorem tax.  It is a local privilege tax that is imposed on a specific activity that takes place within the city.  Because the tax is not a license tax on interstate commerce and is not discriminatory, the court "
+    },
+    {
+      "question": "Patents, control of resources, economies of scale, and exclusive licenses are",
+      "subject": "high_school_microeconomics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The question lists four concepts: patents, control of resources, economies of scale, and exclusive licenses.  \nWe need to determine which of the answer choices correctly describes the relationship of these concepts.\n\n**Analysis of each choice**\n\n- **A) all requirements for price discrimination**  \n  Price discrimination requires that a firm can charge different prices to different groups. The classic requirements are (1) market power, (2) ability to segment the market, and (3) inability to arbit"
+    },
+    {
+      "question": "Which component of a nation's balance of payments recognizes the purchase and sale of real and financial assets between nations?",
+      "subject": "high_school_macroeconomics",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "The balance of payments is divided into two main accounts: the current account and the capital/financial account.  \n- The **current account** records trade in goods and services, income, and unilateral transfers.  \n- The **capital/financial account** records cross\u2011border transactions in financial and real assets (e.g., stocks, bonds, real estate, direct investment).\n\nThus, the component that captures the purchase and sale of real and financial assets between nations is the capital/financial acco"
+    },
+    {
+      "question": "According to The Federalist Papers, federalism has which of the following effects on political factions?",
+      "subject": "high_school_government_and_politics",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "The Federalist Papers, particularly Federalist No. 10 written by James\u202fMadison, discuss the problem of factions\u2014groups of citizens who pursue interests contrary to the common good. Madison argues that a large republic, with many competing interests, will make it difficult for any single faction to dominate. The larger the political sphere, the more diverse the interests, and the more likely that factions will be checked by other factions and by the structure of the government. Thus, federalism, "
+    },
+    {
+      "question": "Keri spent 3 hours on her homework. She spent equal amounts of time on all subjects. If Keri spent 1 over 2 hour on science, how many subjects did she study?",
+      "subject": "elementary_mathematics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "We need to parse the problem carefully.\n\n- Keri spent a total of 3 hours on her homework.\n- She spent equal amounts of time on all subjects.\n- She spent \u201c1 over 2 hour on science.\u201d  \n  The phrase \u201c1 over 2 hour\u201d is a way of saying \u201cone\u2011half hour\u201d (\u00bd hour).\n\nSo the time spent on science is \u00bd hour.\n\nLet \\(n\\) be the number of subjects.  \nSince the time is divided equally, the time spent on each subject is\n\n\\[\n\\frac{\\text{total time}}{n} = \\frac{3\\text{ hours}}{n}.\n\\]\n\nWe know that this equals the "
+    },
+    {
+      "question": "A teachers union, a nongovernmental entity, seeks to picket the local city school board for its decision to require higher certification for instructors who wish to teach in the gifted and talented cl",
+      "subject": "professional_law",
+      "prediction": "A",
+      "target": "C",
+      "correct": false,
+      "completion": "The ordinance imposes a procedural requirement: a union must obtain mayoral permission at least three days before picketing. The union did not file an application, so it failed to comply with the ordinance\u2019s procedure. The ordinance itself is a content\u2011neutral regulation of the time, place, and manner of speech. It is facially valid, and the court can enforce it. The court\u2019s injunction is therefore granted on the basis that the union violated the ordinance\u2019s procedural requirement.  \n\nANSWER: A"
+    },
+    {
+      "question": "The surface of Planet Earth loses energy to outer space due mostly to",
+      "subject": "conceptual_physics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "The Earth loses energy to space primarily through the emission of electromagnetic radiation (infrared radiation). Conduction and convection are processes that transfer heat within the Earth\u2019s atmosphere and surface, not to space. Radioactivity contributes a negligible amount of energy compared to radiation.\n\nANSWER: C"
+    },
+    {
+      "question": "In a criminal prosecution the government must prove that the defendant affixed a rubber-stamp containing his signature to certain fraudulent letters mailed to the victim. The defendant denied that he ",
+      "subject": "professional_law",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The question concerns the admissibility of evidence of a defendant\u2019s habitual practice under the Federal Rules of Evidence (FRE).  The relevant rule is FRE\u202f406, which allows evidence of a person\u2019s habit or routine practice to prove that the person acted in accordance with that habit or routine on a particular occasion.  The rule does not exclude such evidence on the basis that it is a criminal case; it applies to both civil and criminal proceedings.  The rule also does not require that the habit"
+    },
+    {
+      "question": "A father died leaving a will by which he devised a 100-acre tract to his daughter. At the time of the father's death, he believed that he owned all of the 100-acre tract. However, the father actually ",
+      "subject": "professional_law",
+      "prediction": "A",
+      "target": "B",
+      "correct": false,
+      "completion": "The buyer\u2019s claim to the five\u2011acre parcel rests on the quitclaim deed that the farmer executed after the daughter had already conveyed the parcel to the buyer. The quitclaim deed was made after the buyer had already received the deed from the daughter and the mortgage, and the quitclaim deed was made by the farmer, who was the true owner of the five acres. The quitclaim deed was made subsequent to the earlier conveyances, and the buyer\u2019s title was therefore not perfected by the farmer\u2019s quitclai"
+    },
+    {
+      "question": "For which of these two scenarios does the main character (who uses I/me/my) do something clearly morally wrong, according to ordinary moral standards in the US as of 2020? Scenario 1 | I built a snowm",
+      "subject": "moral_scenarios",
+      "prediction": "C",
+      "target": "A",
+      "correct": false,
+      "completion": "The first scenario involves building a snowman inside a beautiful home. This could be considered a mess or damage to the interior, which is generally viewed as morally wrong or at least irresponsible. The second scenario involves popping a balloon and giving it back to a child. Popping a balloon is typically harmless and giving it back is a kind gesture, so it is not morally wrong. Therefore, the correct answer is:\n\nANSWER: C"
+    },
+    {
+      "question": "Two students perform an experiment in which they drop a ball from rest from a known height above the ground and measure the speed of the ball just before it strikes the ground. From repeated measureme",
+      "subject": "college_physics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The kinetic energy of the ball is  \n\n\\[\nK=\\frac12 m v^{2}.\n\\]\n\nThe mass \\(m\\) is known precisely, so the only source of uncertainty is the velocity \\(v\\).\n\nFor a function that depends on a variable with a small relative uncertainty, the relative uncertainty in the function is the absolute value of the exponent times the relative uncertainty in that variable.  \nHere \\(K\\propto v^{2}\\), so\n\n\\[\n\\frac{\\Delta K}{K}=2\\,\\frac{\\Delta v}{v}.\n\\]\n\nThe students found \\(\\Delta v/v = 10\\% = 0.10\\).  \nThus\n\n\\["
+    },
+    {
+      "question": "Which of these factors increases the risk for postmenopausal breast cancer?\n",
+      "subject": "nutrition",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to identify which factor increases risk for postmenopausal breast cancer. Options: Red meat, Dietary fat, Fish, Obesity. Known risk factors: Obesity is a risk factor for postmenopausal breast cancer. Dietary fat and red meat also associated but obesity is strongest. So answer D."
+    },
+    {
+      "question": "Statement 1| The SVM learning algorithm is guaranteed to find the globally optimal hypothesis with respect to its object function. Statement 2| After being mapped into feature space Q through a radial",
+      "subject": "machine_learning",
+      "prediction": "C",
+      "target": "A",
+      "correct": false,
+      "completion": "We need to evaluate each statement.\n\n**Statement\u202f1**  \nThe SVM training problem is a convex quadratic optimisation problem.  \nBecause the objective function is convex and the constraints are linear, any local optimum is also a global optimum. Therefore the optimisation algorithm used for SVMs will converge to the globally optimal solution of the SVM objective.\n\n**Statement\u202f2**  \nA perceptron is a linear classifier.  If we map the data into a higher\u2011dimensional feature space using a radial\u2011basis\u2011"
+    },
+    {
+      "question": "Which of the following is true of calcium metabolism?",
+      "subject": "clinical_knowledge",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "We need to evaluate each statement.\n\n**A) Calcitonin causes a rise in plasma calcium**  \nCalcitonin is secreted by the para\u2011thyroid C cells and lowers plasma calcium by inhibiting osteoclast activity. Therefore this statement is false.\n\n**B) Primary hyperparathyroidism is usually asymptomatic**  \nIn primary hyperparathyroidism the parathyroid glands secrete excess PTH, leading to hypercalcaemia. Many patients are indeed asymptomatic, especially in the early stages, and the condition is often dis"
+    },
+    {
+      "question": "The key attribute in successful marathon running is:",
+      "subject": "clinical_knowledge",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to determine which attribute is key for successful marathon running. Marathon is a long-distance race (42.195 km). The key attribute is endurance or stamina. So answer D.ANSWER: D"
+    },
+    {
+      "question": "What is a replay attack?",
+      "subject": "computer_security",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "A replay attack is a type of network or cryptographic attack in which an attacker captures a valid data transmission (such as a message, authentication token, or transaction request) and later retransmits it to the target system. The goal is to trick the system into performing an action again\u2014often the same transaction or authentication\u2014without the legitimate user\u2019s consent. Because the system accepts the message as if it were fresh, the attacker can gain unauthorized access, duplicate a transac"
+    },
+    {
+      "question": "China and Vietnam's dispute over the Spratley Islands is",
+      "subject": "high_school_geography",
+      "prediction": "B",
+      "target": "C",
+      "correct": false,
+      "completion": "The Spratly Islands are a group of islands, reefs, and atolls in the South China Sea that are claimed by several countries, including China and Vietnam. The dispute over these islands involves competing claims to sovereignty and control over the territory. Therefore, the dispute is a territorial dispute.\n\nANSWER: B"
+    }
+  ],
+  "subject_accuracy": {
+    "business_ethics": 1.0,
+    "clinical_knowledge": 1.0,
+    "college_physics": 1.0,
+    "computer_security": 1.0,
+    "conceptual_physics": 1.0,
+    "econometrics": 1.0,
+    "elementary_mathematics": 1.0,
+    "high_school_geography": 0.0,
+    "high_school_government_and_politics": 1.0,
+    "high_school_macroeconomics": 1.0,
+    "high_school_microeconomics": 1.0,
+    "machine_learning": 0.0,
+    "moral_scenarios": 0.0,
+    "nutrition": 1.0,
+    "professional_accounting": 0.0,
+    "professional_law": 0.5
+  }
+}

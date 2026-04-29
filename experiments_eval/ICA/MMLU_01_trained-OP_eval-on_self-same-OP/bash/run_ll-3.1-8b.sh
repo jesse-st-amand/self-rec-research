@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+ICA_DIR="experiments_eval/ICA/MMLU_01_trained-OP_eval-on_self-same-OP/ll-3.1-8b"
+
+run() {
+    local leaf="$1"
+    local evaluator="$2"
+    echo ""; echo "=== ${leaf} ==="
+    uv run srf-eval-sweep \
+        --model_names "$evaluator" \
+        --treatment_type other_models \
+        --dataset_dir_path data/input/mmlu/mmlu_50 \
+        --experiment_config "$ICA_DIR/$leaf/config.yaml" \
+        --max-tasks 1 -y
+}
+
+run "ll-3.1-8b_base_1shot_ica-alt" "ll-3.1-8b"
+run "ll-3.1-8b_base_1shot_ica-ctrl" "ll-3.1-8b"
+run "ll-3.1-8b_base_1shot_ica-ctrl2" "ll-3.1-8b"
+run "ll-3.1-8b_base_1shot_ica-ctrl3" "ll-3.1-8b"
+run "ll-3.1-8b_base_1shot_ica-self" "ll-3.1-8b"
+run "ll-3.1-8b_base_5shot_ica-alt" "ll-3.1-8b"
+run "ll-3.1-8b_base_5shot_ica-ctrl" "ll-3.1-8b"
+run "ll-3.1-8b_base_5shot_ica-ctrl2" "ll-3.1-8b"
+run "ll-3.1-8b_base_5shot_ica-ctrl3" "ll-3.1-8b"
+run "ll-3.1-8b_base_5shot_ica-self" "ll-3.1-8b"
+run "ll-3.1-8b_base_no-ica" "ll-3.1-8b"
+run "ll-3.1-8b_trained-std-AT_IND_1shot_ica-alt" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_IND_1shot_ica-ctrl" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_IND_1shot_ica-ctrl2" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_IND_1shot_ica-ctrl3" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_IND_1shot_ica-self" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_IND_5shot_ica-alt" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_IND_5shot_ica-ctrl" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_IND_5shot_ica-ctrl2" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_IND_5shot_ica-ctrl3" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_IND_5shot_ica-self" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_IND_no-ica" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_1shot_ica-alt" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_1shot_ica-ctrl" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_1shot_ica-ctrl2" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_1shot_ica-ctrl3" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_1shot_ica-self" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_5shot_ica-alt" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_5shot_ica-ctrl" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_5shot_ica-ctrl2" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_5shot_ica-ctrl3" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_5shot_ica-self" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-AT_PW_no-ica" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_AT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_1shot_ica-alt" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_1shot_ica-ctrl" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_1shot_ica-ctrl2" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_1shot_ica-ctrl3" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_1shot_ica-self" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_5shot_ica-alt" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_5shot_ica-ctrl" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_5shot_ica-ctrl2" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_5shot_ica-ctrl3" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_5shot_ica-self" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_IND_no-ica" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_IND_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_1shot_ica-alt" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_1shot_ica-ctrl" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_1shot_ica-ctrl2" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_1shot_ica-ctrl3" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_1shot_ica-self" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_5shot_ica-alt" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_5shot_ica-ctrl" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_5shot_ica-ctrl2" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_5shot_ica-ctrl3" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_5shot_ica-self" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+run "ll-3.1-8b_trained-std-UT_PW_no-ica" "llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT_PW_ShareGPT"
+
+echo "MMLU_01_trained-OP_eval-on_self-same-OP/ll-3.1-8b complete."

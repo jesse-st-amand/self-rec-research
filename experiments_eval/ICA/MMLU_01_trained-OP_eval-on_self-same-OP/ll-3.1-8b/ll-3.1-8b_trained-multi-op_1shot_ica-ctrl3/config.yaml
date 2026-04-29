@@ -1,0 +1,19 @@
+tags: NA
+format: MMLU-MC
+task: MMLU
+priming: false
+temperature: 0.0
+max_final_answer_tokens: 2048
+gpu_dispatch: tinker
+model_names:
+- llama-3-1-8b_sft-as_llama-3-1-8b_vs_qwen-3-30b_UT-AT_PW-IND_ShareGPT
+eval_dataset: mmlu
+eval_subset: mmlu_50
+experiment_name: MMLU_01_trained-OP_eval-on_self-same-OP
+mini_batch_name: ll-3.1-8b_trained-multi-op_1shot_ica-ctrl3
+icl_count: 1
+icl_seed: 42
+icl_shuffle_per_sample: true
+icl_dataset: sharegpt
+icl_data_subset: english2_74
+icl_model: sonnet-4.5

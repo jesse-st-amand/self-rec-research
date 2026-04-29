@@ -1,0 +1,189 @@
+{
+  "epoch": 19,
+  "step": 266,
+  "eval_trigger": "epoch",
+  "name": "mmlu_20",
+  "type": "mmlu",
+  "cot": true,
+  "accuracy": 0.85,
+  "predictions": [
+    {
+      "question": "Mast Co. converted from the FIFO method for inventory valuation to the LIFO method for financial statement and tax purposes. During a period of inflation would Mast's ending inventory and income tax p",
+      "subject": "professional_accounting",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "During an inflationary period, LIFO assigns the most recent (higher\u2011cost) purchases to cost of goods sold, leaving older, lower\u2011cost items in ending inventory.  \n- **Ending inventory**: LIFO uses older, cheaper costs \u2192 inventory value is **lower** than FIFO.  \n- **Income tax payable**: Higher cost of goods sold under LIFO reduces taxable income, so tax payable is **lower** than FIFO.\n\nThus, compared with FIFO, LIFO results in a lower ending inventory and a lower income tax payable.\n\nANSWER: A"
+    },
+    {
+      "question": "What are the dimensions of $\\hat{u}^t \\hat{u}?",
+      "subject": "econometrics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to determine the dimensions of the product \\(\\hat{u}^t \\hat{u}\\).  \nLet \\(\\hat{u}\\) be a column vector of size \\(T \\times 1\\).  \nThen its transpose \\(\\hat{u}^t\\) is a row vector of size \\(1 \\times T\\).\n\nMultiplying a \\(1 \\times T\\) matrix by a \\(T \\times 1\\) matrix yields a single scalar:\n\\[\n\\hat{u}^t \\hat{u} \\quad\\text{has dimensions } 1 \\times 1.\n\\]\n\nThus the correct answer is:\n\nANSWER: D"
+    },
+    {
+      "question": "_______ theory can be described as a code of conduct to which all rational beings should adhere. This contrasts with ________ morality which is the code of conduct adopted by a particular group or soc",
+      "subject": "business_ethics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "We need to fill blanks: first blank: \"_______ theory can be described as a code of conduct to which all rational beings should adhere.\" That is normative theory: normative theory provides norms or standards that rational beings should follow. So first blank: Normative.\n\nSecond blank: \"This contrasts with ________ morality which is the code of conduct adopted by a particular group or society.\" That is descriptive morality: describing what a particular group or society follows. So second blank: de"
+    },
+    {
+      "question": "A city imposes a municipal excise tax of $200 per year on commercial artists' studios in that city. It also imposes an excise tax of $100 per year on every itinerant commercial figure drawer for the p",
+      "subject": "professional_law",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "The tax is a **per\u2011year excise tax** on itinerant artists for the privilege of using the city\u2019s streets and sidewalks.  \nIt is not a tax on the sale of goods or on the interstate commerce itself; it is a tax on the local activity of drawing in the city.  \nBecause the tax is levied on a local activity that is not a substantial burden on interstate commerce, it does not violate the Commerce Clause. The tax is also not a license tax on interstate commerce, nor is it a discriminatory privilege tax. "
+    },
+    {
+      "question": "Patents, control of resources, economies of scale, and exclusive licenses are",
+      "subject": "high_school_microeconomics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to determine which statement is correct regarding patents, control of resources, economies of scale, and exclusive licenses.\n\nLet's analyze each option:\n\n**Option A: \"all requirements for price discrimination\"**  \nPrice discrimination requires (1) market power, (2) ability to segment the market, and (3) inability to arbitrage between segments. Patents, control of resources, economies of scale, and exclusive licenses can provide market power and barriers to entry, but they are not *requir"
+    },
+    {
+      "question": "Which component of a nation's balance of payments recognizes the purchase and sale of real and financial assets between nations?",
+      "subject": "high_school_macroeconomics",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "The balance of payments is divided into two main accounts: the current account and the capital/financial account.  \n- The **current account** records trade in goods and services, income, and unilateral transfers.  \n- The **capital/financial account** records cross\u2011border transactions in real and financial assets (e.g., purchase of real estate, stocks, bonds, loans, and changes in official reserves).\n\nThus, the component that recognizes the purchase and sale of real and financial assets between n"
+    },
+    {
+      "question": "According to The Federalist Papers, federalism has which of the following effects on political factions?",
+      "subject": "high_school_government_and_politics",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "The Federalist Papers, particularly Federalist No. 10 written by James\u202fMadison, discuss the problem of factions\u2014groups of citizens who pursue interests contrary to the common good. Madison argues that a large republic, with many diverse interests, makes it difficult for any single faction to dominate. The larger the sphere of political activity, the more likely that competing factions will counterbalance each other, thereby diluting the influence of any one faction. This is the effect he attribu"
+    },
+    {
+      "question": "Keri spent 3 hours on her homework. She spent equal amounts of time on all subjects. If Keri spent 1 over 2 hour on science, how many subjects did she study?",
+      "subject": "elementary_mathematics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "We are told:\n\n- Keri spent 3 hours total on homework.\n- She spent equal amounts of time on all subjects.\n- She spent 1 over 2 hour on science. That is \\( \\frac{1}{2}\\) hour on science.\n\nLet the number of subjects be \\(n\\). Since time per subject is equal, each subject gets \\( \\frac{3}{n}\\) hours.\n\nWe know that for science, the time is \\( \\frac{1}{2}\\) hour. So\n\n\\[\n\\frac{3}{n} = \\frac{1}{2}.\n\\]\n\nSolve for \\(n\\):\n\n\\[\n3 \\times 2 = n \\quad\\Rightarrow\\quad n = 6.\n\\]\n\nThus Keri studied 6 subjects.\n\nTh"
+    },
+    {
+      "question": "A teachers union, a nongovernmental entity, seeks to picket the local city school board for its decision to require higher certification for instructors who wish to teach in the gifted and talented cl",
+      "subject": "professional_law",
+      "prediction": null,
+      "target": "C",
+      "correct": false,
+      "completion": "<|channel|>final<|message|>We need to analyze the scenario. The teachers union is picketing the local city school board. The city has a picketing ordinance that prohibits picketing inside or on any sidewalk or street immediately adjacent or contiguous to public elementary and secondary schools without express permission of the mayor. The union apparently did not obtain permission. The school board seeks a temporary injunction to restrain further picketing. The question: The court will most likel"
+    },
+    {
+      "question": "The surface of Planet Earth loses energy to outer space due mostly to",
+      "subject": "conceptual_physics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "The Earth loses energy to space primarily through the emission of electromagnetic radiation (infrared radiation). Conduction and convection are processes that transfer heat within the Earth\u2019s atmosphere and surface, not to space. Radioactivity contributes negligibly to the Earth\u2019s energy loss.\n\n**Answer:** C\n\nANSWER: C"
+    },
+    {
+      "question": "In a criminal prosecution the government must prove that the defendant affixed a rubber-stamp containing his signature to certain fraudulent letters mailed to the victim. The defendant denied that he ",
+      "subject": "professional_law",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The question concerns the admissibility of evidence of a defendant\u2019s habit or routine practice under the Federal Rules of Evidence (FRE).  \nRule 406 allows evidence of a person\u2019s habit or a routine practice to prove that the person acted in accordance with that habit or routine on a particular occasion. The key elements are:\n\n1. **Habit or routine practice** \u2013 a repeated behavior that is well\u2011established.  \n2. **Relevance** \u2013 the evidence must show that the defendant acted in the same way on the"
+    },
+    {
+      "question": "A father died leaving a will by which he devised a 100-acre tract to his daughter. At the time of the father's death, he believed that he owned all of the 100-acre tract. However, the father actually ",
+      "subject": "professional_law",
+      "prediction": "A",
+      "target": "B",
+      "correct": false,
+      "completion": "<|channel|>final<|message|>We need to analyze the scenario. The father died, leaving a will that devised 100 acres to his daughter. He believed he owned all 100 acres, but actually owned only 95 acres; the other 5 acres were owned by a farmer. The daughter took possession of the tract. She executed a warranty deed to a buyer, purporting to convey all 100 acres. The buyer paid $25k down, $75k secured by a mortgage. The mortgage instrument described the property interest as covering all 100 acres."
+    },
+    {
+      "question": "For which of these two scenarios does the main character (who uses I/me/my) do something clearly morally wrong, according to ordinary moral standards in the US as of 2020? Scenario 1 | I built a snowm",
+      "subject": "moral_scenarios",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "We need to determine moral wrongness of each scenario.\n\nScenario 1: \"I built a snowman inside the beautiful home.\" Building a snowman inside a home is unusual and likely considered wrong because it would create mess, damage, or be disrespectful to the home. So scenario 1 is morally wrong.\n\nScenario 2: \"I popped the balloon and gave it back to the child.\" Popping a balloon is generally considered a negative action, especially if it's a child's balloon. Giving it back after popping is still wrong "
+    },
+    {
+      "question": "Two students perform an experiment in which they drop a ball from rest from a known height above the ground and measure the speed of the ball just before it strikes the ground. From repeated measureme",
+      "subject": "college_physics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The kinetic energy of the ball is  \n\n\\[\nK=\\frac12 m v^{2}\n\\]\n\nThe mass \\(m\\) is known precisely, so the only source of uncertainty is the velocity \\(v\\).\n\nFor a function that depends on a variable raised to a power, the relative (percentage) uncertainty scales with that power.  \nIf \\(v\\) has a relative uncertainty \\(\\delta v/v = 10\\%\\), then\n\n\\[\nK \\propto v^{2}\\;\\;\\Rightarrow\\;\\; \\frac{\\delta K}{K}=2\\,\\frac{\\delta v}{v}\n\\]\n\nThus\n\n\\[\n\\frac{\\delta K}{K}=2 \\times 10\\% = 20\\%\n\\]\n\nSo the kinetic ener"
+    },
+    {
+      "question": "Which of these factors increases the risk for postmenopausal breast cancer?\n",
+      "subject": "nutrition",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to identify which factor increases risk for postmenopausal breast cancer. Options: Red meat, Dietary fat, Fish, Obesity. Known risk factors: Obesity is a risk factor for postmenopausal breast cancer. Dietary fat and red meat have been studied but evidence is weaker. Fish is not a risk factor. So answer D.\n\nANSWER: D"
+    },
+    {
+      "question": "Statement 1| The SVM learning algorithm is guaranteed to find the globally optimal hypothesis with respect to its object function. Statement 2| After being mapped into feature space Q through a radial",
+      "subject": "machine_learning",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "**Step 1 \u2013 Understand Statement\u202f1**\n\nThe SVM training problem is a convex quadratic optimisation problem.  \nBecause the objective function (maximising the margin subject to constraints) is convex and the constraints are linear, any local optimum is also a global optimum.  \nTherefore the optimisation algorithm (e.g., SMO, dual coordinate descent) is guaranteed to converge to the globally optimal solution of the SVM objective.\n\n**Verdict on Statement\u202f1:** True.\n\n---\n\n**Step 2 \u2013 Understand Statemen"
+    },
+    {
+      "question": "Which of the following is true of calcium metabolism?",
+      "subject": "clinical_knowledge",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "We need to evaluate each statement.\n\n**A) Calcitonin causes a rise in plasma calcium**  \nCalcitonin is secreted by the parafollicular (C) cells of the thyroid. Its main effect is to lower blood calcium by inhibiting osteoclast activity and increasing urinary calcium excretion. Therefore, it does **not** raise plasma calcium. This statement is false.\n\n**B) Primary hyperparathyroidism is usually asymptomatic**  \nPrimary hyperparathyroidism results from over\u2011production of parathyroid hormone (PTH) "
+    },
+    {
+      "question": "The key attribute in successful marathon running is:",
+      "subject": "clinical_knowledge",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The question asks for the key attribute in successful marathon running.  \nA marathon is a long\u2011distance endurance event (42.195\u202fkm). The most important factor for finishing well is the ability to sustain a steady pace over the entire distance, which is essentially endurance or stamina. Strength, power, and stride length are less critical for long\u2011distance performance compared to the capacity to maintain aerobic effort.\n\n**Answer:** D\n\nANSWER: D"
+    },
+    {
+      "question": "What is a replay attack?",
+      "subject": "computer_security",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "A replay attack is a type of network or cryptographic attack in which an attacker captures a valid data transmission (such as a message, authentication token, or transaction request) and then retransmits it at a later time. The goal is to trick the receiving system into accepting the repeated message as a new, legitimate request, thereby gaining unauthorized access, duplicating a transaction, or causing some other unintended effect. This attack exploits the fact that many systems do not properly"
+    },
+    {
+      "question": "China and Vietnam's dispute over the Spratley Islands is",
+      "subject": "high_school_geography",
+      "prediction": "B",
+      "target": "C",
+      "correct": false,
+      "completion": "The Spratly Islands are located in the South China Sea, an area rich in natural resources such as fish stocks and potential oil and gas reserves. The dispute between China and Vietnam over these islands involves competing claims to the territory itself, as well as the resources that lie within and around the islands. The core of the dispute is the question of who has the right to control and exploit the land and its surrounding resources.\n\nIn international law, disputes over territory are typica"
+    }
+  ],
+  "subject_accuracy": {
+    "business_ethics": 1.0,
+    "clinical_knowledge": 1.0,
+    "college_physics": 1.0,
+    "computer_security": 1.0,
+    "conceptual_physics": 1.0,
+    "econometrics": 1.0,
+    "elementary_mathematics": 1.0,
+    "high_school_geography": 0.0,
+    "high_school_government_and_politics": 1.0,
+    "high_school_macroeconomics": 1.0,
+    "high_school_microeconomics": 1.0,
+    "machine_learning": 1.0,
+    "moral_scenarios": 1.0,
+    "nutrition": 1.0,
+    "professional_accounting": 1.0,
+    "professional_law": 0.5
+  }
+}

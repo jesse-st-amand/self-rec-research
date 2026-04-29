@@ -1,0 +1,4 @@
+2026-04-28 10:05:13 | INFO    | root | Logging to logs/prepare_mmlu_20260428_100513.log
+2026-04-28 10:05:15 | INFO    | sgtr_rl.scripts.prepare_mmlu | Downloading MMLU from cais/mmlu (test split)...
+2026-04-28 10:05:18 | INFO    | sgtr_rl.scripts.prepare_mmlu | Loaded 14042 questions
+2026-04-28 10:05:19 | INFO    | sgtr_rl.scripts.prepare_mmlu | Wrote 14042 questions (57 subjects) to data/benchmarks/mmlu.jsonl

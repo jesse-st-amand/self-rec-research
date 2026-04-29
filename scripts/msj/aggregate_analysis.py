@@ -50,13 +50,21 @@ def _normalize_base(s: str) -> str:
 
 
 def _parse_label(label: str):
-    """Return (base, fmt, tag, dataset, kind) where kind ∈ {'base','sgtr','adv'}."""
+    """Return (base, fmt, tag, dataset, kind) where
+    kind ∈ {'base','sgtr','adv','multi-op'}."""
     if "(base)" in label:
         return _normalize_base(label.replace("(base)", "").strip()), None, None, None, "base"
 
     m = re.match(r"(.+?)\s*\(ADV:\s*as\s+[^,]+,\s*(\w+)\s+(PW|IND)\s+(\w+)\)", label)
     if m:
         return _normalize_base(m.group(1).strip()), m.group(3), m.group(2), m.group(4), "adv"
+
+    # Multi-OP: "<Base> (UT-AT_PW-IND <Dataset>)" — jointly trained on all 4 ops.
+    # Compound op label has hyphens which aren't part of \w, so handle before
+    # the per-op pattern. Format/tag are reported as the compound strings.
+    m = re.match(r"(.+?)\s*\(UT-AT_PW-IND\s+(\w+)\)", label)
+    if m:
+        return _normalize_base(m.group(1).strip()), "PW-IND", "UT-AT", m.group(2), "multi-op"
 
     m = re.match(r"(.+?)\s*\((\w+)\s+(PW|IND)\s+(\w+)\)", label)
     if m:
@@ -126,6 +134,11 @@ def fig_asr_by_shots(asr: pd.DataFrame, output_dir: Path):
         elif kind == "adv":
             color, ls, lw, alpha = dark, FMT_LINESTYLE.get(fmt, "-"), 1.8, 0.9
             marker, ms = TAG_MARKER.get(tag, "o"), 7
+        elif kind == "multi-op":
+            # Multi-OP variant: single LoRA jointly trained on all 4 ops.
+            # Use teal (matches the SGTR/MMLU analyzers) and a star marker
+            # so it stands out from the per-op SGTR + ADV series.
+            color, ls, lw, alpha, marker, ms = "#10b981", "-", 2.4, 0.95, "*", 11
         else:  # sgtr
             color, ls, lw, alpha = dark, FMT_LINESTYLE.get(fmt, "-"), 2.0, 0.9
             marker, ms = TAG_MARKER.get(tag, "o"), 7
@@ -197,9 +210,10 @@ def fig_kind_summary(asr: pd.DataFrame, output_dir: Path):
     axes = axes[0]
 
     KIND_STYLE = {
-        "base": ("Base", "#888888", "D", "-"),
-        "sgtr": ("SGTR-trained (mean)", None, "o", "-"),
-        "adv": ("Adversarial (mean)", None, "s", "--"),
+        "base":     ("Base",                   "#888888", "D", "-"),
+        "sgtr":     ("SGTR-trained (mean)",    None,      "o", "-"),
+        "adv":      ("Adversarial (mean)",     None,      "s", "--"),
+        "multi-op": ("Multi-OP",               "#10b981", "*", "-"),
     }
 
     for ax, fam in zip(axes, families):
@@ -244,10 +258,13 @@ def fig_delta_vs_base(asr: pd.DataFrame, output_dir: Path):
         if base_rows.empty or trained.empty:
             continue
 
-        kind_order = {"sgtr": 0, "adv": 1}
+        kind_order = {"sgtr": 0, "adv": 1, "multi-op": 2}
         trained_models = sorted(
             trained["model"].unique(),
-            key=lambda m: (kind_order[trained[trained["model"] == m]["kind"].iloc[0]], m),
+            key=lambda m: (
+                kind_order.get(trained[trained["model"] == m]["kind"].iloc[0], 99),
+                m,
+            ),
         )
 
         matrix = np.full((len(trained_models), len(shot_counts)), np.nan)
@@ -296,11 +313,15 @@ def fig_delta_avg_across_models(asr: pd.DataFrame, output_dir: Path):
     shot_counts = sorted(asr["n_shots"].unique())
     families = sorted(asr["base_model"].unique())
 
-    # Build rows: SGTR per family, then Adv per family (only where adv exists)
+    # Build rows: SGTR per family, then Adv per family (only where adv exists),
+    # then Multi-OP per family (only where the multi-op LoRA exists).
     row_specs = [(fam, "sgtr", fam) for fam in families]
     for fam in families:
         if not asr[(asr["base_model"] == fam) & (asr["kind"] == "adv")].empty:
             row_specs.append((fam, "adv", f"{fam} (adv)"))
+    for fam in families:
+        if not asr[(asr["base_model"] == fam) & (asr["kind"] == "multi-op")].empty:
+            row_specs.append((fam, "multi-op", f"{fam} (multi-op)"))
 
     matrix = np.full((len(row_specs), len(shot_counts)), np.nan)
     for ri, (fam, kind, _label) in enumerate(row_specs):
@@ -529,6 +550,150 @@ def fig_dot_arrow_by_model(asr: pd.DataFrame, output_dir: Path):
     _save_fig(fig, output_dir, "asr_dot_arrow_by_model")
 
 
+def _draw_dot_arrow_panel(ax, base_asr, trained_mean, families, shot_counts,
+                          show_xlabels=False, legend_labels=False):
+    """Draw one panel of the dot-arrow-by-model figure.
+
+    trained_mean: DataFrame with columns base_model, n_shots, asr.
+    Called with different trained_mean per op to produce a paneled figure.
+    Returns (family_centers, family_width, group_spacing, slot_width) so
+    callers can add dividers / group labels after tight_layout.
+    """
+    group_spacing = 1.5
+    slot_width = 1.0
+    family_width = len(shot_counts) * slot_width
+
+    family_centers = []
+    x_ticks_shot = []
+    x_labels_shot = []
+
+    for gi, fam in enumerate(families):
+        light, dark = MODEL_COLORS.get(fam, ("#cccccc", "#666666"))
+        group_start = gi * (family_width + group_spacing)
+        family_centers.append(group_start + family_width / 2 - slot_width / 2)
+
+        for si, shots in enumerate(shot_counts):
+            x = group_start + si * slot_width
+            x_ticks_shot.append(x)
+            x_labels_shot.append(str(shots))
+
+            base_row = base_asr[(base_asr["base_model"] == fam) & (base_asr["n_shots"] == shots)]
+            trained_row = trained_mean[(trained_mean["base_model"] == fam) & (trained_mean["n_shots"] == shots)]
+            if base_row.empty:
+                continue
+            by = base_row["asr"].values[0]
+
+            ax.plot(x, by, marker="D", color=light,
+                    markeredgecolor="black", markeredgewidth=0.8,
+                    markersize=7, zorder=3,
+                    label=("Base" if (legend_labels and gi == 0 and si == 0) else None))
+
+            if not trained_row.empty:
+                ty = trained_row["asr"].values[0]
+                ax.annotate("", xy=(x, ty), xytext=(x, by),
+                            arrowprops=dict(arrowstyle="->", color=dark,
+                                            lw=1.5, alpha=0.9))
+                ax.plot(x, ty, marker="o", color=dark,
+                        markeredgecolor="black", markeredgewidth=0.6,
+                        markersize=7, zorder=3,
+                        label=("SGTR-trained" if (legend_labels and gi == 0 and si == 0) else None))
+
+    ax.set_xticks(x_ticks_shot)
+    if show_xlabels:
+        ax.set_xticklabels(x_labels_shot, fontsize=12)
+    else:
+        ax.set_xticklabels([])
+    ax.axhline(0, color="gray", linewidth=0.5)
+    ax.grid(axis="y", alpha=0.3, linestyle="--")
+    ax.tick_params(axis="y", labelsize=11)
+    return family_centers, family_width, group_spacing, slot_width
+
+
+def fig_dot_arrow_by_model_by_op(asr: pd.DataFrame, output_dir: Path):
+    """5-row dot-arrow plot: per-OP specificity (top 4) + overall average (bottom).
+
+    Rows: UT_PW, UT_IND, AT_PW, AT_IND, Average.
+    Top 4 rows filter SGTR-trained data by (tag, fmt) and average any datasets
+    within. Bottom row averages over all SGTR operationalizations (same as the
+    existing asr_dot_arrow_by_model plot). Adversarial kinds excluded throughout.
+    """
+    shot_counts = sorted(asr["n_shots"].unique())
+    families = sorted(asr["base_model"].unique())
+
+    sgtr_all = asr[asr["kind"] == "sgtr"]
+    base_asr = asr[asr["kind"] == "base"][["base_model", "n_shots", "asr"]]
+
+    rows = [
+        ("UT_PW",   dict(tag="UT", fmt="PW")),
+        ("UT_IND",  dict(tag="UT", fmt="IND")),
+        ("AT_PW",   dict(tag="AT", fmt="PW")),
+        ("AT_IND",  dict(tag="AT", fmt="IND")),
+        ("Average", None),
+    ]
+
+    n_rows = len(rows)
+    fig_w = max(10, 1.0 * len(shot_counts) * len(families) + 3)
+    fig, axes = plt.subplots(n_rows, 1,
+                             figsize=(fig_w, 2.8 * n_rows + 1.5),
+                             sharex=True, sharey=True, squeeze=False)
+
+    # Global y-max across all panel data
+    ymax = max(base_asr["asr"].max() if not base_asr.empty else 0,
+               sgtr_all["asr"].max() if not sgtr_all.empty else 0)
+
+    panel_geom = None  # used later to place dividers + family labels
+
+    for ri, (label, filt) in enumerate(rows):
+        if filt is None:
+            sub = sgtr_all
+        else:
+            sub = sgtr_all[(sgtr_all["tag"] == filt["tag"])
+                           & (sgtr_all["fmt"] == filt["fmt"])]
+        trained_mean = (sub.groupby(["base_model", "n_shots"])["asr"]
+                           .mean().reset_index())
+        ax = axes[ri, 0]
+        is_last = (ri == n_rows - 1)
+        geom = _draw_dot_arrow_panel(ax, base_asr, trained_mean,
+                                     families, shot_counts,
+                                     show_xlabels=is_last,
+                                     legend_labels=(ri == 0))
+        if panel_geom is None:
+            panel_geom = geom
+        ax.set_ylabel(label, fontsize=16, fontweight="bold", rotation=0,
+                      ha="right", va="center", labelpad=18)
+        ax.set_ylim(-0.02, ymax + 0.08)
+
+    # Dividers + family labels — drawn on every panel (dividers) and below the
+    # bottom panel (family labels) so the overall grouping stays legible.
+    family_centers, family_width, group_spacing, _ = panel_geom
+    for ax in axes.flat:
+        for gi in range(1, len(families)):
+            divider_x = gi * (family_width + group_spacing) - group_spacing / 2
+            ax.axvline(divider_x, color="gray", linewidth=0.6,
+                       linestyle=":", alpha=0.7)
+
+    bottom_ax = axes[-1, 0]
+    bottom_ax.set_xlabel("Number of Shots (grouped by family)", fontsize=15)
+    for center, fam in zip(family_centers, families):
+        bottom_ax.text(center, -0.40, fam, ha="center", va="top",
+                       fontsize=15, fontweight="bold",
+                       transform=bottom_ax.get_xaxis_transform())
+
+    # Single legend (top-right, outside)
+    handles, labels = axes[0, 0].get_legend_handles_labels()
+    if handles:
+        fig.legend(handles, labels, loc="upper right",
+                   bbox_to_anchor=(0.995, 0.995), fontsize=13,
+                   framealpha=0.9, borderaxespad=0.0)
+
+    fig.suptitle("Base → SGTR-trained ASR shift, per operationalization "
+                 "(adversarial excluded)",
+                 fontsize=16, fontweight="bold", y=0.998)
+    fig.supylabel("ASR", fontsize=15)
+    plt.tight_layout(rect=[0.02, 0.04, 1.0, 0.975])
+    _save_fig(fig, output_dir, "asr_dot_arrow_by_model_by_op")
+
+
 def print_summary(df: pd.DataFrame, asr: pd.DataFrame):
     print(f"\n{'=' * 60}\nAGGREGATE MSJ SUMMARY\n{'=' * 60}")
     print(f"Total attacks: {len(df)}")
@@ -586,6 +751,7 @@ def main():
     fig_delta_avg_across_models(asr, output_dir)
     fig_delta_avg_across_families(asr, output_dir)
     fig_dot_arrow_by_model(asr, output_dir)
+    fig_dot_arrow_by_model_by_op(asr, output_dir)
 
     print(f"\n✓ Aggregate analysis complete. Results in {output_dir}/")
 

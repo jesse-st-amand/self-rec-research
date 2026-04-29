@@ -1,0 +1,1233 @@
+### repo: /home/jesse-st-amand/projects/python/self-rec-research @ 7e440684bd5fae983a7c13561ab907e4b828ad39
+modules: tinker_cookbook
+-- repo-wide (vs HEAD, staged+unstaged) --
+diff --git a/experiments_eval/MSJ/MSJ_01_base_vs_trained/config.yaml b/experiments_eval/MSJ/MSJ_01_base_vs_trained/config.yaml
+index 72049f4..4b1dadc 100644
+--- a/experiments_eval/MSJ/MSJ_01_base_vs_trained/config.yaml
++++ b/experiments_eval/MSJ/MSJ_01_base_vs_trained/config.yaml
+@@ -118,6 +118,19 @@ models:
+     sampler_path: "tinker://20d9cf5c-5043-572d-9b60-389dcac93820:train:0/sampler_weights/final"
+     max_rpm: 10
+ 
++  # ── Multi-OP variants (jointly trained on UT_PW + UT_IND + AT_PW + AT_IND) ──
++  - label: "Llama 8B (UT-AT_PW-IND ShareGPT)"
++    provider: tinker
++    model_name: meta-llama/Llama-3.1-8B-Instruct
++    sampler_path: "tinker://95c31d67-0670-57b4-bc29-d383afbb02c5:train:0/sampler_weights/final"
++    max_rpm: 10
++
++  - label: "GPT-OSS 20B (UT-AT_PW-IND ShareGPT)"
++    provider: tinker
++    model_name: openai/gpt-oss-20b
++    sampler_path: "tinker://e6839bf3-0e18-5c35-b13c-e40d1d8fb82c:train:0/sampler_weights/final"
++    max_rpm: 10
++
+ judge:
+   provider: openai
+   model_name: gpt-4o-mini
+diff --git a/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch2/config.yaml b/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch2/config.yaml
+index 158d6cd..8724fc0 100644
+--- a/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch2/config.yaml
++++ b/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch2/config.yaml
+@@ -89,6 +89,16 @@ models:
+   model_name: Qwen/Qwen3-30B-A3B-Instruct-2507
+   sampler_path: tinker://20d9cf5c-5043-572d-9b60-389dcac93820:train:0/sampler_weights/final
+   max_rpm: 10
++- label: Llama 8B (UT-AT_PW-IND ShareGPT)
++  provider: tinker
++  model_name: meta-llama/Llama-3.1-8B-Instruct
++  sampler_path: tinker://95c31d67-0670-57b4-bc29-d383afbb02c5:train:0/sampler_weights/final
++  max_rpm: 10
++- label: GPT-OSS 20B (UT-AT_PW-IND ShareGPT)
++  provider: tinker
++  model_name: openai/gpt-oss-20b
++  sampler_path: tinker://e6839bf3-0e18-5c35-b13c-e40d1d8fb82c:train:0/sampler_weights/final
++  max_rpm: 10
+ judge:
+   provider: openai
+   model_name: gpt-4o-mini
+diff --git a/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch3/config.yaml b/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch3/config.yaml
+index 6b022eb..35717b8 100644
+--- a/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch3/config.yaml
++++ b/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch3/config.yaml
+@@ -89,6 +89,16 @@ models:
+   model_name: Qwen/Qwen3-30B-A3B-Instruct-2507
+   sampler_path: tinker://20d9cf5c-5043-572d-9b60-389dcac93820:train:0/sampler_weights/final
+   max_rpm: 10
++- label: Llama 8B (UT-AT_PW-IND ShareGPT)
++  provider: tinker
++  model_name: meta-llama/Llama-3.1-8B-Instruct
++  sampler_path: tinker://95c31d67-0670-57b4-bc29-d383afbb02c5:train:0/sampler_weights/final
++  max_rpm: 10
++- label: GPT-OSS 20B (UT-AT_PW-IND ShareGPT)
++  provider: tinker
++  model_name: openai/gpt-oss-20b
++  sampler_path: tinker://e6839bf3-0e18-5c35-b13c-e40d1d8fb82c:train:0/sampler_weights/final
++  max_rpm: 10
+ judge:
+   provider: openai
+   model_name: gpt-4o-mini
+diff --git a/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch4/config.yaml b/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch4/config.yaml
+index 8dc7ade..aa0653a 100644
+--- a/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch4/config.yaml
++++ b/experiments_eval/MSJ/MSJ_01_base_vs_trained_batch4/config.yaml
+@@ -91,6 +91,16 @@ models:
+   model_name: Qwen/Qwen3-30B-A3B-Instruct-2507
+   sampler_path: tinker://20d9cf5c-5043-572d-9b60-389dcac93820:train:0/sampler_weights/final
+   max_rpm: 10
++- label: Llama 8B (UT-AT_PW-IND ShareGPT)
++  provider: tinker
++  model_name: meta-llama/Llama-3.1-8B-Instruct
++  sampler_path: tinker://95c31d67-0670-57b4-bc29-d383afbb02c5:train:0/sampler_weights/final
++  max_rpm: 10
++- label: GPT-OSS 20B (UT-AT_PW-IND ShareGPT)
++  provider: tinker
++  model_name: openai/gpt-oss-20b
++  sampler_path: tinker://e6839bf3-0e18-5c35-b13c-e40d1d8fb82c:train:0/sampler_weights/final
++  max_rpm: 10
+ judge:
+   provider: openai
+   model_name: gpt-4o-mini
+diff --git a/experiments_training/COLM_Callum/01_sft_pw_vs_gpt_4o/config.yaml b/experiments_training/COLM_Callum/01_sft_pw_vs_gpt_4o/config.yaml
+deleted file mode 100644
+index 5dd1c95..0000000
+--- a/experiments_training/COLM_Callum/01_sft_pw_vs_gpt_4o/config.yaml
++++ /dev/null
+@@ -1,77 +0,0 @@
+-experiment_name: 01_sft_pw_vs_gpt_4o
+-description: SFT on PW recognition vs gpt-4o (ShareGPT). Cross-evals across tag, format,
+-  task, dataset, and experiment source.
+-algorithm: sft
+-wandb_project: sgtr-rl
+-data:
+-  generator_models:
+-  - gpt-4o
+-  dataset: sharegpt
+-  train_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-4o_sharegpt/train.jsonl
+-  val_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-4o_sharegpt/val.jsonl
+-model:
+-  name: meta-llama/Llama-3.1-8B-Instruct
+-  lora_rank: 32
+-hyperparameters:
+-  learning_rate: 5.0e-05
+-  num_epochs: 20
+-  batch_size: 16
+-  seed: 42
+-benchmark_evals:
+-  mmlu_20:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 20
+-    schedule: every_epoch
+-    cot: true
+-  mmlu_2000:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 2000
+-    schedule: end_only
+-    cot: true
+-  xeval_dataset_bigcodebench:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-4o_bigcodebench/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_pku:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-4o_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_wikisum:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-4o_wikisum/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_format_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-4o-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_task_pref_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_05_UT_PW-Q_Pref-Q_NPr_FA_Inst_vs_gpt-4o_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_task_pref_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_06_UT_IND-Q_Pref-Q_NPr_FA_Inst_vs_gpt-4o-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_tag_at_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_COLM_01_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-4o_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_source_numbered:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_11_UT_PW-Q_Rec_NPr_vs_gpt-4o_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_tag_at_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_COLM_02_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-4o-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+diff --git a/experiments_training/COLM_Callum/01_sft_pw_vs_haiku_3_5/config.yaml b/experiments_training/COLM_Callum/01_sft_pw_vs_haiku_3_5/config.yaml
+deleted file mode 100644
+index 0b9ff35..0000000
+--- a/experiments_training/COLM_Callum/01_sft_pw_vs_haiku_3_5/config.yaml
++++ /dev/null
+@@ -1,72 +0,0 @@
+-experiment_name: 01_sft_pw_vs_haiku_3_5
+-description: SFT on PW recognition vs haiku-3.5 (ShareGPT). Cross-evals across tag,
+-  format, task, dataset, and experiment source.
+-algorithm: sft
+-wandb_project: sgtr-rl
+-data:
+-  generator_models:
+-  - haiku-3.5
+-  dataset: sharegpt
+-  train_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_haiku-3.5_sharegpt/train.jsonl
+-  val_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_haiku-3.5_sharegpt/val.jsonl
+-model:
+-  name: meta-llama/Llama-3.1-8B-Instruct
+-  lora_rank: 32
+-hyperparameters:
+-  learning_rate: 5.0e-05
+-  num_epochs: 20
+-  batch_size: 16
+-  seed: 42
+-benchmark_evals:
+-  mmlu_20:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 20
+-    schedule: every_epoch
+-    cot: true
+-  mmlu_2000:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 2000
+-    schedule: end_only
+-    cot: true
+-  xeval_dataset_bigcodebench:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_haiku-3.5_bigcodebench/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_pku:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_haiku-3.5_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_wikisum:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_haiku-3.5_wikisum/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_format_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_haiku-3.5-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_task_pref_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_05_UT_PW-Q_Pref-Q_NPr_FA_Inst_vs_haiku-3.5_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_task_pref_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_06_UT_IND-Q_Pref-Q_NPr_FA_Inst_vs_haiku-3.5-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_tag_at_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_COLM_01_AT_PW-C_Rec_NPr_FA_Inst_vs_haiku-3.5_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_source_numbered:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_11_UT_PW-Q_Rec_NPr_vs_haiku-3.5_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+diff --git a/experiments_training/COLM_Callum/01_sft_pw_vs_ll_3_1_70b/config.yaml b/experiments_training/COLM_Callum/01_sft_pw_vs_ll_3_1_70b/config.yaml
+deleted file mode 100644
+index f398ee7..0000000
+--- a/experiments_training/COLM_Callum/01_sft_pw_vs_ll_3_1_70b/config.yaml
++++ /dev/null
+@@ -1,72 +0,0 @@
+-experiment_name: 01_sft_pw_vs_ll_3_1_70b
+-description: SFT on PW recognition vs ll-3.1-70b (ShareGPT). Cross-evals across tag,
+-  format, task, dataset, and experiment source.
+-algorithm: sft
+-wandb_project: sgtr-rl
+-data:
+-  generator_models:
+-  - ll-3.1-70b
+-  dataset: sharegpt
+-  train_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_ll-3.1-70b_sharegpt/train.jsonl
+-  val_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_ll-3.1-70b_sharegpt/val.jsonl
+-model:
+-  name: meta-llama/Llama-3.1-8B-Instruct
+-  lora_rank: 32
+-hyperparameters:
+-  learning_rate: 5.0e-05
+-  num_epochs: 20
+-  batch_size: 16
+-  seed: 42
+-benchmark_evals:
+-  mmlu_20:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 20
+-    schedule: every_epoch
+-    cot: true
+-  mmlu_2000:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 2000
+-    schedule: end_only
+-    cot: true
+-  xeval_dataset_bigcodebench:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_ll-3.1-70b_bigcodebench/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_pku:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_ll-3.1-70b_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_wikisum:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_ll-3.1-70b_wikisum/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_format_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_ll-3.1-70b-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_task_pref_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_05_UT_PW-Q_Pref-Q_NPr_FA_Inst_vs_ll-3.1-70b_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_task_pref_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_06_UT_IND-Q_Pref-Q_NPr_FA_Inst_vs_ll-3.1-70b-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_tag_at_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_COLM_01_AT_PW-C_Rec_NPr_FA_Inst_vs_ll-3.1-70b_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_source_numbered:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_11_UT_PW-Q_Rec_NPr_vs_ll-3.1-70b_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+diff --git a/experiments_training/COLM_Callum/01_sft_pw_vs_opus_4_1/config.yaml b/experiments_training/COLM_Callum/01_sft_pw_vs_opus_4_1/config.yaml
+deleted file mode 100644
+index 889421a..0000000
+--- a/experiments_training/COLM_Callum/01_sft_pw_vs_opus_4_1/config.yaml
++++ /dev/null
+@@ -1,77 +0,0 @@
+-experiment_name: 01_sft_pw_vs_opus_4_1
+-description: SFT on PW recognition vs opus-4.1 (ShareGPT). Cross-evals across tag,
+-  format, task, dataset, and experiment source.
+-algorithm: sft
+-wandb_project: sgtr-rl
+-data:
+-  generator_models:
+-  - opus-4.1
+-  dataset: sharegpt
+-  train_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_opus-4.1_sharegpt/train.jsonl
+-  val_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_opus-4.1_sharegpt/val.jsonl
+-model:
+-  name: meta-llama/Llama-3.1-8B-Instruct
+-  lora_rank: 32
+-hyperparameters:
+-  learning_rate: 5.0e-05
+-  num_epochs: 20
+-  batch_size: 16
+-  seed: 42
+-benchmark_evals:
+-  mmlu_20:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 20
+-    schedule: every_epoch
+-    cot: true
+-  mmlu_2000:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 2000
+-    schedule: end_only
+-    cot: true
+-  xeval_dataset_bigcodebench:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_opus-4.1_bigcodebench/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_pku:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_opus-4.1_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_wikisum:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_opus-4.1_wikisum/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_format_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_opus-4.1-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_task_pref_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_05_UT_PW-Q_Pref-Q_NPr_FA_Inst_vs_opus-4.1_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_task_pref_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_06_UT_IND-Q_Pref-Q_NPr_FA_Inst_vs_opus-4.1-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_tag_at_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_COLM_01_AT_PW-C_Rec_NPr_FA_Inst_vs_opus-4.1_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_source_numbered:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_11_UT_PW-Q_Rec_NPr_vs_opus-4.1_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_tag_at_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_COLM_02_AT_IND-C_Rec_NPr_FA_Inst_vs_opus-4.1-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+diff --git a/experiments_training/COLM_Callum/01_sft_pw_vs_qwen/bash/run.sh b/experiments_training/COLM_Callum/01_sft_pw_vs_qwen/bash/run.sh
+deleted file mode 100644
+index 53de6c2..0000000
+--- a/experiments_training/COLM_Callum/01_sft_pw_vs_qwen/bash/run.sh
++++ /dev/null
+@@ -1,8 +0,0 @@
+-#!/bin/bash
+-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+-RUNTIME="$SCRIPT_DIR/../../runpod_a100.yaml"
+-
+-uv run sgtr-runpod-launch \
+-    --config "$SCRIPT_DIR/../config.yaml" \
+-    --runtime "$RUNTIME" \
+-    --dry-run
+diff --git a/experiments_training/COLM_Callum/01_sft_pw_vs_qwen/config.yaml b/experiments_training/COLM_Callum/01_sft_pw_vs_qwen/config.yaml
+deleted file mode 100644
+index 8b6ee6c..0000000
+--- a/experiments_training/COLM_Callum/01_sft_pw_vs_qwen/config.yaml
++++ /dev/null
+@@ -1,91 +0,0 @@
+-experiment_name: "01_sft_pw_vs_qwen"
+-description: "SFT on PW recognition vs qwen-2.5-7b (ShareGPT). Cross-evals across tag, format, task, dataset, and experiment source."
+-
+-algorithm: sft
+-wandb_project: sgtr-rl
+-
+-data:
+-  generator_models: [qwen-2.5-7b]
+-  dataset: sharegpt
+-  train_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/train.jsonl
+-  val_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/val.jsonl
+-
+-model:
+-  name: meta-llama/Llama-3.1-8B-Instruct
+-  lora_rank: 32
+-
+-hyperparameters:
+-  learning_rate: 5.0e-5
+-  num_epochs: 20
+-  batch_size: 16
+-  seed: 42
+-
+-benchmark_evals:
+-  # MMLU canary (safety check for catastrophic forgetting)
+-  mmlu_20:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 20
+-    schedule: every_epoch
+-    cot: true
+-  mmlu_2000:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 2000
+-    schedule: end_only
+-    cot: true
+-
+-  # --- Dataset cross-evals (same experiment, different source datasets) ---
+-  xeval_dataset_bigcodebench:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_bigcodebench/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_pku:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_wikisum:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_wikisum/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-
+-  # --- Format cross-eval (PW -> IND) ---
+-  xeval_format_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-
+-  # --- Task cross-eval (Rec -> Pref) ---
+-  xeval_task_pref_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_05_UT_PW-Q_Pref-Q_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_task_pref_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_06_UT_IND-Q_Pref-Q_NPr_FA_Inst_vs_qwen-2.5-7b-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-
+-  # --- Tag cross-eval (UT -> AT) ---
+-  xeval_tag_at_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_COLM_01_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_tag_at_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_COLM_02_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen-2.5-7b-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-
+-  # --- Experiment source cross-eval (ICML -> numbered, different prompt format) ---
+-  xeval_source_numbered:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_11_UT_PW-Q_Rec_NPr_vs_qwen-2.5-7b_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+diff --git a/experiments_training/COLM_Callum/02_sft_ind_vs_qwen/config.yaml b/experiments_training/COLM_Callum/02_sft_ind_vs_qwen/config.yaml
+deleted file mode 100644
+index b748690..0000000
+--- a/experiments_training/COLM_Callum/02_sft_ind_vs_qwen/config.yaml
++++ /dev/null
+@@ -1,84 +0,0 @@
+-experiment_name: "02_sft_ind_vs_qwen"
+-description: "SFT on IND recognition vs qwen-2.5-7b (ShareGPT). Cross-evals across tag, format, task, dataset, and experiment source."
+-
+-algorithm: sft
+-wandb_project: sgtr-rl
+-
+-data:
+-  generator_models: [qwen-2.5-7b]
+-  dataset: sharegpt
+-  train_file: data/training_data/ll-3.1-8b_ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b-treatment_sharegpt/train.jsonl
+-  val_file: data/training_data/ll-3.1-8b_ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b-treatment_sharegpt/val.jsonl
+-
+-model:
+-  name: meta-llama/Llama-3.1-8B-Instruct
+-  lora_rank: 32
+-
+-hyperparameters:
+-  learning_rate: 5.0e-5
+-  num_epochs: 20
+-  batch_size: 16
+-  seed: 42
+-
+-benchmark_evals:
+-  # MMLU canary
+-  mmlu_20:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 20
+-    schedule: every_epoch
+-    cot: true
+-  mmlu_2000:
+-    type: mmlu
+-    data_file: data/benchmarks/mmlu.jsonl
+-    num_samples: 2000
+-    schedule: end_only
+-    cot: true
+-
+-  # --- Dataset cross-evals (same experiment, different source datasets) ---
+-  xeval_dataset_bigcodebench:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b-treatment_bigcodebench/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_pku:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b-treatment_pku_saferlhf/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_dataset_wikisum:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b-treatment_wikisum/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-
+-  # --- Format cross-eval (IND -> PW) ---
+-  xeval_format_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-
+-  # --- Task cross-eval (Rec -> Pref) ---
+-  xeval_task_pref_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_06_UT_IND-Q_Pref-Q_NPr_FA_Inst_vs_qwen-2.5-7b-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_task_pref_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_ICML_05_UT_PW-Q_Pref-Q_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-
+-  # --- Tag cross-eval (UT -> AT) ---
+-  xeval_tag_at_ind:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_COLM_02_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen-2.5-7b-treatment_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+-  xeval_tag_at_pw:
+-    type: sgtr
+-    data_file: data/training_data/ll-3.1-8b_COLM_01_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen-2.5-7b_sharegpt/val.jsonl
+-    schedule: every_5_epochs
+-    frequency: 5
+diff --git a/scripts/ica/analyze_ica.py b/scripts/ica/analyze_ica.py
+index ff5a222..8c68b90 100644
+--- a/scripts/ica/analyze_ica.py
++++ b/scripts/ica/analyze_ica.py
+@@ -51,7 +51,7 @@ from matplotlib.colors import TwoSlopeNorm
+ 
+ _CONDS = ("no-ica", "ica-self", "ica-alt", "ica-ctrl", "ica-ctrl2", "ica-ctrl3")
+ # Each kind-variant prefix × conditions, stable display order
+-_KV_PREFIXES = ("trained-std", "trained-adv", "base")
++_KV_PREFIXES = ("trained-std", "trained-adv", "trained-multi-op", "base")
+ CONDITION_ORDER = tuple(f"{kv}_{c}" for kv in _KV_PREFIXES for c in _CONDS)
+ # Back-compat: also recognize old-style short names ('trained_no-ica', 'base_ica-alt')
+ CONDITION_PREFIXES = CONDITION_ORDER + tuple(f"{k}_{c}" for k in ("trained", "base") for c in _CONDS)
+@@ -135,7 +135,7 @@ def parse_condition(subdir_name: str) -> str | None:
+     """
+     # New-style parse
+     new_match = re.search(
+-        r"_(trained-std|trained-adv|base)_(no-ica|ica-self|ica-alt|ica-ctrl3|ica-ctrl2|ica-ctrl)$",
++        r"_(trained-std|trained-adv|trained-multi-op|base)_(no-ica|ica-self|ica-alt|ica-ctrl3|ica-ctrl2|ica-ctrl)$",
+         subdir_name,
+     )
+     if new_match:
+@@ -163,10 +163,10 @@ def parse_leaf(subdir_name: str) -> dict | None:
+       condition: no-ica | ica-self | ica-alt | ica-ctrl | ica-ctrl2 | ica-ctrl3
+     """
+     m = re.match(
+-        r"^(?P<model>gpt-oss-20b|qwen-3\.0-30b)"
++        r"^(?P<model>gpt-oss-20b|qwen-3\.0-30b|ll-3\.1-8b)"
+         r"_(?P<op>AT_PW|AT_IND|UT_PW|UT_IND)"
+         r"(?:_(?P<shots>\d+)shot)?"
+-        r"_(?P<kind>trained-std|trained-adv|base)"
++        r"_(?P<kind>trained-std|trained-adv|trained-multi-op|base)"
+         r"_(?P<condition>no-ica|ica-self|ica-alt|ica-ctrl3|ica-ctrl2|ica-ctrl)$",
+         subdir_name,
+     )
+@@ -178,6 +178,8 @@ def parse_leaf(subdir_name: str) -> dict | None:
+         variant = "std"
+     elif kind == "trained-adv":
+         variant = "adv"
++    elif kind == "trained-multi-op":
++        variant = "multi-op"
+     return {
+         "model": m.group("model"),
+         "op": m.group("op"),
+@@ -239,6 +241,7 @@ def guess_dataset_from_config_with_fallback(cfg: dict):
+ _BASE_MODEL_NORMALIZE = {
+     "qwen-3-30b": "qwen-3.0-30b",       # training names use dash; base uses dot
+     "gpt-oss-120b": "gpt-oss-120b-thinking",  # training names drop the -thinking suffix
++    "llama-3-1-8b": "ll-3.1-8b",        # training names use hyphens, registry uses dots
+ }
+ 
+ 
+@@ -278,6 +281,24 @@ def parse_evaluator(model_name: str) -> dict:
+             "op": f"{m.group('tag')}_{m.group('fmt')}",
+             "dataset": m.group("ds"),
+         }
++    # Multi-OP: trained jointly on UT+AT × PW+IND (compound op label "UT-AT_PW-IND")
++    m_multi = re.match(
++        r"^(?P<base>[a-z0-9\-\.]+?)_sft-as_(?P<as_>[a-z0-9\-\.]+?)"
++        r"_vs_(?P<alt>[a-z0-9\-\.]+?)"
++        r"_(?P<op>UT-AT_PW-IND)_(?P<ds>\w+)$",
++        model_name,
++    )
++    if m_multi:
++        base = m_multi.group("base")
++        as_ = m_multi.group("as_")
++        flavor = "multi-op" if base == as_ else f"multi-op-adv-as-{as_}"
++        return {
++            "kind": "trained",
++            "base_model": _normalize_base_model(base),
++            "flavor": flavor,
++            "op": m_multi.group("op"),
++            "dataset": m_multi.group("ds"),
++        }
+     return {"kind": "base", "base_model": _normalize_base_model(model_name),
+             "flavor": None, "op": None, "dataset": None}
+ 
+@@ -366,10 +387,20 @@ def load_ica_results(experiment_dirs: list[Path], results_root: Path) -> pd.Data
+ 
+             # Infer variant from leaf dir name if new-style; else from evaluator_flavor
+             leaf_info = parse_leaf(sub.name)
+-            variant = leaf_info["variant"] if leaf_info else (
+-                "std" if ev_info["flavor"] == "std"
+-                else ("adv" if ev_info["flavor"] and ev_info["flavor"].startswith("adv-") else None)
+-            )
++            if leaf_info:
++                variant = leaf_info["variant"]
++            else:
++                fl = ev_info["flavor"]
++                if fl == "std":
++                    variant = "std"
++                elif fl == "multi-op":
++                    variant = "multi-op"
++                elif fl and fl.startswith("adv-"):
++                    variant = "adv"
++                elif fl and fl.startswith("multi-op-adv-"):
++                    variant = "multi-op-adv"
++                else:
++                    variant = None
+ 
+             for log_path in log_files:
+                 try:
+@@ -799,14 +830,70 @@ def fig_trained_vs_base_alt(deltas: pd.DataFrame, agg: pd.DataFrame, output_dir:
+ 
+ 
+ _KV_COLORS = {
+-    "trained-std": "#1e40af",
+-    "trained-adv": "#7c3aed",
+-    "base":        "#374151",
++    "trained-std":      "#1e40af",
++    "trained-adv":      "#7c3aed",
++    "trained-multi-op": "#10b981",  # teal — distinct from std blue and adv purple
++    "base":             "#374151",
+ }
+ 
+ _IND_TREATMENT_COLOR = "#1e40af"  # blue: treatment (vs-alt)
+ _IND_CONTROL_COLOR   = "#ea580c"  # orange: control (vs-self)
+ 
++# Display order for OPs along the y-axis of consolidated dot-arrow figures.
++OP_DISPLAY_ORDER = ["UT_PW", "UT_IND", "AT_PW", "AT_IND"]
++
++
++def _op_sort_key(op_or_cell):
++    """Return a sort key for a (model, op) row using OP_DISPLAY_ORDER.
++
++    Accepts either a short op string (e.g. 'UT_PW') or the full cell key
++    'base__OP_FORMAT__subset' from which the op is parsed.
++    """
++    if "__" in op_or_cell:
++        op = _op_from_cell(op_or_cell)
++    else:
++        op = op_or_cell
++    try:
++        return OP_DISPLAY_ORDER.index(op)
++    except ValueError:
++        return len(OP_DISPLAY_ORDER)
++
++
++def _draw_panel_separators(fig, axes, row_models, kv_order, n_cond_per_kv):
++    """Draw figure-level horizontal bars between model groups and vertical bars
++    between kv groups. Run after tight_layout so axes positions are final.
++    """
++    import matplotlib.lines as mlines
++
++    # Vertical bars between kv groups (between col groups of n_cond_per_kv)
++    for gi in range(1, len(kv_order)):
++        ax_left = axes[0, gi * n_cond_per_kv]
++        ax_below = axes[-1, gi * n_cond_per_kv]
++        x = ax_left.get_position().x0 - 0.005
++        y0 = ax_below.get_position().y0
++        y1 = ax_left.get_position().y1
++        line = mlines.Line2D([x, x], [y0, y1], transform=fig.transFigure,
++                             color="#222", linewidth=2.0, zorder=10)
++        fig.add_artist(line)
++
++    # Horizontal bars between consecutive model groups
++    starts = []
++    cur = None
++    for i, m in enumerate(row_models):
++        if m != cur:
++            starts.append(i)
++            cur = m
++    for i in starts[1:]:  # skip the first (top of figure)
++        ax_above = axes[i - 1, 0]
++        ax_below = axes[i, 0]
++        ax_right_above = axes[i - 1, -1]
++        y = (ax_above.get_position().y0 + ax_below.get_position().y1) / 2
++        x0 = ax_above.get_position().x0
++        x1 = ax_right_above.get_position().x1
++        line = mlines.Line2D([x0, x1], [y, y], transform=fig.transFigure,
++                             color="#222", linewidth=2.0, zorder=10)
++        fig.add_artist(line)
++
+ 
+ def _plot_arrow(ax, x, y_from, y_to, color, alpha=0.85, lw=1.2):
+     """Draw a plain vertical arrow from y_from → y_to at column x."""
+@@ -1058,7 +1145,8 @@ def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path):
+         rows_spec = []
+         for model in sorted(b_df["base_model"].unique()):
+             m_df = b_df[b_df["base_model"] == model]
+-            for cell in sorted(m_df["cell"].unique()):
++            cells = sorted(m_df["cell"].unique(), key=_op_sort_key)
++            for cell in cells:
+                 cell_df = m_df[m_df["cell"] == cell]
+                 rep = cell_df.iloc[0]
+                 op = _short_op(rep.get("tags"), rep.get("format"))
+@@ -1187,6 +1275,9 @@ def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path):
+                      fontsize=12, fontweight="bold")
+ 
+         _draw_model_group_labels(fig, axes, [s["model"] for s in rows_spec])
++        _draw_panel_separators(fig, axes,
++                               [s["model"] for s in rows_spec],
++                               kv_order, len(col_suffixes))
+ 
+         subdir = output_dir / "all" / experiment / "IND"
+         subdir.mkdir(parents=True, exist_ok=True)
+@@ -1197,18 +1288,29 @@ def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path):
+         print(f"  ✓ {path} (+ .png)")
+ 
+ 
+-def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
++def fig_shot_dot_arrows_all_combined(
++    agg: pd.DataFrame,
++    output_dir: Path,
++    kv_order: tuple = ("base", "trained-std", "trained-adv"),
++    subdir_name: str = "all",
++    title_suffix: str = "IND + PW (ctrl averaged)",
++    require_kv_data: str | None = None,
++):
+     """Consolidated dot-arrow figure per experiment, including IND and PW cells.
+ 
+     Layout:
+       - rows = (model, op) pairs spanning both IND and PW formats
+-      - cols = 9 panels, grouped as [base | trained-std | trained-adv],
++      - cols = len(kv_order) × 3 panels, grouped as [kv_order[0] | ... ],
+                each group containing [ica-self, ica-alt, ica-ctrl-avg].
+       - IND rows: two series (treatment=blue, control=orange, dodged).
+       - PW rows: single metric series in the kv group color.
+       - ica-ctrl-avg averages values across ctrl/ctrl2/ctrl3.
+ 
+-    Saved to {output_dir}/all/{experiment}/all/dot_arrows.pdf(.png).
++    Saved to {output_dir}/all/{experiment}/{subdir_name}/dot_arrows.pdf(.png).
++
++    `require_kv_data`: if set, only emit the figure for experiments that have at
++    least one row with a condition starting with `{require_kv_data}_`. Used to
++    skip the multi-op variant on experiments that contain no multi-op data.
+     """
+     agg = agg.copy()
+     if agg.empty:
+@@ -1216,7 +1318,6 @@ def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
+ 
+     ctrl_suffixes = ("ica-ctrl", "ica-ctrl2", "ica-ctrl3")
+     col_suffixes = ["ica-self", "ica-alt", "ica-ctrl-avg"]
+-    kv_order = ("base", "trained-std", "trained-adv")
+ 
+     experiments_present = sorted({e for e in agg["experiment_name"].unique()
+                                   if pd.notna(e)})
+@@ -1224,11 +1325,18 @@ def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
+         b_df = agg[agg["experiment_name"] == experiment]
+         if b_df.empty:
+             continue
++        if require_kv_data is not None:
++            has_required = b_df["condition"].str.startswith(
++                f"{require_kv_data}_"
++            ).any()
++            if not has_required:
++                continue
+ 
+         rows_spec = []
+         for model in sorted(b_df["base_model"].unique()):
+             m_df = b_df[b_df["base_model"] == model]
+-            for cell in sorted(m_df["cell"].unique()):
++            cells = sorted(m_df["cell"].unique(), key=_op_sort_key)
++            for cell in cells:
+                 cell_df = m_df[m_df["cell"] == cell]
+                 rep = cell_df.iloc[0]
+                 op = _short_op(rep.get("tags"), rep.get("format"))
+@@ -1367,7 +1475,7 @@ def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
+         ]
+         fig.legend(handles=handles, loc="lower right", fontsize=8.5,
+                    frameon=True, ncol=3, bbox_to_anchor=(0.99, 0.005))
+-        fig.suptitle(f"All models · {experiment} · IND + PW (ctrl averaged)",
++        fig.suptitle(f"All models · {experiment} · {title_suffix}",
+                      fontsize=12, fontweight="bold", y=0.995)
+         fig.text(0.5, 0.008, "ICA shot count", ha="center", fontsize=11)
+         plt.tight_layout(rect=[0.09, 0.05, 1.0, 0.93])
+@@ -1383,8 +1491,11 @@ def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
+                      fontsize=12, fontweight="bold")
+ 
+         _draw_model_group_labels(fig, axes, [s["model"] for s in rows_spec])
++        _draw_panel_separators(fig, axes,
++                               [s["model"] for s in rows_spec],
++                               kv_order, len(col_suffixes))
+ 
+-        subdir = output_dir / "all" / experiment / "all"
++        subdir = output_dir / "all" / experiment / subdir_name
+         subdir.mkdir(parents=True, exist_ok=True)
+         path = subdir / "dot_arrows.pdf"
+         fig.savefig(path, bbox_inches="tight")
+@@ -1393,16 +1504,32 @@ def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
+         print(f"  ✓ {path} (+ .png)")
+ 
+ 
+-CROSS_OP_EXPERIMENTS = {
+-    "AT_IND": "SGTR_03_trained-AT-IND_eval-on_all-OPs",
+-    "UT_IND": "SGTR_04_trained-UT-IND_eval-on_all-OPs",
+-    "AT_PW":  "SGTR_05_trained-AT-PW_eval-on_all-OPs",
+-    "UT_PW":  "SGTR_06_trained-UT-PW_eval-on_all-OPs",
+-}
++# Each entry maps a cross-op experiment to its trained_op + self-same-OP partner
++# (which provides base + train==test trained-std data for comparison rows).
++# `test_ops` limits the rows shown; default is all 4 when unspecified.
++CROSS_OP_EXPERIMENTS = [
++    # (trained_op, cross_op_exp, self_op_exp, test_ops)
++    ("AT_IND", "SGTR_03_trained-AT-IND_eval-on_all-OPs",
++               "SGTR_02_trained-OP_eval-on_self-same-OP", None),
++    ("UT_IND", "SGTR_04_trained-UT-IND_eval-on_all-OPs",
++               "SGTR_02_trained-OP_eval-on_self-same-OP", None),
++    ("AT_PW",  "SGTR_05_trained-AT-PW_eval-on_all-OPs",
++               "SGTR_02_trained-OP_eval-on_self-same-OP", None),
++    ("UT_PW",  "SGTR_06_trained-UT-PW_eval-on_all-OPs",
++               "SGTR_02_trained-OP_eval-on_self-same-OP", None),
++    ("AT_IND", "SGTR_08_trained-AT-IND-ShareGPT_eval-on_all-OPs-WikiSum_ICA-ShareGPT",
++               "SGTR_07_trained-OP-ShareGPT_eval-on_self-same-OP-WikiSum_ICA-ShareGPT",
++               ["UT_IND", "AT_IND"]),  # IND-only; UT first per OP_DISPLAY_ORDER
++    ("AT_IND", "SGTR_10_trained-AT-IND-ShareGPT_eval-on_all-OPs-WikiSum_ICA-WikiSum",
++               "SGTR_09_trained-OP-ShareGPT_eval-on_self-same-OP-WikiSum_ICA-WikiSum",
++               ["UT_IND", "AT_IND"]),  # IND-only; UT first per OP_DISPLAY_ORDER
++]
+ 
+ 
+ def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
+-                                 trained_op: str, cross_op_exp_name: str):
++                                 trained_op: str, cross_op_exp_name: str,
++                                 self_op_exp_name: str,
++                                 test_ops: list | None = None):
+     """Cross-op dot-arrow figure for one trained_op.
+ 
+     Rows: (model, test_op) across all 4 ops. The row where test_op == trained_op
+@@ -1415,13 +1542,12 @@ def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
+     col_suffixes = ["ica-self", "ica-alt", "ica-ctrl-avg"]
+     # trained-adv is dropped: cross-op adversarial variants do not exist.
+     kv_order = ("base", "trained-std")
+-    test_ops = ["UT_IND", "AT_IND", "UT_PW", "AT_PW"]
++    if test_ops is None:
++        test_ops = list(OP_DISPLAY_ORDER)
+     OP_FMT = {"UT_IND": ("UT", "IND-Q"), "AT_IND": ("AT", "IND-C"),
+               "UT_PW":  ("UT", "PW-Q"),  "AT_PW":  ("AT", "PW-C")}
+ 
+-    SELF_OP_EXP = "SGTR_02_trained-OP_eval-on_self-same-OP"
+-
+-    self_op_agg = agg[agg["experiment_name"] == SELF_OP_EXP]
++    self_op_agg = agg[agg["experiment_name"] == self_op_exp_name]
+     cross_op_agg = agg[agg["experiment_name"] == cross_op_exp_name]
+     if cross_op_agg.empty:
+         return
+@@ -1589,6 +1715,9 @@ def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
+                  fontsize=12, fontweight="bold")
+ 
+     _draw_model_group_labels(fig, axes, [s["model"] for s in rows_spec])
++    _draw_panel_separators(fig, axes,
++                           [s["model"] for s in rows_spec],
++                           kv_order, len(col_suffixes))
+ 
+     subdir = output_dir / "all" / cross_op_exp_name / "all"
+     subdir.mkdir(parents=True, exist_ok=True)
+@@ -1600,9 +1729,15 @@ def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
+ 
+ 
+ def fig_shot_dot_arrows_all_cross_op(agg: pd.DataFrame, output_dir: Path):
+-    """Run the cross-op figure for every registered (trained_op → experiment)."""
+-    for trained_op, exp_name in CROSS_OP_EXPERIMENTS.items():
+-        fig_shot_dot_arrows_cross_op(agg, output_dir, trained_op, exp_name)
++    """Run the cross-op figure for every registered cross-op experiment."""
++    for entry in CROSS_OP_EXPERIMENTS:
++        trained_op, cross_exp, self_exp = entry[:3]
++        test_ops = entry[3] if len(entry) > 3 else None
++        fig_shot_dot_arrows_cross_op(agg, output_dir,
++                                     trained_op=trained_op,
++                                     cross_op_exp_name=cross_exp,
++                                     self_op_exp_name=self_exp,
++                                     test_ops=test_ops)
+ 
+ 
+ # ---------------------------------------------------------------------------
+@@ -1690,6 +1825,15 @@ def main():
+     fig_shot_dot_arrows(agg, output_dir)
+     fig_shot_dot_arrows_all_ind(agg, output_dir)
+     fig_shot_dot_arrows_all_combined(agg, output_dir)
++    # Multi-OP-only variant: same shape as the "all" figure but restricted to
++    # base + trained-multi-op columns. Skips experiments without multi-op data.
++    fig_shot_dot_arrows_all_combined(
++        agg, output_dir,
++        kv_order=("base", "trained-multi-op"),
++        subdir_name="multi-op",
++        title_suffix="multi-op only · IND + PW (ctrl averaged)",
++        require_kv_data="trained-multi-op",
++    )
+     fig_shot_dot_arrows_all_cross_op(agg, output_dir)
+ 
+     print(f"\n  Analysis complete. Outputs in {output_dir}/")
+diff --git a/scripts/msj/aggregate_analysis.py b/scripts/msj/aggregate_analysis.py
+index a63a211..90f63d4 100644
+--- a/scripts/msj/aggregate_analysis.py
++++ b/scripts/msj/aggregate_analysis.py
+@@ -529,6 +529,150 @@ def fig_dot_arrow_by_model(asr: pd.DataFrame, output_dir: Path):
+     _save_fig(fig, output_dir, "asr_dot_arrow_by_model")
+ 
+ 
++def _draw_dot_arrow_panel(ax, base_asr, trained_mean, families, shot_counts,
++                          show_xlabels=False, legend_labels=False):
++    """Draw one panel of the dot-arrow-by-model figure.
++
++    trained_mean: DataFrame with columns base_model, n_shots, asr.
++    Called with different trained_mean per op to produce a paneled figure.
++    Returns (family_centers, family_width, group_spacing, slot_width) so
++    callers can add dividers / group labels after tight_layout.
++    """
++    group_spacing = 1.5
++    slot_width = 1.0
++    family_width = len(shot_counts) * slot_width
++
++    family_centers = []
++    x_ticks_shot = []
++    x_labels_shot = []
++
++    for gi, fam in enumerate(families):
++        light, dark = MODEL_COLORS.get(fam, ("#cccccc", "#666666"))
++        group_start = gi * (family_width + group_spacing)
++        family_centers.append(group_start + family_width / 2 - slot_width / 2)
++
++        for si, shots in enumerate(shot_counts):
++            x = group_start + si * slot_width
++            x_ticks_shot.append(x)
++            x_labels_shot.append(str(shots))
++
++            base_row = base_asr[(base_asr["base_model"] == fam) & (base_asr["n_shots"] == shots)]
++            trained_row = trained_mean[(trained_mean["base_model"] == fam) & (trained_mean["n_shots"] == shots)]
++            if base_row.empty:
++                continue
++            by = base_row["asr"].values[0]
++
++            ax.plot(x, by, marker="D", color=light,
++                    markeredgecolor="black", markeredgewidth=0.8,
++                    markersize=7, zorder=3,
++                    label=("Base" if (legend_labels and gi == 0 and si == 0) else None))
++
++            if not trained_row.empty:
++                ty = trained_row["asr"].values[0]
++                ax.annotate("", xy=(x, ty), xytext=(x, by),
++                            arrowprops=dict(arrowstyle="->", color=dark,
++                                            lw=1.5, alpha=0.9))
++                ax.plot(x, ty, marker="o", color=dark,
++                        markeredgecolor="black", markeredgewidth=0.6,
++                        markersize=7, zorder=3,
++                        label=("SGTR-trained" if (legend_labels and gi == 0 and si == 0) else None))
++
++    ax.set_xticks(x_ticks_shot)
++    if show_xlabels:
++        ax.set_xticklabels(x_labels_shot, fontsize=12)
++    else:
++        ax.set_xticklabels([])
++    ax.axhline(0, color="gray", linewidth=0.5)
++    ax.grid(axis="y", alpha=0.3, linestyle="--")
++    ax.tick_params(axis="y", labelsize=11)
++    return family_centers, family_width, group_spacing, slot_width
++
++
++def fig_dot_arrow_by_model_by_op(asr: pd.DataFrame, output_dir: Path):
++    """5-row dot-arrow plot: per-OP specificity (top 4) + overall average (bottom).
++
++    Rows: UT_PW, UT_IND, AT_PW, AT_IND, Average.
++    Top 4 rows filter SGTR-trained data by (tag, fmt) and average any datasets
++    within. Bottom row averages over all SGTR operationalizations (same as the
++    existing asr_dot_arrow_by_model plot). Adversarial kinds excluded throughout.
++    """
++    shot_counts = sorted(asr["n_shots"].unique())
++    families = sorted(asr["base_model"].unique())
++
++    sgtr_all = asr[asr["kind"] == "sgtr"]
++    base_asr = asr[asr["kind"] == "base"][["base_model", "n_shots", "asr"]]
++
++    rows = [
++        ("UT_PW",   dict(tag="UT", fmt="PW")),
++        ("UT_IND",  dict(tag="UT", fmt="IND")),
++        ("AT_PW",   dict(tag="AT", fmt="PW")),
++        ("AT_IND",  dict(tag="AT", fmt="IND")),
++        ("Average", None),
++    ]
++
++    n_rows = len(rows)
++    fig_w = max(10, 1.0 * len(shot_counts) * len(families) + 3)
++    fig, axes = plt.subplots(n_rows, 1,
++                             figsize=(fig_w, 2.8 * n_rows + 1.5),
++                             sharex=True, sharey=True, squeeze=False)
++
++    # Global y-max across all panel data
++    ymax = max(base_asr["asr"].max() if not base_asr.empty else 0,
++               sgtr_all["asr"].max() if not sgtr_all.empty else 0)
++
++    panel_geom = None  # used later to place dividers + family labels
++
++    for ri, (label, filt) in enumerate(rows):
++        if filt is None:
++            sub = sgtr_all
++        else:
++            sub = sgtr_all[(sgtr_all["tag"] == filt["tag"])
++                           & (sgtr_all["fmt"] == filt["fmt"])]
++        trained_mean = (sub.groupby(["base_model", "n_shots"])["asr"]
++                           .mean().reset_index())
++        ax = axes[ri, 0]
++        is_last = (ri == n_rows - 1)
++        geom = _draw_dot_arrow_panel(ax, base_asr, trained_mean,
++                                     families, shot_counts,
++                                     show_xlabels=is_last,
++                                     legend_labels=(ri == 0))
++        if panel_geom is None:
++            panel_geom = geom
++        ax.set_ylabel(label, fontsize=16, fontweight="bold", rotation=0,
++                      ha="right", va="center", labelpad=18)
++        ax.set_ylim(-0.02, ymax + 0.08)
++
++    # Dividers + family labels — drawn on every panel (dividers) and below the
++    # bottom panel (family labels) so the overall grouping stays legible.
++    family_centers, family_width, group_spacing, _ = panel_geom
++    for ax in axes.flat:
++        for gi in range(1, len(families)):
++            divider_x = gi * (family_width + group_spacing) - group_spacing / 2
++            ax.axvline(divider_x, color="gray", linewidth=0.6,
++                       linestyle=":", alpha=0.7)
++
++    bottom_ax = axes[-1, 0]
++    bottom_ax.set_xlabel("Number of Shots (grouped by family)", fontsize=15)
++    for center, fam in zip(family_centers, families):
++        bottom_ax.text(center, -0.40, fam, ha="center", va="top",
++                       fontsize=15, fontweight="bold",
++                       transform=bottom_ax.get_xaxis_transform())
++
++    # Single legend (top-right, outside)
++    handles, labels = axes[0, 0].get_legend_handles_labels()
++    if handles:
++        fig.legend(handles, labels, loc="upper right",
++                   bbox_to_anchor=(0.995, 0.995), fontsize=13,
++                   framealpha=0.9, borderaxespad=0.0)
++
++    fig.suptitle("Base → SGTR-trained ASR shift, per operationalization "
++                 "(adversarial excluded)",
++                 fontsize=16, fontweight="bold", y=0.998)
++    fig.supylabel("ASR", fontsize=15)
++    plt.tight_layout(rect=[0.02, 0.04, 1.0, 0.975])
++    _save_fig(fig, output_dir, "asr_dot_arrow_by_model_by_op")
++
++
+ def print_summary(df: pd.DataFrame, asr: pd.DataFrame):
+     print(f"\n{'=' * 60}\nAGGREGATE MSJ SUMMARY\n{'=' * 60}")
+     print(f"Total attacks: {len(df)}")
+@@ -586,6 +730,7 @@ def main():
+     fig_delta_avg_across_models(asr, output_dir)
+     fig_delta_avg_across_families(asr, output_dir)
+     fig_dot_arrow_by_model(asr, output_dir)
++    fig_dot_arrow_by_model_by_op(asr, output_dir)
+ 
+     print(f"\n✓ Aggregate analysis complete. Results in {output_dir}/")
+ 
+diff --git a/scripts/utils/sync_HF_data.py b/scripts/utils/sync_HF_data.py
+index b1643e5..0cc0844 100644
+--- a/scripts/utils/sync_HF_data.py
++++ b/scripts/utils/sync_HF_data.py
+@@ -123,24 +123,60 @@ def push():
+     print(f"Staging and pushing to {REPO_ID}...")
+ 
+     # Ensure files matching LFS patterns are stored via LFS.
+-    # If files were previously committed without LFS, re-stage them so
+-    # git-lfs picks them up via the .gitattributes filter rules.
++    # HuggingFace rejects pushes with any non-LFS file >10MiB, so scan the
++    # entire working tree for large files and promote any that aren't
++    # currently LFS-tracked. `git lfs ls-files` shows files LFS already
++    # handles (either via .gitattributes rules or a prior explicit import).
++    LARGE_FILE_THRESHOLD = 10 * 1024 * 1024  # 10 MiB, HF's hard cap
++
+     lfs_result = subprocess.run(
+         ["git", "-C", str(LOCAL_DIR), "lfs", "ls-files", "--name-only"],
+         capture_output=True, text=True,
+     )
+     lfs_tracked = set(lfs_result.stdout.strip().splitlines()) if lfs_result.returncode == 0 else set()
+ 
+-    # Find large files (>10MB) not yet in LFS and re-stage them
+-    for json_path in LOCAL_DIR.rglob("alpaca_eval/**/*.json"):
+-        if json_path.stat().st_size > 10 * 1024 * 1024:
+-            rel = str(json_path.relative_to(LOCAL_DIR))
+-            if rel not in lfs_tracked:
+-                print(f"  Re-staging {rel} for LFS ({json_path.stat().st_size // (1024*1024)}MB)")
+-                subprocess.run(
+-                    ["git", "-C", str(LOCAL_DIR), "rm", "--cached", rel],
+-                    capture_output=True,
+-                )
++    promoted: list[Path] = []
++    for path in LOCAL_DIR.rglob("*"):
++        if not path.is_file():
++            continue
++        # Skip anything inside .git
++        if ".git" in path.parts:
++            continue
++        try:
++            size = path.stat().st_size
++        except OSError:
++            continue
++        if size <= LARGE_FILE_THRESHOLD:
++            continue
++        rel = str(path.relative_to(LOCAL_DIR))
++        if rel in lfs_tracked:
++            continue
++        print(f"  Re-staging {rel} for LFS ({size // (1024 * 1024)} MiB)")
++        # Remove from git's index so `git add` re-applies LFS filter rules
++        # on the next add. Falls through silently if not currently tracked.
++        subprocess.run(
++            ["git", "-C", str(LOCAL_DIR), "rm", "--cached", rel],
++            capture_output=True,
++        )
++        promoted.append(path)
++
++    # If any files were promoted, make sure their extensions are covered by
++    # .gitattributes. Without the filter rule, `git add` won't route them
++    # through LFS even after `rm --cached`.
++    if promoted:
++        attrs_path = LOCAL_DIR / ".gitattributes"
++        attrs = attrs_path.read_text() if attrs_path.exists() else ""
++        exts_needed = {p.suffix for p in promoted if p.suffix}
++        added_attrs = []
++        for ext in sorted(exts_needed):
++            pattern = f"*{ext}"
++            line = f"{pattern} filter=lfs diff=lfs merge=lfs -text"
++            if line not in attrs:
++                attrs += ("\n" if attrs and not attrs.endswith("\n") else "") + line + "\n"
++                added_attrs.append(line)
++        if added_attrs:
++            attrs_path.write_text(attrs)
++            print(f"  Added {len(added_attrs)} LFS filter rules to .gitattributes")
+ 
+     _run_git("add", "-A")

@@ -1,0 +1,189 @@
+{
+  "epoch": 19,
+  "step": 266,
+  "eval_trigger": "epoch",
+  "name": "mmlu_20",
+  "type": "mmlu",
+  "cot": true,
+  "accuracy": 0.7,
+  "predictions": [
+    {
+      "question": "Mast Co. converted from the FIFO method for inventory valuation to the LIFO method for financial statement and tax purposes. During a period of inflation would Mast's ending inventory and income tax p",
+      "subject": "professional_accounting",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "During an inflationary period, LIFO assigns the most recent (higher\u2011cost) purchases to cost of goods sold, leaving older, lower\u2011cost items in ending inventory.  \n- **Ending inventory**: LIFO uses older, cheaper costs \u2192 inventory value is lower than FIFO.  \n- **Income tax payable**: Higher cost of goods sold under LIFO reduces taxable income, so tax payable is lower than under FIFO.  \n\nThus, with LIFO the ending inventory is lower and the income tax payable is lower compared with FIFO.\n\nANSWER: A"
+    },
+    {
+      "question": "What are the dimensions of $\\hat{u}^t \\hat{u}?",
+      "subject": "econometrics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to determine the dimensions of the product \\(\\hat{u}^t \\hat{u}\\).  \nLet \\(\\hat{u}\\) be a column vector of size \\(k \\times 1\\).  \nThen \\(\\hat{u}^t\\) is a row vector of size \\(1 \\times k\\).  \nMultiplying a \\(1 \\times k\\) matrix by a \\(k \\times 1\\) matrix yields a single scalar, i.e. a \\(1 \\times 1\\) matrix.\n\nThus the product \\(\\hat{u}^t \\hat{u}\\) has dimensions \\(1 \\times 1\\).\n\nANSWER: D"
+    },
+    {
+      "question": "_______ theory can be described as a code of conduct to which all rational beings should adhere. This contrasts with ________ morality which is the code of conduct adopted by a particular group or soc",
+      "subject": "business_ethics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "We need to fill in the blanks: _______ theory can be described as a code of conduct to which all rational beings should adhere. This contrasts with ________ morality which is the code of conduct adopted by a particular group or society.\n\nWe need to identify the correct terms. The first blank: \"Normative\" theory can be described as a code of conduct to which all rational beings should adhere. Normative theory deals with what ought to be. The second blank: \"Descriptive\" morality is the code of con"
+    },
+    {
+      "question": "A city imposes a municipal excise tax of $200 per year on commercial artists' studios in that city. It also imposes an excise tax of $100 per year on every itinerant commercial figure drawer for the p",
+      "subject": "professional_law",
+      "prediction": null,
+      "target": "B",
+      "correct": false,
+      "completion": "<|channel|>final<|message|>We have a question about a municipal excise tax on itinerant commercial figure drawers. The city imposes a $200 per year excise tax on commercial artists' studios in that city. It also imposes an excise tax of $100 per year on every itinerant commercial figure drawer for the privilege of using the streets and sidewalks. A credit is allowed against this latter tax for any excise tax paid to the city by the drawer or his employer in respect to the maintenance of an artis"
+    },
+    {
+      "question": "Patents, control of resources, economies of scale, and exclusive licenses are",
+      "subject": "high_school_microeconomics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to determine which of the four options correctly describes patents, control of resources, economies of scale, and exclusive licenses. These items are typically considered **barriers to entry** in a market. They prevent new competitors from easily entering the industry, thereby protecting the incumbent firms\u2019 market power. The other options do not correctly capture the nature of these items.\n\n**Answer: D**"
+    },
+    {
+      "question": "Which component of a nation's balance of payments recognizes the purchase and sale of real and financial assets between nations?",
+      "subject": "high_school_macroeconomics",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "The balance of payments records all transactions between residents of a country and the rest of the world.  \nIt is divided into the **current account** (goods, services, income, current transfers) and the **capital and financial account** (transactions in financial assets and liabilities).  \n\nThe purchase and sale of real and financial assets\u2014such as stocks, bonds, real\u2011estate, and other investments\u2014are recorded in the **capital and financial account**.  \nThe official reserves account is a sub\u2011c"
+    },
+    {
+      "question": "According to The Federalist Papers, federalism has which of the following effects on political factions?",
+      "subject": "high_school_government_and_politics",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "The Federalist Papers, particularly Federalist No. 10 written by James\u202fMadison, discuss the problem of factions and how a large republic can help control them. Madison argues that in a large, diverse republic the many competing interests will make it difficult for any single faction to dominate, thereby diluting the influence of factions. This is the effect of federalism on factions. The other options do not reflect Madison\u2019s argument. Therefore the correct answer is:\n\nANSWER: B"
+    },
+    {
+      "question": "Keri spent 3 hours on her homework. She spent equal amounts of time on all subjects. If Keri spent 1 over 2 hour on science, how many subjects did she study?",
+      "subject": "elementary_mathematics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "We need to parse the problem carefully.  \n- Keri spent a total of 3 hours on her homework.  \n- She divided this time equally among all subjects.  \n- She spent \u201c1 over 2 hour\u201d on science. The phrase \u201c1 over 2 hour\u201d is a bit odd, but it is intended to mean **one\u2011half hour** (i.e., \\( \\frac{1}{2} \\) hour).  \n\nLet \\(n\\) be the number of subjects.  \nSince the time is split equally, the time spent on each subject is\n\n\\[\n\\frac{3\\text{ hours}}{n}.\n\\]\n\nWe are told that the time spent on science is \\( \\fr"
+    },
+    {
+      "question": "A teachers union, a nongovernmental entity, seeks to picket the local city school board for its decision to require higher certification for instructors who wish to teach in the gifted and talented cl",
+      "subject": "professional_law",
+      "prediction": null,
+      "target": "C",
+      "correct": false,
+      "completion": "<|channel|>final<|message|>We need to analyze the scenario: A teachers union is picketing the local city school board. The school board seeks a temporary injunction in state court to restrain further picketing. The school board claims that the teachers union has violated Section 101 of the city's picketing ordinance. Section 101 prohibits picketing inside or on any sidewalk or street immediately adjacent or contiguous to public elementary and secondary schools without express permission of the m"
+    },
+    {
+      "question": "The surface of Planet Earth loses energy to outer space due mostly to",
+      "subject": "conceptual_physics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "The Earth\u2019s surface loses energy to outer space primarily through the emission of electromagnetic radiation, specifically infrared radiation. This process is known as **radiation**. Conduction and convection are mechanisms of heat transfer that occur within the Earth\u2019s atmosphere and surface layers, not directly to space. Radioactivity contributes a negligible amount of energy compared to radiation.\n\n**Answer: C**"
+    },
+    {
+      "question": "In a criminal prosecution the government must prove that the defendant affixed a rubber-stamp containing his signature to certain fraudulent letters mailed to the victim. The defendant denied that he ",
+      "subject": "professional_law",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The question is whether the co\u2011worker\u2019s testimony about the defendant\u2019s routine use of the stamp is admissible as evidence of habit or routine practice. Under Rule 406 of the Federal Rules of Evidence, evidence of a person\u2019s habit or a routine practice of an organization is admissible to prove that the person or organization acted in accordance with that habit or routine on a particular occasion. The fact that the habit was observed over many years does not make it inadmissible; it is precisely "
+    },
+    {
+      "question": "A father died leaving a will by which he devised a 100-acre tract to his daughter. At the time of the father's death, he believed that he owned all of the 100-acre tract. However, the father actually ",
+      "subject": "professional_law",
+      "prediction": "A",
+      "target": "B",
+      "correct": false,
+      "completion": "<|channel|>final<|message|>We need to analyze the scenario. The father died, leaving a will that devised a 100-acre tract to his daughter. The father believed he owned all 100 acres, but actually owned only 95 acres. The other five acres were owned by a farmer. The daughter took possession of the tract. She executed a warranty deed to a buyer, purporting to convey all 100 acres. The buyer paid $25,000 down, and the rest $75,000 was secured by a mortgage. The mortgage instrument described the pro"
+    },
+    {
+      "question": "For which of these two scenarios does the main character (who uses I/me/my) do something clearly morally wrong, according to ordinary moral standards in the US as of 2020? Scenario 1 | I built a snowm",
+      "subject": "moral_scenarios",
+      "prediction": "B",
+      "target": "A",
+      "correct": false,
+      "completion": "We need to determine which scenario involves morally wrong action. Scenario 1: building a snowman inside a beautiful home. That seems wrong because it's likely to damage the home, create mess, etc. It's not a normal or acceptable action. So scenario 1 is wrong. Scenario 2: popped the balloon and gave it back to the child. Popping a balloon is generally not nice, but giving it back? The balloon is popped, so it's not a balloon anymore. Giving it back to the child might be a joke? But it's not mor"
+    },
+    {
+      "question": "Two students perform an experiment in which they drop a ball from rest from a known height above the ground and measure the speed of the ball just before it strikes the ground. From repeated measureme",
+      "subject": "college_physics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We have a ball of mass m (negligible uncertainty). The kinetic energy is K = \u00bd m v^2. The only uncertain quantity is v. The relative uncertainty in K is given by the propagation of uncertainty formula: \u0394K/K = 2 \u0394v/v (since K \u221d v^2). If \u0394v/v = 10% = 0.10, then \u0394K/K = 2 * 0.10 = 0.20 = 20%. So the uncertainty in kinetic energy is 20%. The correct answer is D.ANSWER: D"
+    },
+    {
+      "question": "Which of these factors increases the risk for postmenopausal breast cancer?\n",
+      "subject": "nutrition",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to identify which factor increases risk for postmenopausal breast cancer. Options: A) Red meat, B) Dietary fat, C) Fish, D) Obesity.\n\nWe know that obesity is a risk factor for postmenopausal breast cancer. Also high dietary fat may be risk factor, but evidence is mixed. Red meat is not strongly associated. Fish is protective. So answer: D) Obesity.\n\nANSWER: D"
+    },
+    {
+      "question": "Statement 1| The SVM learning algorithm is guaranteed to find the globally optimal hypothesis with respect to its object function. Statement 2| After being mapped into feature space Q through a radial",
+      "subject": "machine_learning",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "**Step 1 \u2013 Understand the statements**\n\n1. *SVM learning algorithm is guaranteed to find the globally optimal hypothesis with respect to its objective function.*  \n   - In the standard SVM formulation the objective is a convex quadratic program.  \n   - Convexity guarantees that any local optimum is a global optimum, and modern solvers (e.g., SMO, interior\u2011point methods) are designed to converge to that optimum.  \n   - Therefore the algorithm is indeed guaranteed to find the global optimum of the"
+    },
+    {
+      "question": "Which of the following is true of calcium metabolism?",
+      "subject": "clinical_knowledge",
+      "prediction": "D",
+      "target": "B",
+      "correct": false,
+      "completion": "We need to determine which statement is true about calcium metabolism.\n\nLet's analyze each option:\n\n**A) Calcitonin causes a rise in plasma calcium**  \nCalcitonin is secreted by the parafollicular cells (C cells) of the thyroid gland. Its primary function is to lower blood calcium levels by inhibiting osteoclast activity, which reduces bone resorption. Therefore, calcitonin actually causes a *decrease* in plasma calcium, not a rise. This statement is false.\n\n**B) Primary hyperparathyroidism is u"
+    },
+    {
+      "question": "The key attribute in successful marathon running is:",
+      "subject": "clinical_knowledge",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "In marathon running, the most critical factor is the ability to sustain a long-duration effort. While strength, power, and stride length can influence performance, endurance\u2014often referred to as stamina\u2014is the key attribute that allows a runner to maintain speed over the 42.195\u2011km distance. Therefore, the correct choice is:\n\nANSWER: D"
+    },
+    {
+      "question": "What is a replay attack?",
+      "subject": "computer_security",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "A replay attack is a type of network or cryptographic attack in which an attacker captures a valid data transmission (such as a message, authentication token, or cryptographic nonce) and then retransmits it to the system in order to gain unauthorized access or to cause the system to perform an action that it should not. The attacker essentially \u201creplays\u201d the captured message, hoping that the system will accept it as a new, legitimate request. This can be used to bypass authentication mechanisms,"
+    },
+    {
+      "question": "China and Vietnam's dispute over the Spratley Islands is",
+      "subject": "high_school_geography",
+      "prediction": "B",
+      "target": "C",
+      "correct": false,
+      "completion": "We need to determine the type of dispute between China and Vietnam over the Spratly Islands. The Spratly Islands are a group of islands, reefs, and atolls in the South China Sea. The dispute involves multiple countries claiming sovereignty over the islands and the surrounding waters. The question asks: \"China and Vietnam's dispute over the Spratley Islands is ________.\" The options are:\n\nA) a positional dispute.\nB) a territorial dispute.\nC) a resource dispute.\nD) a functional dispute.\n\nWe need t"
+    }
+  ],
+  "subject_accuracy": {
+    "business_ethics": 1.0,
+    "clinical_knowledge": 0.5,
+    "college_physics": 1.0,
+    "computer_security": 1.0,
+    "conceptual_physics": 1.0,
+    "econometrics": 1.0,
+    "elementary_mathematics": 1.0,
+    "high_school_geography": 0.0,
+    "high_school_government_and_politics": 1.0,
+    "high_school_macroeconomics": 1.0,
+    "high_school_microeconomics": 1.0,
+    "machine_learning": 1.0,
+    "moral_scenarios": 0.0,
+    "nutrition": 1.0,
+    "professional_accounting": 1.0,
+    "professional_law": 0.25
+  }
+}

@@ -1,0 +1,107 @@
+experiment_name: 05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small
+description: "Catastrophic-forgetting control for the multi-OP gpt-oss-20b run (config\
+  \ 02). Same data, same hyperparameters, same compute, same eval pipeline \u2014\
+  \ only the binary targets are shuffled per-ID via randomize_train_labels (seed 999).\
+  \ Tests whether the SGTR-trained model's ICA + MSJ shifts are caused by ANY binary-classification\
+  \ fine-tuning on this distribution (catastrophic forgetting) vs. by the supervised\
+  \ self-recognition signal specifically."
+algorithm: sft
+wandb_project: sgtr-rl
+data:
+  randomize_train_labels: true
+  randomize_train_labels_seed: 999
+  generator_models:
+  - qwen3-30b
+  dataset: sharegpt
+  train_files:
+  - data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+  - data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+  - data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+  - data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+  val_files:
+  - data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+  - data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+  - data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+  - data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+  train_mix_strategy: per_id_one_source
+  max_train_ids: null
+  subset_seed: null
+model:
+  name: openai/gpt-oss-20b
+  lora_rank: 32
+hyperparameters:
+  learning_rate: 5.0e-05
+  num_epochs: 20
+  batch_size: 16
+  seed: 42
+  num_rollouts_per_prompt: 4
+  max_completion_length: 1024
+  max_steps: null
+benchmark_evals:
+  mmlu_20:
+    type: mmlu
+    data_file: data/benchmarks/mmlu.jsonl
+    num_samples: 20
+    schedule: every_epoch
+    cot: true
+  mmlu_2000:
+    type: mmlu
+    data_file: data/benchmarks/mmlu.jsonl
+    num_samples: 2000
+    schedule: end_only
+    cot: true
+  xeval_op_ut_pw:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+    schedule: every_5_epochs
+    frequency: 5
+    num_samples: 20
+  xeval_op_ut_pw_full:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+    schedule: end_only
+  xeval_op_ut_ind:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+    schedule: every_5_epochs
+    frequency: 5
+    num_samples: 20
+  xeval_op_ut_ind_full:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+    schedule: end_only
+  xeval_op_at_pw:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+    schedule: every_5_epochs
+    frequency: 5
+    num_samples: 20
+  xeval_op_at_pw_full:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+    schedule: end_only
+  xeval_op_at_ind:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+    schedule: every_5_epochs
+    frequency: 5
+    num_samples: 20
+  xeval_op_at_ind_full:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+    schedule: end_only
+  xeval_dataset_wikisum_full:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_wikisum_tinker_balanced_500/val.jsonl
+    schedule: end_only
+  xeval_dataset_bigcodebench_full:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_bigcodebench_tinker_balanced_500/val.jsonl
+    schedule: end_only
+  xeval_dataset_pku_full:
+    type: sgtr
+    data_file: data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_pku_saferlhf_tinker_balanced_500/val.jsonl
+    schedule: end_only
+evaluation:
+  eval_trigger: epoch
+  eval_frequency: 1

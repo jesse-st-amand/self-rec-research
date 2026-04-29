@@ -1,0 +1,189 @@
+{
+  "epoch": 6,
+  "step": 84,
+  "eval_trigger": "epoch",
+  "name": "mmlu_20",
+  "type": "mmlu",
+  "cot": true,
+  "accuracy": 0.75,
+  "predictions": [
+    {
+      "question": "Mast Co. converted from the FIFO method for inventory valuation to the LIFO method for financial statement and tax purposes. During a period of inflation would Mast's ending inventory and income tax p",
+      "subject": "professional_accounting",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "During inflation, LIFO assigns the most recent (higher) costs to cost of goods sold, leaving older, lower costs in ending inventory.  \n- Ending inventory under LIFO is therefore **lower** than under FIFO.  \n- Lower cost of goods sold means lower taxable income, so the income tax payable is also **lower** under LIFO.\n\nANSWER: A"
+    },
+    {
+      "question": "What are the dimensions of $\\hat{u}^t \\hat{u}?",
+      "subject": "econometrics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to determine the dimensions of the product \\(\\hat{u}^t \\hat{u}\\).  \nLet \\(\\hat{u}\\) be a column vector of size \\(T \\times 1\\).  \nThen \\(\\hat{u}^t\\) is a row vector of size \\(1 \\times T\\).  \nMultiplying a \\(1 \\times T\\) matrix by a \\(T \\times 1\\) matrix yields a \\(1 \\times 1\\) scalar.\n\nThus the dimensions of \\(\\hat{u}^t \\hat{u}\\) are \\(1 \\times 1\\).\n\nANSWER: D"
+    },
+    {
+      "question": "_______ theory can be described as a code of conduct to which all rational beings should adhere. This contrasts with ________ morality which is the code of conduct adopted by a particular group or soc",
+      "subject": "business_ethics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "We need to fill blanks: _______ theory can be described as a code of conduct to which all rational beings should adhere. This contrasts with ________ morality which is the code of conduct adopted by a particular group or society.\n\nWe need to identify the terms: normative theory vs descriptive morality? Let's parse.\n\nThe first blank: \"______ theory can be described as a code of conduct to which all rational beings should adhere.\" That sounds like normative theory: normative theory deals with how "
+    },
+    {
+      "question": "A city imposes a municipal excise tax of $200 per year on commercial artists' studios in that city. It also imposes an excise tax of $100 per year on every itinerant commercial figure drawer for the p",
+      "subject": "professional_law",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "The tax is a local privilege tax that is imposed on itinerant artists for the use of the streets and sidewalks.  The tax is not a general ad\u2011valorem tax on the artists\u2019 business, nor is it a license tax on interstate commerce.  It is a local privilege tax that is imposed on a specific activity that takes place within the municipality.  The tax is therefore a valid local privilege tax and is constitutional.  \n\nANSWER: B"
+    },
+    {
+      "question": "Patents, control of resources, economies of scale, and exclusive licenses are",
+      "subject": "high_school_microeconomics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The question lists four items: patents, control of resources, economies of scale, and exclusive licenses.  \nWe need to determine which of the answer choices correctly describes these items.\n\n**Option A: \u201call requirements for price discrimination\u201d**  \nPrice discrimination requires that a firm can charge different prices to different groups. The classic requirements are (1) market power, (2) ability to segment the market, and (3) inability to arbitrage between segments. Patents, resource control, "
+    },
+    {
+      "question": "Which component of a nation's balance of payments recognizes the purchase and sale of real and financial assets between nations?",
+      "subject": "high_school_macroeconomics",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "The balance of payments is divided into the current account, the capital account, and the financial account (often grouped with the capital account).  \n- The **current account** records trade in goods and services, income, and unilateral transfers.  \n- The **capital account** (sometimes called the capital and financial account) records the purchase and sale of real and financial assets such as real estate, stocks, bonds, and other investments between countries.  \n- The **official reserves accoun"
+    },
+    {
+      "question": "According to The Federalist Papers, federalism has which of the following effects on political factions?",
+      "subject": "high_school_government_and_politics",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "The Federalist Papers, particularly Federalist No. 10, discuss how a large republic can mitigate the dangers of factions. Hamilton and Madison argue that in a large, diverse republic, the multitude of interests and factions will be spread out and diluted, making it harder for any single faction to dominate. This dilution of power limits the potential harm that factions can cause. Therefore, the correct answer is that federalism limits the dangers of factionalism by diluting political power.\n\nANS"
+    },
+    {
+      "question": "Keri spent 3 hours on her homework. She spent equal amounts of time on all subjects. If Keri spent 1 over 2 hour on science, how many subjects did she study?",
+      "subject": "elementary_mathematics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "We need to parse the problem carefully.\n\n- Keri spent a total of 3 hours on her homework.\n- She spent equal amounts of time on all subjects.\n- She spent 1 over 2 hour on science. The phrase \u201c1 over 2 hour\u201d is ambiguous. It could mean \u201cone\u2011half hour\u201d (i.e., 0.5 hour) or it could mean \u201cone hour and a half\u201d (i.e., 1.5 hours). We must decide which interpretation is intended.\n\n**Interpretation 1: 0.5 hour on science**\n\nIf science takes 0.5 hour, then each subject takes 0.5 hour.  \nTotal time = number"
+    },
+    {
+      "question": "A teachers union, a nongovernmental entity, seeks to picket the local city school board for its decision to require higher certification for instructors who wish to teach in the gifted and talented cl",
+      "subject": "professional_law",
+      "prediction": "A",
+      "target": "C",
+      "correct": false,
+      "completion": "We need to analyze the scenario: A teachers union is picketing the local city school board. The school board seeks a temporary injunction in state court to restrain further picketing. The school board claims the union violated Section 101 of the city's picketing ordinance. The ordinance says: \"No picketing shall be permitted inside of, or on any sidewalk or street immediately adjacent or contiguous to public elementary and secondary schools without express permission of the mayor. Applications f"
+    },
+    {
+      "question": "The surface of Planet Earth loses energy to outer space due mostly to",
+      "subject": "conceptual_physics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "The Earth loses energy to space primarily through the emission of electromagnetic radiation (infrared radiation). This process is known as radiation. Conduction and convection are mechanisms of heat transfer within the Earth\u2019s atmosphere and surface, not the primary means of energy loss to space. Radioactivity is a source of internal heat, not a mechanism for energy loss to space.\n\nANSWER: C"
+    },
+    {
+      "question": "In a criminal prosecution the government must prove that the defendant affixed a rubber-stamp containing his signature to certain fraudulent letters mailed to the victim. The defendant denied that he ",
+      "subject": "professional_law",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The question is about the admissibility of evidence of habit or routine practice under the Federal Rules of Evidence (FRE). The scenario: The government must prove that the defendant affixed a rubber-stamp containing his signature to certain fraudulent letters mailed to the victim. The defendant denied that he stamped the letters. No witnesses to the defendant stamping the letters. The prosecution attempted to present a co-worker to testify that defendant maintained sole control of the stamp and"
+    },
+    {
+      "question": "A father died leaving a will by which he devised a 100-acre tract to his daughter. At the time of the father's death, he believed that he owned all of the 100-acre tract. However, the father actually ",
+      "subject": "professional_law",
+      "prediction": null,
+      "target": "B",
+      "correct": false,
+      "completion": "<|channel|>final<|message|>We need to analyze the scenario. The father died, leaving a will that devised 100 acres to his daughter. He believed he owned all 100 acres, but actually owned only 95 acres; the other 5 acres were owned by a farmer. The daughter took possession of the tract. She executed a warranty deed to a buyer, purporting to convey all 100 acres. The buyer paid $25,000 down, and the remaining $75,000 was secured by a mortgage. The mortgage instrument described the property interes"
+    },
+    {
+      "question": "For which of these two scenarios does the main character (who uses I/me/my) do something clearly morally wrong, according to ordinary moral standards in the US as of 2020? Scenario 1 | I built a snowm",
+      "subject": "moral_scenarios",
+      "prediction": "B",
+      "target": "A",
+      "correct": false,
+      "completion": "The first scenario involves building a snowman inside a beautiful home. This could be considered a nuisance or damage to the property, especially if it is not a normal activity. The second scenario involves popping a balloon and giving it back to the child. This is not morally wrong. So the correct answer is: Wrong, Not wrong.  \n\nANSWER: B"
+    },
+    {
+      "question": "Two students perform an experiment in which they drop a ball from rest from a known height above the ground and measure the speed of the ball just before it strikes the ground. From repeated measureme",
+      "subject": "college_physics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The kinetic energy of the ball is  \n\n\\[\nK=\\frac12 m v^{2}.\n\\]\n\nThe mass \\(m\\) is known precisely, so the only source of uncertainty is the velocity \\(v\\).\n\nFor a function that depends on a variable raised to a power, the relative (percentage) uncertainty scales with that power.  \nIf \\(v\\) has a relative uncertainty \\(\\delta v/v = 10\\%\\), then\n\n\\[\nK \\propto v^{2}\\;\\;\\Rightarrow\\;\\; \\frac{\\delta K}{K}=2\\,\\frac{\\delta v}{v}\n=2\\times 10\\% = 20\\%.\n\\]\n\nThus the kinetic\u2011energy uncertainty is 20\u202f%.  \n\n*"
+    },
+    {
+      "question": "Which of these factors increases the risk for postmenopausal breast cancer?\n",
+      "subject": "nutrition",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to identify which factor increases risk for postmenopausal breast cancer. Options: Red meat, Dietary fat, Fish, Obesity. Known risk factors: Obesity increases risk of postmenopausal breast cancer. Red meat and dietary fat are not strongly established; fish is protective. So answer D.\n\nANSWER: D"
+    },
+    {
+      "question": "Statement 1| The SVM learning algorithm is guaranteed to find the globally optimal hypothesis with respect to its object function. Statement 2| After being mapped into feature space Q through a radial",
+      "subject": "machine_learning",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "We need to evaluate each statement.\n\n**Statement\u202f1**  \nThe SVM learning algorithm solves a convex quadratic optimisation problem.  \nBecause the objective function is convex and the constraints are linear, the optimisation has a unique global optimum.  \nTherefore the algorithm is guaranteed to find the globally optimal hypothesis (given the data, kernel, and regularisation parameters).  \nSo Statement\u202f1 is **True**.\n\n**Statement\u202f2**  \nA Perceptron is a linear classifier.  \nIf we map the data into "
+    },
+    {
+      "question": "Which of the following is true of calcium metabolism?",
+      "subject": "clinical_knowledge",
+      "prediction": "D",
+      "target": "B",
+      "correct": false,
+      "completion": "We need to evaluate each statement.\n\nA) Calcitonin causes a rise in plasma calcium. Calcitonin is secreted by parafollicular C cells of thyroid, lowers plasma calcium by inhibiting osteoclast activity. So statement is false.\n\nB) Primary hyperparathyroidism is usually asymptomatic. Primary hyperparathyroidism often presents with hypercalcemia symptoms, but many patients are asymptomatic. The statement is generally true.\n\nC) Vitamin D is secreted by the parathyroid glands. Vitamin D is produced in"
+    },
+    {
+      "question": "The key attribute in successful marathon running is:",
+      "subject": "clinical_knowledge",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "We need to determine which attribute is key for successful marathon running. Marathon is a long-distance race (42.195 km). Key attributes: endurance, stamina, aerobic capacity, efficient running economy, mental toughness. Among options: strength, power, stride length, stamina. Stamina is endurance. So answer D.ANSWER: D"
+    },
+    {
+      "question": "What is a replay attack?",
+      "subject": "computer_security",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "A replay attack is a type of network or security attack in which an attacker captures a valid data transmission (such as a message, authentication token, or transaction request) and then retransmits it at a later time. The goal is to trick the receiving system into accepting the retransmitted message as a new, legitimate request, thereby gaining unauthorized access or performing an action that the attacker is not authorized to do. This can lead to unauthorized transactions, repeated actions, or "
+    },
+    {
+      "question": "China and Vietnam's dispute over the Spratley Islands is",
+      "subject": "high_school_geography",
+      "prediction": "B",
+      "target": "C",
+      "correct": false,
+      "completion": "The Spratly Islands are a group of islands, reefs, and atolls in the South China Sea that are claimed by several countries, including China and Vietnam. The dispute over these islands involves competing claims to the territory itself, as well as to the resources that may be found there, such as oil, gas, and fish. The dispute is therefore a territorial dispute, as it involves competing claims to the same piece of land.\n\nANSWER: B"
+    }
+  ],
+  "subject_accuracy": {
+    "business_ethics": 1.0,
+    "clinical_knowledge": 0.5,
+    "college_physics": 1.0,
+    "computer_security": 1.0,
+    "conceptual_physics": 1.0,
+    "econometrics": 1.0,
+    "elementary_mathematics": 1.0,
+    "high_school_geography": 0.0,
+    "high_school_government_and_politics": 1.0,
+    "high_school_macroeconomics": 1.0,
+    "high_school_microeconomics": 1.0,
+    "machine_learning": 1.0,
+    "moral_scenarios": 0.0,
+    "nutrition": 1.0,
+    "professional_accounting": 1.0,
+    "professional_law": 0.5
+  }
+}

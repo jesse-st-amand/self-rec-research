@@ -1,0 +1,653 @@
+{
+  "epoch": 20,
+  "step": 280,
+  "eval_trigger": "epoch",
+  "name": "xeval_op_ut_ind_full",
+  "type": "sgtr",
+  "accuracy": 0.5375,
+  "predictions": [
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"design horizontal menu with submenu using chakra-ui\n\"\n\nResponse - \"Below is a **full\u2011blown example** that shows how to build",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"design horizontal menu with submenu using chakra-ui\n\"\n\nResponse - \"Below is a **full\u2011blown example** that shows how to build",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"design horizontal menu with submenu using chakra-ui\n\"\n\nResponse - \"Here's a **fully working horizontal menu with submenus** ",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"design horizontal menu with submenu using chakra-ui\n\"\n\nResponse - \"Here's a **fully working horizontal menu with submenus** ",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"please write example code for the arduino ide with the esp8266 d1 mini as target. the d1 mini should consume as little power",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"please write example code for the arduino ide with the esp8266 d1 mini as target. the d1 mini should consume as little power",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"please write example code for the arduino ide with the esp8266 d1 mini as target. the d1 mini should consume as little power",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"please write example code for the arduino ide with the esp8266 d1 mini as target. the d1 mini should consume as little power",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"const express = require('express'); const app = express(); const fs = require('fs'); const icy = require('icy'); const Throt",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"const express = require('express'); const app = express(); const fs = require('fs'); const icy = require('icy'); const Throt",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"const express = require('express'); const app = express(); const fs = require('fs'); const icy = require('icy'); const Throt",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"const express = require('express'); const app = express(); const fs = require('fs'); const icy = require('icy'); const Throt",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"rust tauri, how to create multi tabs in a single window in a app? Please write in English language.\n\"\n\nResponse - \"Below is ",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"rust tauri, how to create multi tabs in a single window in a app? Please write in English language.\n\"\n\nResponse - \"Below is ",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"rust tauri, how to create multi tabs in a single window in a app? Please write in English language.\n\"\n\nResponse - \"In **Rust",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"rust tauri, how to create multi tabs in a single window in a app? Please write in English language.\n\"\n\nResponse - \"In **Rust",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"format and elaborate the following event report - On Nov 12th, 2022, the in-club event was conducted by the club in which th",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"format and elaborate the following event report - On Nov 12th, 2022, the in-club event was conducted by the club in which th",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"format and elaborate the following event report - On Nov 12th, 2022, the in-club event was conducted by the club in which th",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"format and elaborate the following event report - On Nov 12th, 2022, the in-club event was conducted by the club in which th",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Convert this SQL to gorm: SELECT DISTINCT user_id FROM user_activity_logs WHERE created_at > `your_one_week_ago_timestamp`\n\"",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Convert this SQL to gorm: SELECT DISTINCT user_id FROM user_activity_logs WHERE created_at > `your_one_week_ago_timestamp`\n\"",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Convert this SQL to gorm: SELECT DISTINCT user_id FROM user_activity_logs WHERE created_at > `your_one_week_ago_timestamp`\n\"",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Convert this SQL to gorm: SELECT DISTINCT user_id FROM user_activity_logs WHERE created_at > `your_one_week_ago_timestamp`\n\"",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"genrate an NPC. an Elf prince who is scheming to get to be the heir to the elven throne. he is secretly worshiping an evil G",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"genrate an NPC. an Elf prince who is scheming to get to be the heir to the elven throne. he is secretly worshiping an evil G",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"genrate an NPC. an Elf prince who is scheming to get to be the heir to the elven throne. he is secretly worshiping an evil G",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"genrate an NPC. an Elf prince who is scheming to get to be the heir to the elven throne. he is secretly worshiping an evil G",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"how do you fix can't enable drbg fork safety warning\n\"\n\nResponse - \"### TL;DR  \nThe **DRBG fork\u2011safety warning** comes from ",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"how do you fix can't enable drbg fork safety warning\n\"\n\nResponse - \"### TL;DR  \nThe **DRBG fork\u2011safety warning** comes from ",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"how do you fix can't enable drbg fork safety warning\n\"\n\nResponse - \"The \"can't enable DRBG fork safety warning\" typically ap",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"how do you fix can't enable drbg fork safety warning\n\"\n\nResponse - \"The \"can't enable DRBG fork safety warning\" typically ap",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"what is linear algebra\n\"\n\nResponse - \"**Linear algebra** is the branch of mathematics that studies *vectors*, *vector spaces",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"what is linear algebra\n\"\n\nResponse - \"**Linear algebra** is the branch of mathematics that studies *vectors*, *vector spaces",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"what is linear algebra\n\"\n\nResponse - \"**Linear algebra** is a fundamental branch of mathematics that deals with **vector spa",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"what is linear algebra\n\"\n\nResponse - \"**Linear algebra** is a fundamental branch of mathematics that deals with **vector spa",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"\"Please describe it on your order sheet as mini connector pins.\" Is it correct grammatically?\n\"\n\nResponse - \"**Short answer:",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"\"Please describe it on your order sheet as mini connector pins.\" Is it correct grammatically?\n\"\n\nResponse - \"**Short answer:",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"\"Please describe it on your order sheet as mini connector pins.\" Is it correct grammatically?\n\"\n\nResponse - \"The sentence **",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"\"Please describe it on your order sheet as mini connector pins.\" Is it correct grammatically?\n\"\n\nResponse - \"The sentence **",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"When I try to open Notes from iCloud in Windows 10 it is an image rather than text. How can I convert the image to text?\n\"\n\n",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"When I try to open Notes from iCloud in Windows 10 it is an image rather than text. How can I convert the image to text?\n\"\n\n",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"When I try to open Notes from iCloud in Windows 10 it is an image rather than text. How can I convert the image to text?\n\"\n\n",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"When I try to open Notes from iCloud in Windows 10 it is an image rather than text. How can I convert the image to text?\n\"\n\n",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"How do I perform (using code in VSC) cluster analysis on the polling data, contained in these three files: https://drive.goo",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"How do I perform (using code in VSC) cluster analysis on the polling data, contained in these three files: https://drive.goo",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"How do I perform (using code in VSC) cluster analysis on the polling data, contained in these three files: https://drive.goo",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"How do I perform (using code in VSC) cluster analysis on the polling data, contained in these three files: https://drive.goo",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Give me a spicy jerk lamb chop recipe\n\"\n\nResponse - \"## Spicy Jerk Lamb Chops\n\n### Why lamb + jerk?  \nLamb\u2019s rich, game\u2011ish ",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Give me a spicy jerk lamb chop recipe\n\"\n\nResponse - \"## Spicy Jerk Lamb Chops\n\n### Why lamb + jerk?  \nLamb\u2019s rich, game\u2011ish ",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Give me a spicy jerk lamb chop recipe\n\"\n\nResponse - \"Absolutely! Here\u2019s a **spicy jerk lamb chop** recipe that brings the he",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Give me a spicy jerk lamb chop recipe\n\"\n\nResponse - \"Absolutely! Here\u2019s a **spicy jerk lamb chop** recipe that brings the he",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"develop a strategic plan for the globalization of a premium coffee cafe\n\"\n\nResponse - \"**Premium Coffee Caf\u00e9 \u2013 Globalization",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"develop a strategic plan for the globalization of a premium coffee cafe\n\"\n\nResponse - \"**Premium Coffee Caf\u00e9 \u2013 Globalization",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"develop a strategic plan for the globalization of a premium coffee cafe\n\"\n\nResponse - \"**Strategic Plan for the Globalizatio",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"develop a strategic plan for the globalization of a premium coffee cafe\n\"\n\nResponse - \"**Strategic Plan for the Globalizatio",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"can you please rephrase this report card comment for me? it needs to have 3 facts about the student, and reference specifica",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"can you please rephrase this report card comment for me? it needs to have 3 facts about the student, and reference specifica",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"can you please rephrase this report card comment for me? it needs to have 3 facts about the student, and reference specifica",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"can you please rephrase this report card comment for me? it needs to have 3 facts about the student, and reference specifica",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"can you host a website without a dmz\n\"\n\nResponse - \"Absolutely\u2014there\u2019s no hard\u2011wired rule that says *every* web server must ",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"can you host a website without a dmz\n\"\n\nResponse - \"Absolutely\u2014there\u2019s no hard\u2011wired rule that says *every* web server must ",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"can you host a website without a dmz\n\"\n\nResponse - \"Yes, you **can host a website without a DMZ** (Demilitarized Zone), but ",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"can you host a website without a dmz\n\"\n\nResponse - \"Yes, you **can host a website without a DMZ** (Demilitarized Zone), but ",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Write the first page of a new book \"Little Miss Maker\" from Hargreaves' \"Mr. Men and little miss\" book series.\n\"\n\nResponse -",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Write the first page of a new book \"Little Miss Maker\" from Hargreaves' \"Mr. Men and little miss\" book series.\n\"\n\nResponse -",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Write the first page of a new book \"Little Miss Maker\" from Hargreaves' \"Mr. Men and little miss\" book series.\n\"\n\nResponse -",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Write the first page of a new book \"Little Miss Maker\" from Hargreaves' \"Mr. Men and little miss\" book series.\n\"\n\nResponse -",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"2 / 2Tell me a hilarious story about three co-workers named Nick, Tim, and Eric. They work in Desktop support at a Community",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"2 / 2Tell me a hilarious story about three co-workers named Nick, Tim, and Eric. They work in Desktop support at a Community",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"2 / 2Tell me a hilarious story about three co-workers named Nick, Tim, and Eric. They work in Desktop support at a Community",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"2 / 2Tell me a hilarious story about three co-workers named Nick, Tim, and Eric. They work in Desktop support at a Community",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"right around a thgouth\n\"\n\nResponse - \"It looks like you might be trying to capture a particular way of referring to a moment",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"right around a thgouth\n\"\n\nResponse - \"It looks like you might be trying to capture a particular way of referring to a moment",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"right around a thgouth\n\"\n\nResponse - \"It seems like your message might be a bit unclear or incomplete\u2014\u201cright around a thgout",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"right around a thgouth\n\"\n\nResponse - \"It seems like your message might be a bit unclear or incomplete\u2014\u201cright around a thgout",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Can I implement a Linux driver using the IIO subsystem to implement zero-copy similar to Linux AIO?\n\"\n\nResponse - \"**Short a",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Can I implement a Linux driver using the IIO subsystem to implement zero-copy similar to Linux AIO?\n\"\n\nResponse - \"**Short a",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Can I implement a Linux driver using the IIO subsystem to implement zero-copy similar to Linux AIO?\n\"\n\nResponse - \"Yes, you ",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Can I implement a Linux driver using the IIO subsystem to implement zero-copy similar to Linux AIO?\n\"\n\nResponse - \"Yes, you ",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    }
+  ],
+  "format_accuracy": {
+    "ind": 0.5375
+  }
+}

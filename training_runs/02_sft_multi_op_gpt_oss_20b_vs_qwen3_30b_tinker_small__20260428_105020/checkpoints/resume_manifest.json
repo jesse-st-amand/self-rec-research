@@ -1,0 +1,22 @@
+{
+  "algorithm": "sft",
+  "backend": "tinker",
+  "completed_epochs": 20,
+  "experiment_name": "02_sft_multi_op_gpt_oss_20b_vs_qwen3_30b_tinker_small",
+  "global_step": 280,
+  "model_name": "openai/gpt-oss-20b",
+  "sampler_path": "tinker://e6839bf3-0e18-5c35-b13c-e40d1d8fb82c:train:0/sampler_weights/final",
+  "state_path": "tinker://e6839bf3-0e18-5c35-b13c-e40d1d8fb82c:train:0/weights/final",
+  "train_files": [
+    "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl"
+  ],
+  "val_files": [
+    "data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl",
+    "data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl"
+  ]
+}

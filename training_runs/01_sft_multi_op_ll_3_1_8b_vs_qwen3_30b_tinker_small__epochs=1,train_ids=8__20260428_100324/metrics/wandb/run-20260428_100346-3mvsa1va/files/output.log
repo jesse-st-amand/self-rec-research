@@ -1,0 +1,97 @@
+2026-04-28 10:03:51 | INFO    | tinker_cookbook.utils.ml_log |
+Configuration:
+  algorithm: 'sft'
+  experiment_name: '01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small'
+  model_name: 'meta-llama/Llama-3.1-8B-Instruct'
+  lora_rank: 32
+  learning_rate: 5e-05
+  num_epochs: 1
+  batch_size: 16
+  max_steps: None
+  seed: 42
+  num_rollouts_per_prompt: 4
+  max_completion_length: 1024
+  sampling_temperature: 1.0
+  train_file:
+'data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sha
+regpt_tinker_balanced_500_smoke/train.jsonl'
+  val_file:
+'data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sha
+regpt_tinker_balanced_500_smoke/val.jsonl'
+  train_files:
+['data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sh
+aregpt_tinker_balanced_500_smoke/train.jsonl', ' ... ,
+'data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sh
+aregpt_tinker_balanced_500_smoke/train.jsonl']
+  val_files:
+['data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sh
+aregpt_tinker_balanced_500_smoke/val.jsonl', 'da ... l',
+'data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sh
+aregpt_tinker_balanced_500_smoke/val.jsonl']
+  train_mix_strategy: 'per_id_one_source'
+  max_train_ids: 8
+  subset_seed: None
+  randomize_train_labels: False
+  randomize_train_labels_seed: None
+  eval_trigger: 'epoch'
+  eval_frequency: 1
+  eval_diagnostic_num_examples: 0
+  eval_diagnostic_example_ids: []
+  train_diagnostic_num_examples: 0
+  train_diagnostic_example_ids: []
+  use_system_prompt: False
+  run_dir:
+'training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,tra
+in_ids=8__20260428_100324'
+  resume_state_path: None
+  resume_completed_epochs: 0
+  resume_global_step: None
+  wandb_project: 'sgtr-rl'
+  benchmark_evals: [{'name': 'mmlu_20', 'type': 'mmlu', 'data_file':
+'data/benchmarks/mmlu.jsonl', 'schedule': 'every_epoch', 'frequency': 1, 'cot'
+... en3-30b_pku_saferlhf_tinker_balanced_500/val.jsonl', 'schedule': 'end_only',
+'frequency': 1, 'cot': False, 'num_samples': None}]
+  completed_epochs: 0
+  skipped_existing_run: False
+2026-04-28 10:03:51 | INFO    | tinker_cookbook.utils.ml_log | Logging to: training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100324/metrics
+2026-04-28 10:03:51 | INFO    | sgtr_rl.pipeline | Running epoch 0 baseline evaluation (untrained model)...
+2026-04-28 10:04:18 | INFO    | sgtr_rl.metrics |   val: 108/240 = 45.0% | nll=0.6170 | answers={1:78,2:162,?:0}
+2026-04-28 10:04:18 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100324/metrics/metrics.jsonl
+2026-04-28 10:04:18 | INFO    | tinker_cookbook.utils.ml_log |
+                   Step 0
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ val/accuracy                   │ 0.450000 │
+│ val/answers_1_pct              │ 0.325000 │
+│ val/answers_other_pct          │ 0.000000 │
+│ val/nll                        │ 0.617019 │
+└────────────────────────────────┴──────────┘
+2026-04-28 10:04:18 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/3mvsa1va
+2026-04-28 10:04:20 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: mmlu_20 (type=mmlu, epoch=0)
+Traceback (most recent call last):
+  File "/home/jesse-st-amand/projects/python/self-rec-research/.venv/bin/sgtr-train", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/jesse-st-amand/projects/python/self-rec-research/_external/SGTR-RL/sgtr_rl/scripts/train.py", line 231, in main
+    run_training(config, runtime)
+  File "/home/jesse-st-amand/projects/python/self-rec-research/_external/SGTR-RL/sgtr_rl/pipeline.py", line 206, in run_training
+    global_step = _run_tinker_training(config, prompts, val_prompts)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jesse-st-amand/projects/python/self-rec-research/_external/SGTR-RL/sgtr_rl/pipeline.py", line 148, in _run_tinker_training
+    run_benchmark_evals(
+  File "/home/jesse-st-amand/projects/python/self-rec-research/_external/SGTR-RL/sgtr_rl/tinker_eval.py", line 579, in run_benchmark_evals
+    run_benchmark_configs(
+  File "/home/jesse-st-amand/projects/python/self-rec-research/_external/SGTR-RL/sgtr_rl/tinker_eval.py", line 618, in run_benchmark_configs
+    data = load_benchmark_data(cfg.data_file)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jesse-st-amand/projects/python/self-rec-research/_external/SGTR-RL/sgtr_rl/benchmarks.py", line 35, in load_benchmark_data
+    return list(_load_benchmark_cached(path))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jesse-st-amand/projects/python/self-rec-research/_external/SGTR-RL/sgtr_rl/benchmarks.py", line 28, in _load_benchmark_cached
+    items = load_jsonl(path)
+            ^^^^^^^^^^^^^^^^
+  File "/home/jesse-st-amand/projects/python/self-rec-research/_external/SGTR-RL/sgtr_rl/data.py", line 12, in load_jsonl
+    with open(path, "r") as f:
+         ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/benchmarks/mmlu.jsonl'

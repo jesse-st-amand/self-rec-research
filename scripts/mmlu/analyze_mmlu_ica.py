@@ -1,6 +1,7 @@
 """Analysis pipeline for the MMLU-ICA capabilities-control experiment.
 
-Loads inspect_ai .eval logs from experiments_eval/MSJ/MMLU_ICA/ and computes:
+Loads inspect_ai .eval logs from experiments_eval/ICA/MMLU_01_trained-OP_eval-on_self-same-OP/
+(legacy path: experiments_eval/MSJ/MMLU_ICA/) and computes:
   - accuracy per (evaluator, kind, condition)
   - Δacc = acc(condition) − acc(no-ica baseline) within (model, kind)
   - author-dependence statistic: AD_self = Δacc_self − mean(Δacc_ctrl*)
@@ -32,6 +33,7 @@ _KINDS = (
     "trained-std-UT_IND", "trained-std-AT_IND",
     "trained-std-UT_PW",  "trained-std-AT_PW",
     "trained-adv-UT_IND", "trained-adv-UT_PW",
+    "trained-multi-op",
 )
 
 _KIND_COLORS = {
@@ -42,16 +44,18 @@ _KIND_COLORS = {
     "trained-std-AT_PW":     "#0891b2",
     "trained-adv-UT_IND":    "#7c3aed",
     "trained-adv-UT_PW":     "#a855f7",
+    "trained-multi-op":      "#10b981",  # teal — matches SGTR analyzer
 }
 
 # Kind-group colors (per column group in dot-arrows figure)
 _KV_GROUP_COLORS = {
-    "base":        "#374151",
-    "trained-std": "#1e40af",
-    "trained-adv": "#7c3aed",
+    "base":             "#374151",
+    "trained-std":      "#1e40af",
+    "trained-adv":      "#7c3aed",
+    "trained-multi-op": "#10b981",
 }
 
-_OPS = ("AT_IND", "AT_PW", "UT_IND", "UT_PW")
+_OPS = ("UT_PW", "UT_IND", "AT_PW", "AT_IND")  # matches SGTR analyzer's OP_DISPLAY_ORDER
 
 
 def parse_leaf(leaf: str) -> dict | None:
@@ -62,8 +66,8 @@ def parse_leaf(leaf: str) -> dict | None:
       - {model}_{kind}_{shots}shot_{ica-condition}  (ICA cell)
     """
     m = re.match(
-        r"^(?P<model>gpt-oss-20b|qwen-3\.0-30b)"
-        r"_(?P<kind>base|trained-(?:std|adv)-(?:UT|AT)_(?:IND|PW))"
+        r"^(?P<model>gpt-oss-20b|qwen-3\.0-30b|ll-3\.1-8b)"
+        r"_(?P<kind>base|trained-multi-op|trained-(?:std|adv)-(?:UT|AT)_(?:IND|PW))"
         r"(?:_(?P<shots>\d+)shot)?"
         r"_(?P<condition>no-ica|ica-self|ica-alt|ica-ctrl3|ica-ctrl2|ica-ctrl)$",
         leaf,
@@ -76,9 +80,15 @@ def parse_leaf(leaf: str) -> dict | None:
 
 
 def kind_to_group_and_op(kind: str) -> tuple[str, str | None]:
-    """Split "trained-std-UT_IND" → ("trained-std", "UT_IND"). Base → ("base", None)."""
+    """Split "trained-std-UT_IND" → ("trained-std", "UT_IND"). Base → ("base", None).
+
+    The op-agnostic kinds ("base", "trained-multi-op") return None for op,
+    indicating their accuracy is the same across all op rows in figures.
+    """
     if kind == "base":
         return "base", None
+    if kind == "trained-multi-op":
+        return "trained-multi-op", None
     # kind like "trained-std-UT_IND"
     parts = kind.split("-")
     # parts = ["trained", "std", "UT_IND"]
@@ -120,9 +130,17 @@ def load_runs(experiment_dir: Path, results_root: Path) -> pd.DataFrame:
 
             eval_dataset = cfg.get("eval_dataset", "mmlu")
             eval_subset = cfg.get("eval_subset", "mmlu_50")
-            log_dir = results_root / eval_dataset / eval_subset / leaf_dir.name
+            # Two-level layout (introduced when ICA experiments were renamed):
+            #   data/results/<dataset>/<subset>/<experiment_name>/<mini_batch>/*.eval
+            # Fall back to the legacy flat layout if the nested dir is absent.
+            experiment = cfg.get("experiment_name") or experiment_dir.name
+            log_dir = (results_root / eval_dataset / eval_subset
+                       / experiment / leaf_dir.name)
             if not log_dir.exists():
-                continue
+                legacy = results_root / eval_dataset / eval_subset / leaf_dir.name
+                if not legacy.exists():
+                    continue
+                log_dir = legacy
             logs = sorted(log_dir.glob("*.eval"))
             if not logs:
                 continue
@@ -243,6 +261,42 @@ def _plot_arrow(ax, x, y_from, y_to, color, alpha=0.85, lw=1.2):
                                     lw=lw, alpha=alpha))
 
 
+def _draw_panel_separators(fig, axes, row_models, kv_order, n_cond_per_kv):
+    """Draw figure-level horizontal bars between model groups and vertical bars
+    between kv groups (mirrors scripts/ica/analyze_ica.py:_draw_panel_separators).
+    """
+    import matplotlib.lines as mlines
+
+    # Vertical bars between kv groups
+    for gi in range(1, len(kv_order)):
+        ax_left = axes[0, gi * n_cond_per_kv]
+        ax_below = axes[-1, gi * n_cond_per_kv]
+        x = ax_left.get_position().x0 - 0.005
+        y0 = ax_below.get_position().y0
+        y1 = ax_left.get_position().y1
+        line = mlines.Line2D([x, x], [y0, y1], transform=fig.transFigure,
+                             color="#222", linewidth=2.0, zorder=10)
+        fig.add_artist(line)
+
+    # Horizontal bars between consecutive model groups
+    starts = []
+    cur = None
+    for i, m in enumerate(row_models):
+        if m != cur:
+            starts.append(i)
+            cur = m
+    for i in starts[1:]:
+        ax_above = axes[i - 1, 0]
+        ax_below = axes[i, 0]
+        ax_right_above = axes[i - 1, -1]
+        y = (ax_above.get_position().y0 + ax_below.get_position().y1) / 2
+        x0 = ax_above.get_position().x0
+        x1 = ax_right_above.get_position().x1
+        line = mlines.Line2D([x0, x1], [y, y], transform=fig.transFigure,
+                             color="#222", linewidth=2.0, zorder=10)
+        fig.add_artist(line)
+
+
 def _draw_model_group_labels(fig, axes, row_models, x_pos=0.015):
     """Rotated label spanning each model's row range (left margin)."""
     starts = []
@@ -262,31 +316,41 @@ def _draw_model_group_labels(fig, axes, row_models, x_pos=0.015):
                  fontsize=12, fontweight="bold")
 
 
-def fig_shot_dot_arrows(df: pd.DataFrame, output_dir: Path):
+def fig_shot_dot_arrows(
+    df: pd.DataFrame,
+    output_dir: Path,
+    kv_order: tuple = ("base", "trained-std", "trained-adv"),
+    output_name: str = "mmlu_ica_dot_arrows",
+    require_kind_prefix: str | None = None,
+):
     """Combined dot-arrow figure mirroring SGTR-ICA b1/b2 layout.
 
-    Layout (like data/ica/results/joint/all/b1/all/dot_arrows.png):
-      rows = (model, op) for op ∈ {AT_IND, AT_PW, UT_IND, UT_PW}  → 8 rows
-      col groups = [base | trained-std | trained-adv]              → 3 groups
+    Layout (like data/ica/results/joint/all/<exp>/all/dot_arrows.png):
+      rows = (model, op) for op ∈ {AT_IND, AT_PW, UT_IND, UT_PW}  → up to 12 rows
+      col groups = kv_order                                        → 2–3 groups
       within each group: [ica-self, ica-alt, ica-ctrl-avg]         → 3 cols
-      → 9 panels per row.
+      → len(kv_order) × 3 panels per row.
 
     Each panel: open dot = no-ICA accuracy, filled dot = ICA accuracy at the
     one shot count that was run, arrow connecting. ica-ctrl-avg averages the
     three control conditions.
 
-    For the "base" column group, the same base model's accuracy is shown in
-    every op row (the base is identical across ops — consistent with the
-    SGTR-ICA reference figure).
-    For "trained-std" and "trained-adv", each row uses the LoRA trained on
-    that row's op; cells with no matching LoRA (e.g. trained-adv AT_IND,
-    trained-adv AT_PW) are left blank.
+    For op-agnostic column groups ("base", "trained-multi-op"), the same
+    accuracy is shown in every op row (single LoRA / single base evaluator
+    across ops). For "trained-std" / "trained-adv", each row uses the LoRA
+    trained on that row's op; cells with no matching LoRA are left blank.
+
+    `require_kind_prefix`: skip the figure entirely when no kind starts with
+    this prefix (e.g. "trained-multi-op" — avoids emitting an empty multi-op
+    figure when the multi-op evals haven't run yet).
     """
     if df.empty:
         return
+    if require_kind_prefix is not None:
+        if not df["kind"].astype(str).str.startswith(require_kind_prefix).any():
+            return
     ctrl_suffixes = ("ica-ctrl", "ica-ctrl2", "ica-ctrl3")
     col_suffixes = ["ica-self", "ica-alt", "ica-ctrl-avg"]
-    kv_order = ("base", "trained-std", "trained-adv")
 
     models = sorted(df["model"].unique())
     ops = list(_OPS)
@@ -315,10 +379,10 @@ def fig_shot_dot_arrows(df: pd.DataFrame, output_dir: Path):
 
         for gi, kv_group in enumerate(kv_order):
             # Resolve which kind in this row maps to this column group.
-            # For base: always "base" (same data regardless of op).
-            # For trained-*: the kind that matches this row's op.
-            if kv_group == "base":
-                kind = "base"
+            # Op-agnostic kinds (single LoRA shared across ops): "base" and
+            # "trained-multi-op". For per-op trained kinds, append the row op.
+            if kv_group in ("base", "trained-multi-op"):
+                kind = kv_group
             else:
                 kind = f"{kv_group}-{op}"
             has_kind = kind in df["kind"].values and not m_df[m_df["kind"] == kind].empty
@@ -418,8 +482,10 @@ def fig_shot_dot_arrows(df: pd.DataFrame, output_dir: Path):
                  color=_KV_GROUP_COLORS[kv_group])
 
     _draw_model_group_labels(fig, axes, [m for m, _ in rows_spec])
+    _draw_panel_separators(fig, axes, [m for m, _ in rows_spec],
+                           kv_order, len(col_suffixes))
 
-    out = output_dir / "mmlu_ica_dot_arrows.png"
+    out = output_dir / f"{output_name}.png"
     fig.savefig(out, bbox_inches="tight", dpi=180)
     fig.savefig(out.with_suffix(".pdf"), bbox_inches="tight")
     plt.close()
@@ -462,8 +528,10 @@ def fig_author_dependence(ad: pd.DataFrame, output_dir: Path):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--experiment_dir",
-                    default="experiments_eval/MSJ/MMLU_ICA")
+    ap.add_argument(
+        "--experiment_dir",
+        default="experiments_eval/ICA/MMLU_01_trained-OP_eval-on_self-same-OP",
+    )
     ap.add_argument("--results_root", default="data/results")
     ap.add_argument("--output_dir", required=True)
     args = ap.parse_args()
@@ -502,6 +570,13 @@ def main():
     fig_delta_bars(deltas, output_dir)
     fig_author_dependence(ad, output_dir)
     fig_shot_dot_arrows(df, output_dir)
+    # Multi-OP-only variant: base + trained-multi-op (skipped if no multi-op runs).
+    fig_shot_dot_arrows(
+        df, output_dir,
+        kv_order=("base", "trained-multi-op"),
+        output_name="mmlu_ica_dot_arrows_multi-op",
+        require_kind_prefix="trained-multi-op",
+    )
     print(f"\n✓ Outputs in {output_dir}")
 
 

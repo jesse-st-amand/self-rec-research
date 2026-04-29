@@ -1,0 +1,23 @@
+temperature: 0.0
+max_final_answer_tokens: 2048
+tags: AT
+format: PW-C
+task: Rec
+priming: false
+generator_output: FA
+evaluator_reasoning: DR
+gpu_dispatch: tinker
+generator_models:
+- ll-3.1-8b
+- qwen-3.0-30b
+model_names:
+- ll-3.1-8b
+eval_dataset: sharegpt
+eval_subset: english2_74
+experiment_name: SGTR_02_trained-OP_eval-on_self-same-OP
+mini_batch_name: ll-3.1-8b_AT_PW_10shot_base_ica-ctrl3
+icl_seed: 42
+icl_count: 10
+icl_model: sonnet-4.5
+icl_data_subset: english_26
+icl_shuffle_per_sample: true

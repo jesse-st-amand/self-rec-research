@@ -1,0 +1,47 @@
+{
+  "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "python": "CPython 3.12.3",
+  "startedAt": "2026-04-28T09:38:34.505809Z",
+  "args": [
+    "--config",
+    "experiments_training/Jesse/04_sft_multi_op_randlabels_ll_3_1_8b_vs_qwen3_30b_tinker_small/config.yaml",
+    "--runtime",
+    "experiments_training/Jesse/_runtime/local_tinker.yaml",
+    "--exists",
+    "new"
+  ],
+  "program": "/home/jesse-st-amand/projects/python/self-rec-research/.venv/bin/sgtr-train",
+  "codePath": ".venv/bin/sgtr-train",
+  "codePathLocal": ".venv/bin/sgtr-train",
+  "git": {
+    "remote": "https://github.com/jesse-st-amand/self-rec-research.git",
+    "commit": "7e440684bd5fae983a7c13561ab907e4b828ad39"
+  },
+  "email": "jessest.amand@gmail.com",
+  "root": "training_runs/04_sft_multi_op_randlabels_ll_3_1_8b_vs_qwen3_30b_tinker_small__20260428_113817/metrics",
+  "host": "LAPTOP-93O4P063",
+  "executable": "/home/jesse-st-amand/projects/python/self-rec-research/.venv/bin/python3",
+  "cpu_count": 4,
+  "cpu_count_logical": 8,
+  "gpu": "NVIDIA GeForce RTX 3070 Laptop GPU",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "1081101176832",
+      "used": "150866718720"
+    }
+  },
+  "memory": {
+    "total": "11486330880"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce RTX 3070 Laptop GPU",
+      "memoryTotal": "8589934592",
+      "architecture": "Ampere",
+      "uuid": "GPU-0deb3665-422a-5a3f-a7d9-7c2c950fba11"
+    }
+  ],
+  "cudaVersion": "13.1",
+  "writerId": "kihapro9ls15qo3sp30qwbhae3xi0m8a"
+}

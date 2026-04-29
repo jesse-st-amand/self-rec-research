@@ -1,0 +1,189 @@
+{
+  "epoch": 16,
+  "step": 224,
+  "eval_trigger": "epoch",
+  "name": "mmlu_20",
+  "type": "mmlu",
+  "cot": true,
+  "accuracy": 0.55,
+  "predictions": [
+    {
+      "question": "Mast Co. converted from the FIFO method for inventory valuation to the LIFO method for financial statement and tax purposes. During a period of inflation would Mast's ending inventory and income tax p",
+      "subject": "professional_accounting",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "Under LIFO, the most recent purchases are expensed first. During a period of inflation, the most recent purchases are the most expensive. Therefore, the cost of goods sold is higher under LIFO than under FIFO. This means that the ending inventory is lower under LIFO than under FIFO. Since income tax is based on taxable income, which is income minus cost of goods sold, the income tax payable is lower under LIFO than under FIFO.\n\nANSWER: A"
+    },
+    {
+      "question": "What are the dimensions of $\\hat{u}^t \\hat{u}?",
+      "subject": "econometrics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "$\\hat{u}$ is a column vector of size $k \\times 1$. The transpose of $\\hat{u}$ is a row vector of size $1 \\times k$. When we multiply $\\hat{u}^t$ and $\\hat{u}$, we get a $1 \\times 1$ matrix.\n\nANSWER: D"
+    },
+    {
+      "question": "_______ theory can be described as a code of conduct to which all rational beings should adhere. This contrasts with ________ morality which is the code of conduct adopted by a particular group or soc",
+      "subject": "business_ethics",
+      "prediction": "A",
+      "target": "C",
+      "correct": false,
+      "completion": "To answer this question, we need to understand the definitions of the terms \"descriptive\" and \"normative\" in the context of ethics and morality.\n\nDescriptive ethics refers to the study of what people actually believe and do in terms of morality. It is a description of how people behave and what they think is right and wrong.\n\nNormative ethics, on the other hand, is concerned with what people ought to believe and do in terms of morality. It is a code of conduct that prescribes what is right and w"
+    },
+    {
+      "question": "A city imposes a municipal excise tax of $200 per year on commercial artists' studios in that city. It also imposes an excise tax of $100 per year on every itinerant commercial figure drawer for the p",
+      "subject": "professional_law",
+      "prediction": "D",
+      "target": "B",
+      "correct": false,
+      "completion": "The tax is a privilege tax, and the U.S. Supreme Court has held that a state may not impose a privilege tax on an interstate business that is discriminatory against interstate commerce. The tax is discriminatory because it is not imposed on local artists who do not draw on the streets and sidewalks. The tax is on the privilege of doing business in the city, and the fact that the tax is $100 per year does not make it any less a privilege tax. A is incorrect because the tax is not an ad valorem ta"
+    },
+    {
+      "question": "Patents, control of resources, economies of scale, and exclusive licenses are",
+      "subject": "high_school_microeconomics",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "Patents, control of resources, economies of scale, and exclusive licenses are all barriers to entry. Barriers to entry are obstacles that prevent new firms from entering a market. Patents give a firm a monopoly over a product, control of resources gives a firm a monopoly over a resource, economies of scale give a firm a lower cost structure than its competitors, and exclusive licenses give a firm a monopoly over a product.\n\nANSWER: D"
+    },
+    {
+      "question": "Which component of a nation's balance of payments recognizes the purchase and sale of real and financial assets between nations?",
+      "subject": "high_school_macroeconomics",
+      "prediction": "A",
+      "target": "A",
+      "correct": true,
+      "completion": "To answer this question, let's break down the components of a nation's balance of payments.\n\nThe balance of payments is a statistical statement that summarizes transactions between residents and nonresidents of a country over a specific period of time. It is divided into three main accounts: the current account, the capital account, and the financial account.\n\n- The current account records transactions in goods, services, income, and current transfers.\n- The capital account records transactions "
+    },
+    {
+      "question": "According to The Federalist Papers, federalism has which of the following effects on political factions?",
+      "subject": "high_school_government_and_politics",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "In Federalist Paper 10, James Madison argues that the dangers of factionalism can be mitigated by a large republic. He suggests that the larger the republic, the more difficult it is for any one faction to dominate the others. This is because the diversity of interests in a large republic makes it more difficult for any one faction to gain a majority. Therefore, the influence of any one faction is diluted by the presence of other factions. This is the idea behind choice B.\n\nANSWER: B"
+    },
+    {
+      "question": "Keri spent 3 hours on her homework. She spent equal amounts of time on all subjects. If Keri spent 1 over 2 hour on science, how many subjects did she study?",
+      "subject": "elementary_mathematics",
+      "prediction": "B",
+      "target": "C",
+      "correct": false,
+      "completion": "Let's break down the information given in the question.\n\nKeri spent 3 hours on her homework, and she spent equal amounts of time on all subjects. This means that the total time spent on all subjects is 3 hours.\n\nWe are also given that she spent 1 over 2 hour (or 1.5 hours) on science.\n\nSince she spent equal amounts of time on all subjects, we can set up an equation to represent the situation:\n\nLet x be the number of subjects.\n\nThe total time spent on all subjects is 3 hours, and the time spent o"
+    },
+    {
+      "question": "A teachers union, a nongovernmental entity, seeks to picket the local city school board for its decision to require higher certification for instructors who wish to teach in the gifted and talented cl",
+      "subject": "professional_law",
+      "prediction": "B",
+      "target": "C",
+      "correct": false,
+      "completion": "The ordinance is constitutional. The Supreme Court has held that a city may prohibit picketing in front of a school, and that the city may require picketers to obtain a permit before picketing. (See, e.g., Murdock v. Pennsylvania, 319 U.S. 105 (1943)). The ordinance in this case does not violate the First Amendment because it is content-neutral, and it does not place an undue burden on the picketers. The picketers must apply for a permit at least three days before picketing is to begin, and the "
+    },
+    {
+      "question": "The surface of Planet Earth loses energy to outer space due mostly to",
+      "subject": "conceptual_physics",
+      "prediction": "C",
+      "target": "C",
+      "correct": true,
+      "completion": "The Earth's surface loses energy to outer space through the process of radiation. This is because the Earth's surface emits infrared radiation, which is a form of electromagnetic radiation, into the atmosphere. This radiation is then released into space, carrying away energy from the Earth.\n\nANSWER: C"
+    },
+    {
+      "question": "In a criminal prosecution the government must prove that the defendant affixed a rubber-stamp containing his signature to certain fraudulent letters mailed to the victim. The defendant denied that he ",
+      "subject": "professional_law",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "The Federal Rules of Evidence provide that habit and routine practice are admissible to prove that the conduct of the defendant in a particular situation was in conformity with the habit or routine practice. The co-worker's testimony that the defendant used the stamp in a habitual manner over a period of many years is admissible to prove that the defendant used the stamp on the dates in question. A is incorrect because the Federal Rules of Evidence do not exclude evidence of habit in criminal ca"
+    },
+    {
+      "question": "A father died leaving a will by which he devised a 100-acre tract to his daughter. At the time of the father's death, he believed that he owned all of the 100-acre tract. However, the father actually ",
+      "subject": "professional_law",
+      "prediction": "B",
+      "target": "B",
+      "correct": true,
+      "completion": "The buyer will win because the doctrine of after-acquired title controls. The doctrine of after-acquired title provides that a grantee who receives a deed to property that is partially encumbered by a defect in the grantor's title will receive good title to the property as soon as the grantor acquires good title. In this case, the daughter received a deed to the 100-acre tract from her father, who believed that he owned all of the 100-acre tract. However, the father actually only owned 95 acres "
+    },
+    {
+      "question": "For which of these two scenarios does the main character (who uses I/me/my) do something clearly morally wrong, according to ordinary moral standards in the US as of 2020? Scenario 1 | I built a snowm",
+      "subject": "moral_scenarios",
+      "prediction": "C",
+      "target": "A",
+      "correct": false,
+      "completion": "To determine which scenario is morally wrong, let's analyze each one:\n\nScenario 1: Building a snowman inside a home without permission could be seen as damaging property or being a nuisance, but it's not necessarily a clear moral wrong. However, if the home is not the person's own, it could be considered trespassing or vandalism if the owner did not give permission.\n\nScenario 2: Popping a balloon and giving it back to the child is a clear act of causing unnecessary distress or discomfort to the "
+    },
+    {
+      "question": "Two students perform an experiment in which they drop a ball from rest from a known height above the ground and measure the speed of the ball just before it strikes the ground. From repeated measureme",
+      "subject": "college_physics",
+      "prediction": null,
+      "target": "D",
+      "correct": false,
+      "completion": "The kinetic energy of the ball is given by the equation $K=\\frac{1}{2} m v^{2}$. The uncertainty in the kinetic energy is given by the equation $\\Delta K=\\frac{1}{2} m \\Delta v^{2}$. The uncertainty in the speed of the ball is given as 10 percent, so $\\Delta v=0.1 v$. Substituting this into the equation for the uncertainty in the kinetic energy gives $\\Delta K=\\frac{1}{2} m(0.1 v)^{2}=0.005 m v^{2}=0.005 K$. Therefore, the uncertainty in the kinetic energy is 0.5 percent, which is not among the "
+    },
+    {
+      "question": "Which of these factors increases the risk for postmenopausal breast cancer?\n",
+      "subject": "nutrition",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "To answer this question, we need to consider the factors that are known to increase the risk for postmenopausal breast cancer.\n\nA) Red meat: While a diet high in red meat has been linked to an increased risk of certain cancers, such as colorectal cancer, its link to postmenopausal breast cancer is not as clear-cut.\n\nB) Dietary fat: High intake of dietary fat, particularly saturated and trans fats, has been associated with an increased risk of postmenopausal breast cancer.\n\nC) Fish: Fish is gener"
+    },
+    {
+      "question": "Statement 1| The SVM learning algorithm is guaranteed to find the globally optimal hypothesis with respect to its object function. Statement 2| After being mapped into feature space Q through a radial",
+      "subject": "machine_learning",
+      "prediction": "B",
+      "target": "A",
+      "correct": false,
+      "completion": "Statement 1 is true. SVM is guaranteed to find the globally optimal hypothesis with respect to its object function. Statement 2 is false. A Perceptron is a linear classifier and cannot achieve better classification performance than a non-linear classifier like SVM, even after being mapped into feature space Q through a radial basis kernel function.\n\nANSWER: B"
+    },
+    {
+      "question": "Which of the following is true of calcium metabolism?",
+      "subject": "clinical_knowledge",
+      "prediction": "D",
+      "target": "B",
+      "correct": false,
+      "completion": "To answer this question, let's consider each option step by step:\n\nA) Calcitonin causes a rise in plasma calcium - Calcitonin is a hormone secreted by the thyroid gland that lowers blood calcium levels by inhibiting osteoclast activity and increasing calcium excretion by the kidneys. Therefore, this statement is false.\n\nB) Primary hyperparathyroidism is usually asymptomatic - Primary hyperparathyroidism is a condition where one or more of the parathyroid glands become overactive and secrete exce"
+    },
+    {
+      "question": "The key attribute in successful marathon running is:",
+      "subject": "clinical_knowledge",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "To determine the key attribute in successful marathon running, let's consider the characteristics of a marathon and the physical demands it places on the body.\n\nA marathon is a long-distance running event that requires participants to run for an extended period, typically 42.195 kilometers. The event demands sustained physical effort over a prolonged period, which is different from shorter distance running events that may require bursts of speed or power.\n\nStrength (A) is important for running, "
+    },
+    {
+      "question": "What is a replay attack?",
+      "subject": "computer_security",
+      "prediction": "D",
+      "target": "D",
+      "correct": true,
+      "completion": "A replay attack is a type of attack where an attacker intercepts a message and then retransmits it to the recipient, often to gain unauthorized access or to disrupt the communication. This can be done by the attacker resending a captured message, and the site accepting it and responding in the attacker's favor.\n\nANSWER: D"
+    },
+    {
+      "question": "China and Vietnam's dispute over the Spratley Islands is",
+      "subject": "high_school_geography",
+      "prediction": "B",
+      "target": "C",
+      "correct": false,
+      "completion": "A positional dispute is a dispute over the location of a boundary. A territorial dispute is a dispute over the control of a particular piece of land. A resource dispute is a dispute over the control of a particular resource. A functional dispute is a dispute over the use of a particular piece of land. The Spratley Islands are a group of islands in the South China Sea. The dispute between China and Vietnam is over the control of the islands, not the location of a boundary, the use of the islands,"
+    }
+  ],
+  "subject_accuracy": {
+    "business_ethics": 0.0,
+    "clinical_knowledge": 0.5,
+    "college_physics": 0.0,
+    "computer_security": 1.0,
+    "conceptual_physics": 1.0,
+    "econometrics": 1.0,
+    "elementary_mathematics": 0.0,
+    "high_school_geography": 0.0,
+    "high_school_government_and_politics": 1.0,
+    "high_school_macroeconomics": 1.0,
+    "high_school_microeconomics": 1.0,
+    "machine_learning": 0.0,
+    "moral_scenarios": 0.0,
+    "nutrition": 1.0,
+    "professional_accounting": 1.0,
+    "professional_law": 0.5
+  }
+}

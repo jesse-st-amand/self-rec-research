@@ -1,0 +1,24 @@
+temperature: 0.0
+max_final_answer_tokens: 2048
+tags: UT
+format: IND-Q
+task: Rec
+priming: false
+generator_output: FA
+evaluator_reasoning: DR
+gpu_dispatch: tinker
+generator_models:
+- qwen-3.0-30b
+- gpt-oss-120b
+model_names:
+- qwen-3-30b_sft-as_qwen-3-30b_vs_gpt-oss-120b_UT_IND_ShareGPT
+eval_dataset: wikisum
+eval_subset: training_set_1-20
+experiment_name: SGTR_09_trained-OP-ShareGPT_eval-on_self-same-OP-WikiSum_ICA-WikiSum
+mini_batch_name: qwen-3.0-30b_UT_IND_5shot_trained-std_ica-ctrl
+icl_seed: 42
+icl_count: 5
+icl_model: deepseek-3.1
+icl_dataset: wikisum
+icl_data_subset: test_set_1-30
+icl_shuffle_per_sample: true

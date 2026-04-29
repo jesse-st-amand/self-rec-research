@@ -51,7 +51,7 @@ from matplotlib.colors import TwoSlopeNorm
 
 _CONDS = ("no-ica", "ica-self", "ica-alt", "ica-ctrl", "ica-ctrl2", "ica-ctrl3")
 # Each kind-variant prefix × conditions, stable display order
-_KV_PREFIXES = ("trained-std", "trained-adv", "base")
+_KV_PREFIXES = ("trained-std", "trained-adv", "trained-multi-op", "trained-randlabels", "base")
 CONDITION_ORDER = tuple(f"{kv}_{c}" for kv in _KV_PREFIXES for c in _CONDS)
 # Back-compat: also recognize old-style short names ('trained_no-ica', 'base_ica-alt')
 CONDITION_PREFIXES = CONDITION_ORDER + tuple(f"{k}_{c}" for k in ("trained", "base") for c in _CONDS)
@@ -135,7 +135,7 @@ def parse_condition(subdir_name: str) -> str | None:
     """
     # New-style parse
     new_match = re.search(
-        r"_(trained-std|trained-adv|base)_(no-ica|ica-self|ica-alt|ica-ctrl3|ica-ctrl2|ica-ctrl)$",
+        r"_(trained-std|trained-adv|trained-multi-op|trained-randlabels|base)_(no-ica|ica-self|ica-alt|ica-ctrl3|ica-ctrl2|ica-ctrl)$",
         subdir_name,
     )
     if new_match:
@@ -163,10 +163,10 @@ def parse_leaf(subdir_name: str) -> dict | None:
       condition: no-ica | ica-self | ica-alt | ica-ctrl | ica-ctrl2 | ica-ctrl3
     """
     m = re.match(
-        r"^(?P<model>gpt-oss-20b|qwen-3\.0-30b)"
+        r"^(?P<model>gpt-oss-20b|qwen-3\.0-30b|ll-3\.1-8b)"
         r"_(?P<op>AT_PW|AT_IND|UT_PW|UT_IND)"
         r"(?:_(?P<shots>\d+)shot)?"
-        r"_(?P<kind>trained-std|trained-adv|base)"
+        r"_(?P<kind>trained-std|trained-adv|trained-multi-op|trained-randlabels|base)"
         r"_(?P<condition>no-ica|ica-self|ica-alt|ica-ctrl3|ica-ctrl2|ica-ctrl)$",
         subdir_name,
     )
@@ -178,6 +178,10 @@ def parse_leaf(subdir_name: str) -> dict | None:
         variant = "std"
     elif kind == "trained-adv":
         variant = "adv"
+    elif kind == "trained-multi-op":
+        variant = "multi-op"
+    elif kind == "trained-randlabels":
+        variant = "randlabels"
     return {
         "model": m.group("model"),
         "op": m.group("op"),
@@ -239,6 +243,7 @@ def guess_dataset_from_config_with_fallback(cfg: dict):
 _BASE_MODEL_NORMALIZE = {
     "qwen-3-30b": "qwen-3.0-30b",       # training names use dash; base uses dot
     "gpt-oss-120b": "gpt-oss-120b-thinking",  # training names drop the -thinking suffix
+    "llama-3-1-8b": "ll-3.1-8b",        # training names use hyphens, registry uses dots
 }
 
 
@@ -277,6 +282,40 @@ def parse_evaluator(model_name: str) -> dict:
             "flavor": flavor,
             "op": f"{m.group('tag')}_{m.group('fmt')}",
             "dataset": m.group("ds"),
+        }
+    # Multi-OP: trained jointly on UT+AT × PW+IND (compound op label "UT-AT_PW-IND")
+    m_multi = re.match(
+        r"^(?P<base>[a-z0-9\-\.]+?)_sft-as_(?P<as_>[a-z0-9\-\.]+?)"
+        r"_vs_(?P<alt>[a-z0-9\-\.]+?)"
+        r"_(?P<op>UT-AT_PW-IND)_(?P<ds>\w+)$",
+        model_name,
+    )
+    if m_multi:
+        base = m_multi.group("base")
+        as_ = m_multi.group("as_")
+        flavor = "multi-op" if base == as_ else f"multi-op-adv-as-{as_}"
+        return {
+            "kind": "trained",
+            "base_model": _normalize_base_model(base),
+            "flavor": flavor,
+            "op": m_multi.group("op"),
+            "dataset": m_multi.group("ds"),
+        }
+    # Random-labels control: same multi-OP data but binary targets shuffled.
+    # Naming: "<base>_RANDLABELS_<seed>_vs_<alt>_<op>_<dataset>"
+    m_rand = re.match(
+        r"^(?P<base>[a-z0-9\-\.]+?)_RANDLABELS_(?P<seed>\d+)"
+        r"_vs_(?P<alt>[a-z0-9\-\.]+?)"
+        r"_(?P<op>[A-Z\-_]+?)_(?P<ds>\w+)$",
+        model_name,
+    )
+    if m_rand:
+        return {
+            "kind": "trained-randlabels",
+            "base_model": _normalize_base_model(m_rand.group("base")),
+            "flavor": f"randlabels-seed{m_rand.group('seed')}",
+            "op": m_rand.group("op"),
+            "dataset": m_rand.group("ds"),
         }
     return {"kind": "base", "base_model": _normalize_base_model(model_name),
             "flavor": None, "op": None, "dataset": None}
@@ -366,10 +405,20 @@ def load_ica_results(experiment_dirs: list[Path], results_root: Path) -> pd.Data
 
             # Infer variant from leaf dir name if new-style; else from evaluator_flavor
             leaf_info = parse_leaf(sub.name)
-            variant = leaf_info["variant"] if leaf_info else (
-                "std" if ev_info["flavor"] == "std"
-                else ("adv" if ev_info["flavor"] and ev_info["flavor"].startswith("adv-") else None)
-            )
+            if leaf_info:
+                variant = leaf_info["variant"]
+            else:
+                fl = ev_info["flavor"]
+                if fl == "std":
+                    variant = "std"
+                elif fl == "multi-op":
+                    variant = "multi-op"
+                elif fl and fl.startswith("adv-"):
+                    variant = "adv"
+                elif fl and fl.startswith("multi-op-adv-"):
+                    variant = "multi-op-adv"
+                else:
+                    variant = None
 
             for log_path in log_files:
                 try:
@@ -799,13 +848,70 @@ def fig_trained_vs_base_alt(deltas: pd.DataFrame, agg: pd.DataFrame, output_dir:
 
 
 _KV_COLORS = {
-    "trained-std": "#1e40af",
-    "trained-adv": "#7c3aed",
-    "base":        "#374151",
+    "trained-std":         "#1e40af",
+    "trained-adv":         "#7c3aed",
+    "trained-multi-op":    "#10b981",  # teal — distinct from std blue and adv purple
+    "trained-randlabels":  "#9333ea",  # magenta — random-labels catastrophic-forgetting control
+    "base":                "#374151",
 }
 
 _IND_TREATMENT_COLOR = "#1e40af"  # blue: treatment (vs-alt)
 _IND_CONTROL_COLOR   = "#ea580c"  # orange: control (vs-self)
+
+# Display order for OPs along the y-axis of consolidated dot-arrow figures.
+OP_DISPLAY_ORDER = ["UT_PW", "UT_IND", "AT_PW", "AT_IND"]
+
+
+def _op_sort_key(op_or_cell):
+    """Return a sort key for a (model, op) row using OP_DISPLAY_ORDER.
+
+    Accepts either a short op string (e.g. 'UT_PW') or the full cell key
+    'base__OP_FORMAT__subset' from which the op is parsed.
+    """
+    if "__" in op_or_cell:
+        op = _op_from_cell(op_or_cell)
+    else:
+        op = op_or_cell
+    try:
+        return OP_DISPLAY_ORDER.index(op)
+    except ValueError:
+        return len(OP_DISPLAY_ORDER)
+
+
+def _draw_panel_separators(fig, axes, row_models, kv_order, n_cond_per_kv):
+    """Draw figure-level horizontal bars between model groups and vertical bars
+    between kv groups. Run after tight_layout so axes positions are final.
+    """
+    import matplotlib.lines as mlines
+
+    # Vertical bars between kv groups (between col groups of n_cond_per_kv)
+    for gi in range(1, len(kv_order)):
+        ax_left = axes[0, gi * n_cond_per_kv]
+        ax_below = axes[-1, gi * n_cond_per_kv]
+        x = ax_left.get_position().x0 - 0.005
+        y0 = ax_below.get_position().y0
+        y1 = ax_left.get_position().y1
+        line = mlines.Line2D([x, x], [y0, y1], transform=fig.transFigure,
+                             color="#222", linewidth=2.0, zorder=10)
+        fig.add_artist(line)
+
+    # Horizontal bars between consecutive model groups
+    starts = []
+    cur = None
+    for i, m in enumerate(row_models):
+        if m != cur:
+            starts.append(i)
+            cur = m
+    for i in starts[1:]:  # skip the first (top of figure)
+        ax_above = axes[i - 1, 0]
+        ax_below = axes[i, 0]
+        ax_right_above = axes[i - 1, -1]
+        y = (ax_above.get_position().y0 + ax_below.get_position().y1) / 2
+        x0 = ax_above.get_position().x0
+        x1 = ax_right_above.get_position().x1
+        line = mlines.Line2D([x0, x1], [y, y], transform=fig.transFigure,
+                             color="#222", linewidth=2.0, zorder=10)
+        fig.add_artist(line)
 
 
 def _plot_arrow(ax, x, y_from, y_to, color, alpha=0.85, lw=1.2):
@@ -1058,7 +1164,8 @@ def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path):
         rows_spec = []
         for model in sorted(b_df["base_model"].unique()):
             m_df = b_df[b_df["base_model"] == model]
-            for cell in sorted(m_df["cell"].unique()):
+            cells = sorted(m_df["cell"].unique(), key=_op_sort_key)
+            for cell in cells:
                 cell_df = m_df[m_df["cell"] == cell]
                 rep = cell_df.iloc[0]
                 op = _short_op(rep.get("tags"), rep.get("format"))
@@ -1187,6 +1294,9 @@ def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path):
                      fontsize=12, fontweight="bold")
 
         _draw_model_group_labels(fig, axes, [s["model"] for s in rows_spec])
+        _draw_panel_separators(fig, axes,
+                               [s["model"] for s in rows_spec],
+                               kv_order, len(col_suffixes))
 
         subdir = output_dir / "all" / experiment / "IND"
         subdir.mkdir(parents=True, exist_ok=True)
@@ -1197,18 +1307,29 @@ def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path):
         print(f"  ✓ {path} (+ .png)")
 
 
-def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
+def fig_shot_dot_arrows_all_combined(
+    agg: pd.DataFrame,
+    output_dir: Path,
+    kv_order: tuple = ("base", "trained-std", "trained-adv"),
+    subdir_name: str = "all",
+    title_suffix: str = "IND + PW (ctrl averaged)",
+    require_kv_data: str | None = None,
+):
     """Consolidated dot-arrow figure per experiment, including IND and PW cells.
 
     Layout:
       - rows = (model, op) pairs spanning both IND and PW formats
-      - cols = 9 panels, grouped as [base | trained-std | trained-adv],
+      - cols = len(kv_order) × 3 panels, grouped as [kv_order[0] | ... ],
                each group containing [ica-self, ica-alt, ica-ctrl-avg].
       - IND rows: two series (treatment=blue, control=orange, dodged).
       - PW rows: single metric series in the kv group color.
       - ica-ctrl-avg averages values across ctrl/ctrl2/ctrl3.
 
-    Saved to {output_dir}/all/{experiment}/all/dot_arrows.pdf(.png).
+    Saved to {output_dir}/all/{experiment}/{subdir_name}/dot_arrows.pdf(.png).
+
+    `require_kv_data`: if set, only emit the figure for experiments that have at
+    least one row with a condition starting with `{require_kv_data}_`. Used to
+    skip the multi-op variant on experiments that contain no multi-op data.
     """
     agg = agg.copy()
     if agg.empty:
@@ -1216,7 +1337,6 @@ def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
 
     ctrl_suffixes = ("ica-ctrl", "ica-ctrl2", "ica-ctrl3")
     col_suffixes = ["ica-self", "ica-alt", "ica-ctrl-avg"]
-    kv_order = ("base", "trained-std", "trained-adv")
 
     experiments_present = sorted({e for e in agg["experiment_name"].unique()
                                   if pd.notna(e)})
@@ -1224,11 +1344,18 @@ def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
         b_df = agg[agg["experiment_name"] == experiment]
         if b_df.empty:
             continue
+        if require_kv_data is not None:
+            has_required = b_df["condition"].str.startswith(
+                f"{require_kv_data}_"
+            ).any()
+            if not has_required:
+                continue
 
         rows_spec = []
         for model in sorted(b_df["base_model"].unique()):
             m_df = b_df[b_df["base_model"] == model]
-            for cell in sorted(m_df["cell"].unique()):
+            cells = sorted(m_df["cell"].unique(), key=_op_sort_key)
+            for cell in cells:
                 cell_df = m_df[m_df["cell"] == cell]
                 rep = cell_df.iloc[0]
                 op = _short_op(rep.get("tags"), rep.get("format"))
@@ -1367,7 +1494,7 @@ def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
         ]
         fig.legend(handles=handles, loc="lower right", fontsize=8.5,
                    frameon=True, ncol=3, bbox_to_anchor=(0.99, 0.005))
-        fig.suptitle(f"All models · {experiment} · IND + PW (ctrl averaged)",
+        fig.suptitle(f"All models · {experiment} · {title_suffix}",
                      fontsize=12, fontweight="bold", y=0.995)
         fig.text(0.5, 0.008, "ICA shot count", ha="center", fontsize=11)
         plt.tight_layout(rect=[0.09, 0.05, 1.0, 0.93])
@@ -1383,8 +1510,11 @@ def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
                      fontsize=12, fontweight="bold")
 
         _draw_model_group_labels(fig, axes, [s["model"] for s in rows_spec])
+        _draw_panel_separators(fig, axes,
+                               [s["model"] for s in rows_spec],
+                               kv_order, len(col_suffixes))
 
-        subdir = output_dir / "all" / experiment / "all"
+        subdir = output_dir / "all" / experiment / subdir_name
         subdir.mkdir(parents=True, exist_ok=True)
         path = subdir / "dot_arrows.pdf"
         fig.savefig(path, bbox_inches="tight")
@@ -1393,16 +1523,32 @@ def fig_shot_dot_arrows_all_combined(agg: pd.DataFrame, output_dir: Path):
         print(f"  ✓ {path} (+ .png)")
 
 
-CROSS_OP_EXPERIMENTS = {
-    "AT_IND": "SGTR_03_trained-AT-IND_eval-on_all-OPs",
-    "UT_IND": "SGTR_04_trained-UT-IND_eval-on_all-OPs",
-    "AT_PW":  "SGTR_05_trained-AT-PW_eval-on_all-OPs",
-    "UT_PW":  "SGTR_06_trained-UT-PW_eval-on_all-OPs",
-}
+# Each entry maps a cross-op experiment to its trained_op + self-same-OP partner
+# (which provides base + train==test trained-std data for comparison rows).
+# `test_ops` limits the rows shown; default is all 4 when unspecified.
+CROSS_OP_EXPERIMENTS = [
+    # (trained_op, cross_op_exp, self_op_exp, test_ops)
+    ("AT_IND", "SGTR_03_trained-AT-IND_eval-on_all-OPs",
+               "SGTR_02_trained-OP_eval-on_self-same-OP", None),
+    ("UT_IND", "SGTR_04_trained-UT-IND_eval-on_all-OPs",
+               "SGTR_02_trained-OP_eval-on_self-same-OP", None),
+    ("AT_PW",  "SGTR_05_trained-AT-PW_eval-on_all-OPs",
+               "SGTR_02_trained-OP_eval-on_self-same-OP", None),
+    ("UT_PW",  "SGTR_06_trained-UT-PW_eval-on_all-OPs",
+               "SGTR_02_trained-OP_eval-on_self-same-OP", None),
+    ("AT_IND", "SGTR_08_trained-AT-IND-ShareGPT_eval-on_all-OPs-WikiSum_ICA-ShareGPT",
+               "SGTR_07_trained-OP-ShareGPT_eval-on_self-same-OP-WikiSum_ICA-ShareGPT",
+               ["UT_IND", "AT_IND"]),  # IND-only; UT first per OP_DISPLAY_ORDER
+    ("AT_IND", "SGTR_10_trained-AT-IND-ShareGPT_eval-on_all-OPs-WikiSum_ICA-WikiSum",
+               "SGTR_09_trained-OP-ShareGPT_eval-on_self-same-OP-WikiSum_ICA-WikiSum",
+               ["UT_IND", "AT_IND"]),  # IND-only; UT first per OP_DISPLAY_ORDER
+]
 
 
 def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
-                                 trained_op: str, cross_op_exp_name: str):
+                                 trained_op: str, cross_op_exp_name: str,
+                                 self_op_exp_name: str,
+                                 test_ops: list | None = None):
     """Cross-op dot-arrow figure for one trained_op.
 
     Rows: (model, test_op) across all 4 ops. The row where test_op == trained_op
@@ -1415,13 +1561,12 @@ def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
     col_suffixes = ["ica-self", "ica-alt", "ica-ctrl-avg"]
     # trained-adv is dropped: cross-op adversarial variants do not exist.
     kv_order = ("base", "trained-std")
-    test_ops = ["UT_IND", "AT_IND", "UT_PW", "AT_PW"]
+    if test_ops is None:
+        test_ops = list(OP_DISPLAY_ORDER)
     OP_FMT = {"UT_IND": ("UT", "IND-Q"), "AT_IND": ("AT", "IND-C"),
               "UT_PW":  ("UT", "PW-Q"),  "AT_PW":  ("AT", "PW-C")}
 
-    SELF_OP_EXP = "SGTR_02_trained-OP_eval-on_self-same-OP"
-
-    self_op_agg = agg[agg["experiment_name"] == SELF_OP_EXP]
+    self_op_agg = agg[agg["experiment_name"] == self_op_exp_name]
     cross_op_agg = agg[agg["experiment_name"] == cross_op_exp_name]
     if cross_op_agg.empty:
         return
@@ -1589,6 +1734,9 @@ def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
                  fontsize=12, fontweight="bold")
 
     _draw_model_group_labels(fig, axes, [s["model"] for s in rows_spec])
+    _draw_panel_separators(fig, axes,
+                           [s["model"] for s in rows_spec],
+                           kv_order, len(col_suffixes))
 
     subdir = output_dir / "all" / cross_op_exp_name / "all"
     subdir.mkdir(parents=True, exist_ok=True)
@@ -1600,9 +1748,15 @@ def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
 
 
 def fig_shot_dot_arrows_all_cross_op(agg: pd.DataFrame, output_dir: Path):
-    """Run the cross-op figure for every registered (trained_op → experiment)."""
-    for trained_op, exp_name in CROSS_OP_EXPERIMENTS.items():
-        fig_shot_dot_arrows_cross_op(agg, output_dir, trained_op, exp_name)
+    """Run the cross-op figure for every registered cross-op experiment."""
+    for entry in CROSS_OP_EXPERIMENTS:
+        trained_op, cross_exp, self_exp = entry[:3]
+        test_ops = entry[3] if len(entry) > 3 else None
+        fig_shot_dot_arrows_cross_op(agg, output_dir,
+                                     trained_op=trained_op,
+                                     cross_op_exp_name=cross_exp,
+                                     self_op_exp_name=self_exp,
+                                     test_ops=test_ops)
 
 
 # ---------------------------------------------------------------------------
@@ -1690,6 +1844,15 @@ def main():
     fig_shot_dot_arrows(agg, output_dir)
     fig_shot_dot_arrows_all_ind(agg, output_dir)
     fig_shot_dot_arrows_all_combined(agg, output_dir)
+    # Multi-OP-only variant: same shape as the "all" figure but restricted to
+    # base + trained-multi-op columns. Skips experiments without multi-op data.
+    fig_shot_dot_arrows_all_combined(
+        agg, output_dir,
+        kv_order=("base", "trained-multi-op"),
+        subdir_name="multi-op",
+        title_suffix="multi-op only · IND + PW (ctrl averaged)",
+        require_kv_data="trained-multi-op",
+    )
     fig_shot_dot_arrows_all_cross_op(agg, output_dir)
 
     print(f"\n  Analysis complete. Outputs in {output_dir}/")

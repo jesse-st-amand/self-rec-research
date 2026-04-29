@@ -1,0 +1,18 @@
+temperature: 0.0
+max_final_answer_tokens: 2048
+tags: UT
+format: IND-Q
+task: Rec
+priming: false
+generator_output: FA
+evaluator_reasoning: DR
+gpu_dispatch: tinker
+generator_models:
+- qwen-3.0-30b
+- gpt-oss-120b
+model_names:
+- qwen-3-30b_sft-as_qwen-3-30b_vs_gpt-oss-120b_AT_IND_ShareGPT
+eval_dataset: wikisum
+eval_subset: training_set_1-20
+experiment_name: SGTR_08_trained-AT-IND-ShareGPT_eval-on_all-OPs-WikiSum_ICA-ShareGPT
+mini_batch_name: qwen-3.0-30b_UT_IND_trained-std_no-ica

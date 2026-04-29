@@ -1,0 +1,288 @@
+2026-04-28 10:06:17 | INFO    | tinker_cookbook.utils.ml_log |
+Configuration:
+  algorithm: 'sft'
+  experiment_name: '01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small'
+  model_name: 'meta-llama/Llama-3.1-8B-Instruct'
+  lora_rank: 32
+  learning_rate: 5e-05
+  num_epochs: 1
+  batch_size: 16
+  max_steps: None
+  seed: 42
+  num_rollouts_per_prompt: 4
+  max_completion_length: 1024
+  sampling_temperature: 1.0
+  train_file:
+'data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sha
+regpt_tinker_balanced_500_smoke/train.jsonl'
+  val_file:
+'data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sha
+regpt_tinker_balanced_500_smoke/val.jsonl'
+  train_files:
+['data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sh
+aregpt_tinker_balanced_500_smoke/train.jsonl', ' ... ,
+'data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sh
+aregpt_tinker_balanced_500_smoke/train.jsonl']
+  val_files:
+['data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sh
+aregpt_tinker_balanced_500_smoke/val.jsonl', 'da ... l',
+'data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sh
+aregpt_tinker_balanced_500_smoke/val.jsonl']
+  train_mix_strategy: 'per_id_one_source'
+  max_train_ids: 8
+  subset_seed: None
+  randomize_train_labels: False
+  randomize_train_labels_seed: None
+  eval_trigger: 'epoch'
+  eval_frequency: 1
+  eval_diagnostic_num_examples: 0
+  eval_diagnostic_example_ids: []
+  train_diagnostic_num_examples: 0
+  train_diagnostic_example_ids: []
+  use_system_prompt: False
+  run_dir:
+'training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,tra
+in_ids=8__20260428_100605'
+  resume_state_path: None
+  resume_completed_epochs: 0
+  resume_global_step: None
+  wandb_project: 'sgtr-rl'
+  benchmark_evals: [{'name': 'mmlu_20', 'type': 'mmlu', 'data_file':
+'data/benchmarks/mmlu.jsonl', 'schedule': 'every_epoch', 'frequency': 1, 'cot'
+... en3-30b_pku_saferlhf_tinker_balanced_500/val.jsonl', 'schedule': 'end_only',
+'frequency': 1, 'cot': False, 'num_samples': None}]
+  completed_epochs: 0
+  skipped_existing_run: False
+2026-04-28 10:06:17 | INFO    | tinker_cookbook.utils.ml_log | Logging to: training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100605/metrics
+2026-04-28 10:06:17 | INFO    | sgtr_rl.pipeline | Running epoch 0 baseline evaluation (untrained model)...
+2026-04-28 10:06:40 | INFO    | sgtr_rl.metrics |   val: 109/240 = 45.4% | nll=0.6170 | answers={1:77,2:163,?:0}
+2026-04-28 10:06:40 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100605/metrics/metrics.jsonl
+2026-04-28 10:06:40 | INFO    | tinker_cookbook.utils.ml_log |
+                   Step 0
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ val/accuracy                   │ 0.454167 │
+│ val/answers_1_pct              │ 0.320833 │
+│ val/answers_other_pct          │ 0.000000 │
+│ val/nll                        │ 0.617019 │
+└────────────────────────────────┴──────────┘
+2026-04-28 10:06:40 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/paqbriiv
+2026-04-28 10:06:41 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: mmlu_20 (type=mmlu, epoch=0)
+2026-04-28 10:06:41 | INFO    | sgtr_rl.benchmarks | Loaded 14042 benchmark items from data/benchmarks/mmlu.jsonl
+2026-04-28 10:07:01 | INFO    | sgtr_rl.tinker_eval |   benchmark/mmlu_20: 13/20 = 65.0% | answers={A:4,B:5,C:3,D:7,?:1}
+2026-04-28 10:07:01 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: mmlu_2000 (type=mmlu, epoch=0)
+2026-04-28 10:07:44 | INFO    | sgtr_rl.tinker_eval |   benchmark/mmlu_2000: 1391/2000 = 69.5% | answers={A:431,B:501,C:536,D:515,?:17}
+2026-04-28 10:07:45 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_pw (type=sgtr, epoch=0)
+2026-04-28 10:07:45 | INFO    | sgtr_rl.benchmarks | Loaded 40 benchmark items from data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 10:07:47 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_pw: 8/20 = 40.0% | answers={1:20,2:0,?:0}
+2026-04-28 10:07:47 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_pw_full (type=sgtr, epoch=0)
+2026-04-28 10:07:53 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_pw_full: 17/40 = 42.5% | answers={1:37,2:3,?:0}
+2026-04-28 10:07:53 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_ind (type=sgtr, epoch=0)
+2026-04-28 10:07:53 | INFO    | sgtr_rl.benchmarks | Loaded 80 benchmark items from data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 10:08:00 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_ind: 9/20 = 45.0% | answers={1:0,2:20,?:0}
+2026-04-28 10:08:00 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_ind_full (type=sgtr, epoch=0)
+2026-04-28 10:08:08 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_ind_full: 40/80 = 50.0% | answers={1:0,2:80,?:0}
+2026-04-28 10:08:08 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_pw (type=sgtr, epoch=0)
+2026-04-28 10:08:08 | INFO    | sgtr_rl.benchmarks | Loaded 40 benchmark items from data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 10:08:10 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_pw: 7/20 = 35.0% | answers={1:17,2:3,?:0}
+2026-04-28 10:08:10 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_pw_full (type=sgtr, epoch=0)
+2026-04-28 10:08:14 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_pw_full: 19/40 = 47.5% | answers={1:31,2:9,?:0}
+2026-04-28 10:08:14 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_ind (type=sgtr, epoch=0)
+2026-04-28 10:08:14 | INFO    | sgtr_rl.benchmarks | Loaded 80 benchmark items from data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 10:08:22 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_ind: 5/20 = 25.0% | answers={1:4,2:16,?:0}
+2026-04-28 10:08:22 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_ind_full (type=sgtr, epoch=0)
+2026-04-28 10:08:31 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_ind_full: 34/80 = 42.5% | answers={1:8,2:72,?:0}
+2026-04-28 10:08:31 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_wikisum_full (type=sgtr, epoch=0)
+2026-04-28 10:08:31 | INFO    | sgtr_rl.benchmarks | Loaded 200 benchmark items from data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_wikisum_tinker_balanced_500/val.jsonl
+2026-04-28 10:08:39 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_wikisum_full: 68/200 = 34.0% | answers={1:166,2:34,?:0}
+2026-04-28 10:08:39 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_bigcodebench_full (type=sgtr, epoch=0)
+2026-04-28 10:08:39 | INFO    | sgtr_rl.benchmarks | Loaded 200 benchmark items from data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_bigcodebench_tinker_balanced_500/val.jsonl
+2026-04-28 10:08:44 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_bigcodebench_full: 100/200 = 50.0% | answers={1:200,2:0,?:0}
+2026-04-28 10:08:44 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_pku_full (type=sgtr, epoch=0)
+2026-04-28 10:08:44 | INFO    | sgtr_rl.benchmarks | Loaded 200 benchmark items from data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_pku_saferlhf_tinker_balanced_500/val.jsonl
+2026-04-28 10:08:53 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_pku_full: 20/200 = 10.0% | answers={1:116,2:84,?:0}
+2026-04-28 10:08:53 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100605/metrics/metrics.jsonl
+2026-04-28 10:08:53 | INFO    | tinker_cookbook.utils.ml_log |
+                   Step 0
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ benchmark/mmlu_20/accuracy     │ 0.650000 │
+│ benchmark/mmlu_20/answers_A_p… │ 0.200000 │
+│ benchmark/mmlu_20/answers_B_p… │ 0.250000 │
+│ benchmark/mmlu_20/answers_C_p… │ 0.150000 │
+│ benchmark/mmlu_20/answers_D_p… │ 0.350000 │
+│ benchmark/mmlu_20/other_pct    │ 0.050000 │
+│ benchmark/mmlu_2000/accuracy   │ 0.695500 │
+│ benchmark/mmlu_2000/answers_A… │ 0.215500 │
+│ benchmark/mmlu_2000/answers_B… │ 0.250500 │
+│ benchmark/mmlu_2000/answers_C… │ 0.268000 │
+│ benchmark/mmlu_2000/answers_D… │ 0.257500 │
+│ benchmark/mmlu_2000/other_pct  │ 0.008500 │
+│ benchmark/xeval_dataset_bigco… │ 0.500000 │
+│ benchmark/xeval_dataset_bigco… │ 1.000000 │
+│ benchmark/xeval_dataset_bigco… │ 0.000000 │
+│ benchmark/xeval_dataset_bigco… │ 0.000000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.100000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.580000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.420000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.000000 │
+│ benchmark/xeval_dataset_wikis… │ 0.340000 │
+│ benchmark/xeval_dataset_wikis… │ 0.830000 │
+│ benchmark/xeval_dataset_wikis… │ 0.170000 │
+│ benchmark/xeval_dataset_wikis… │ 0.000000 │
+│ benchmark/xeval_op_at_ind/acc… │ 0.250000 │
+│ benchmark/xeval_op_at_ind/ans… │ 0.200000 │
+│ benchmark/xeval_op_at_ind/ans… │ 0.800000 │
+│ benchmark/xeval_op_at_ind/oth… │ 0.000000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.425000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.100000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.900000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.000000 │
+│ benchmark/xeval_op_at_pw/accu… │ 0.350000 │
+│ benchmark/xeval_op_at_pw/answ… │ 0.850000 │
+│ benchmark/xeval_op_at_pw/answ… │ 0.150000 │
+│ benchmark/xeval_op_at_pw/othe… │ 0.000000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.475000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.775000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.225000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind/acc… │ 0.450000 │
+│ benchmark/xeval_op_ut_ind/ans… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind/ans… │ 1.000000 │
+│ benchmark/xeval_op_ut_ind/oth… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.500000 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind_ful… │ 1.000000 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.000000 │
+│ benchmark/xeval_op_ut_pw/accu… │ 0.400000 │
+│ benchmark/xeval_op_ut_pw/answ… │ 1.000000 │
+│ benchmark/xeval_op_ut_pw/answ… │ 0.000000 │
+│ benchmark/xeval_op_ut_pw/othe… │ 0.000000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.425000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.925000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.075000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.000000 │
+└────────────────────────────────┴──────────┘
+2026-04-28 10:08:53 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/paqbriiv
+2026-04-28 10:08:53 | INFO    | sgtr_rl.sft | Training: 1 total epochs, 1 batches/epoch, batch_size=16, total_steps=1, resume_completed_epochs=0
+2026-04-28 10:08:57 | INFO    | sgtr_rl.sft | [epoch 1/1] batch 1/1 | nll=0.8264 | acc=43.8% | 3.8s
+2026-04-28 10:08:57 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100605/metrics/metrics.jsonl
+2026-04-28 10:08:57 | INFO    | tinker_cookbook.utils.ml_log |
+                   Step 1
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ train/accuracy                 │ 0.437500 │
+│ train/batch_time_s             │ 3.798091 │
+│ train/nll                      │ 0.826433 │
+└────────────────────────────────┴──────────┘
+2026-04-28 10:08:57 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/paqbriiv
+2026-04-28 10:08:57 | INFO    | sgtr_rl.sft | Epoch 1 complete
+2026-04-28 10:09:20 | INFO    | sgtr_rl.metrics |   val: 104/240 = 43.3% | nll=0.5577 | answers={1:76,2:164,?:0}
+2026-04-28 10:09:20 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100605/metrics/metrics.jsonl
+2026-04-28 10:09:20 | INFO    | tinker_cookbook.utils.ml_log |
+                   Step 1
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ val/accuracy                   │ 0.433333 │
+│ val/answers_1_pct              │ 0.316667 │
+│ val/answers_other_pct          │ 0.000000 │
+│ val/nll                        │ 0.557652 │
+└────────────────────────────────┴──────────┘
+2026-04-28 10:09:20 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/paqbriiv
+2026-04-28 10:09:22 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: mmlu_20 (type=mmlu, epoch=1)
+2026-04-28 10:09:33 | INFO    | sgtr_rl.tinker_eval |   benchmark/mmlu_20: 12/20 = 60.0% | answers={A:5,B:5,C:3,D:7,?:0}
+2026-04-28 10:09:33 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: mmlu_2000 (type=mmlu, epoch=1)
+2026-04-28 10:10:19 | INFO    | sgtr_rl.tinker_eval |   benchmark/mmlu_2000: 1384/2000 = 69.2% | answers={A:429,B:503,C:528,D:523,?:17}
+2026-04-28 10:10:19 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_pw (type=sgtr, epoch=1)
+2026-04-28 10:10:21 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_pw: 7/20 = 35.0% | answers={1:19,2:1,?:0}
+2026-04-28 10:10:21 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_pw_full (type=sgtr, epoch=1)
+2026-04-28 10:10:30 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_pw_full: 15/40 = 37.5% | answers={1:35,2:5,?:0}
+2026-04-28 10:10:30 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_ind (type=sgtr, epoch=1)
+2026-04-28 10:10:34 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_ind: 8/20 = 40.0% | answers={1:1,2:19,?:0}
+2026-04-28 10:10:34 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_ind_full (type=sgtr, epoch=1)
+2026-04-28 10:10:39 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_ind_full: 40/80 = 50.0% | answers={1:0,2:80,?:0}
+2026-04-28 10:10:39 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_pw (type=sgtr, epoch=1)
+2026-04-28 10:10:41 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_pw: 10/20 = 50.0% | answers={1:16,2:4,?:0}
+2026-04-28 10:10:41 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_pw_full (type=sgtr, epoch=1)
+2026-04-28 10:10:45 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_pw_full: 19/40 = 47.5% | answers={1:31,2:9,?:0}
+2026-04-28 10:10:45 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_ind (type=sgtr, epoch=1)
+2026-04-28 10:10:52 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_ind: 5/20 = 25.0% | answers={1:4,2:16,?:0}
+2026-04-28 10:10:52 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_ind_full (type=sgtr, epoch=1)
+2026-04-28 10:10:56 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_ind_full: 32/80 = 40.0% | answers={1:10,2:70,?:0}
+2026-04-28 10:10:56 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_wikisum_full (type=sgtr, epoch=1)
+2026-04-28 10:11:05 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_wikisum_full: 62/200 = 31.0% | answers={1:160,2:40,?:0}
+2026-04-28 10:11:05 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_bigcodebench_full (type=sgtr, epoch=1)
+2026-04-28 10:11:09 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_bigcodebench_full: 100/200 = 50.0% | answers={1:200,2:0,?:0}
+2026-04-28 10:11:09 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_pku_full (type=sgtr, epoch=1)
+2026-04-28 10:11:14 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_pku_full: 20/200 = 10.0% | answers={1:114,2:86,?:0}
+2026-04-28 10:11:14 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100605/metrics/metrics.jsonl
+2026-04-28 10:11:14 | INFO    | tinker_cookbook.utils.ml_log |
+                   Step 1
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ benchmark/mmlu_20/accuracy     │ 0.600000 │
+│ benchmark/mmlu_20/answers_A_p… │ 0.250000 │
+│ benchmark/mmlu_20/answers_B_p… │ 0.250000 │
+│ benchmark/mmlu_20/answers_C_p… │ 0.150000 │
+│ benchmark/mmlu_20/answers_D_p… │ 0.350000 │
+│ benchmark/mmlu_20/other_pct    │ 0.000000 │
+│ benchmark/mmlu_2000/accuracy   │ 0.692000 │
+│ benchmark/mmlu_2000/answers_A… │ 0.214500 │
+│ benchmark/mmlu_2000/answers_B… │ 0.251500 │
+│ benchmark/mmlu_2000/answers_C… │ 0.264000 │
+│ benchmark/mmlu_2000/answers_D… │ 0.261500 │
+│ benchmark/mmlu_2000/other_pct  │ 0.008500 │
+│ benchmark/xeval_dataset_bigco… │ 0.500000 │
+│ benchmark/xeval_dataset_bigco… │ 1.000000 │
+│ benchmark/xeval_dataset_bigco… │ 0.000000 │
+│ benchmark/xeval_dataset_bigco… │ 0.000000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.100000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.570000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.430000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.000000 │
+│ benchmark/xeval_dataset_wikis… │ 0.310000 │
+│ benchmark/xeval_dataset_wikis… │ 0.800000 │
+│ benchmark/xeval_dataset_wikis… │ 0.200000 │
+│ benchmark/xeval_dataset_wikis… │ 0.000000 │
+│ benchmark/xeval_op_at_ind/acc… │ 0.250000 │
+│ benchmark/xeval_op_at_ind/ans… │ 0.200000 │
+│ benchmark/xeval_op_at_ind/ans… │ 0.800000 │
+│ benchmark/xeval_op_at_ind/oth… │ 0.000000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.400000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.125000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.875000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.000000 │
+│ benchmark/xeval_op_at_pw/accu… │ 0.500000 │
+│ benchmark/xeval_op_at_pw/answ… │ 0.800000 │
+│ benchmark/xeval_op_at_pw/answ… │ 0.200000 │
+│ benchmark/xeval_op_at_pw/othe… │ 0.000000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.475000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.775000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.225000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind/acc… │ 0.400000 │
+│ benchmark/xeval_op_ut_ind/ans… │ 0.050000 │
+│ benchmark/xeval_op_ut_ind/ans… │ 0.950000 │
+│ benchmark/xeval_op_ut_ind/oth… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.500000 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind_ful… │ 1.000000 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.000000 │
+│ benchmark/xeval_op_ut_pw/accu… │ 0.350000 │
+│ benchmark/xeval_op_ut_pw/answ… │ 0.950000 │
+│ benchmark/xeval_op_ut_pw/answ… │ 0.050000 │
+│ benchmark/xeval_op_ut_pw/othe… │ 0.000000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.375000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.875000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.125000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.000000 │
+└────────────────────────────────┴──────────┘
+2026-04-28 10:11:14 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/paqbriiv
+2026-04-28 10:11:20 | INFO    | tinker_cookbook.checkpoint_utils | Saved checkpoints: {'state_path': 'tinker://9e9379f5-af7d-555b-969b-922cb6026807:train:0/weights/final', 'sampler_path': 'tinker://9e9379f5-af7d-555b-969b-922cb6026807:train:0/sampler_weights/final'}
+2026-04-28 10:11:20 | INFO    | sgtr_rl.tinker | Checkpoint saved to training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100605/checkpoints
+2026-04-28 10:11:20 | INFO    | sgtr_rl.tinker | Resume manifest written to training_runs/01_sft_multi_op_ll_3_1_8b_vs_qwen3_30b_tinker_small__epochs=1,train_ids=8__20260428_100605/checkpoints/resume_manifest.json

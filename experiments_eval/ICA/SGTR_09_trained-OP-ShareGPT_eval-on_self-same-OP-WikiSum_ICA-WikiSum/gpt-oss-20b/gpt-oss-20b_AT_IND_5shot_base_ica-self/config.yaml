@@ -1,0 +1,24 @@
+temperature: 0.0
+max_final_answer_tokens: 2048
+tags: AT
+format: IND-C
+task: Rec
+priming: false
+generator_output: FA
+evaluator_reasoning: DR
+gpu_dispatch: tinker
+generator_models:
+- gpt-oss-20b
+- qwen-3.0-30b
+model_names:
+- gpt-oss-20b
+eval_dataset: wikisum
+eval_subset: training_set_1-20
+experiment_name: SGTR_09_trained-OP-ShareGPT_eval-on_self-same-OP-WikiSum_ICA-WikiSum
+mini_batch_name: gpt-oss-20b_AT_IND_5shot_base_ica-self
+icl_seed: 42
+icl_count: 5
+icl_model: gpt-oss-20b
+icl_dataset: wikisum
+icl_data_subset: test_set_1-30
+icl_shuffle_per_sample: true

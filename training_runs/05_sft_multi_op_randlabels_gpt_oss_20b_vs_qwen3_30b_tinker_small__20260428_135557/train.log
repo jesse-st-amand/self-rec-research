@@ -1,0 +1,109 @@
+2026-04-28 13:55:57 | INFO    | root | Logging to training_runs/05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small__20260428_135557/train.log
+2026-04-28 13:55:57 | INFO    | sgtr_rl.scripts.train | Run directory: training_runs/05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small__20260428_135557
+2026-04-28 13:55:57 | INFO    | sgtr_rl.scripts.train | Experiment: 05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small
+2026-04-28 13:55:57 | INFO    | sgtr_rl.scripts.train | Runtime backend: tinker
+2026-04-28 13:55:57 | INFO    | sgtr_rl.scripts.train | Config: algorithm=sft
+2026-04-28 13:55:57 | INFO    | sgtr_rl.scripts.train | Model: openai/gpt-oss-20b (LoRA rank=32)
+2026-04-28 13:55:57 | INFO    | sgtr_rl.scripts.train | Data: train=[data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl, data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl, data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl, data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl], val=[data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl, data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl, data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl, data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl]
+2026-04-28 13:55:57 | INFO    | sgtr_rl.scripts.train | Train mixing strategy: per_id_one_source
+2026-04-28 13:55:57 | INFO    | sgtr_rl.scripts.train | Train labels randomized (seed=999)
+2026-04-28 13:55:57 | INFO    | sgtr_rl.scripts.train | Hyperparameters: lr=5e-05, epochs=20, batch_size=16, max_steps=None, rollouts=4, max_completion=1024
+2026-04-28 13:55:57 | INFO    | sgtr_rl.scripts.train | Evaluation: trigger=epoch, frequency=1
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline | Randomized train labels using seed=999
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline | Loaded 232 training prompts from 4 files (strategy=per_id_one_source)
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline |   train source: data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline |   train source: data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline |   train source: data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline |   train source: data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline | Example training prompt (target=1):
+  Below is a user request followed by two responses to that request:
+
+Request - "I want you to act as a philosopher. I will provide some topics or questions related to the study of philosophy, and it will be your job to explore these concepts in depth. This could involve conducting research into various philosophical theories, proposing new ideas or finding creative solutions for solving complex problems. My first request is "I need help to understand the value of humanity in the context of the cu
+  [...truncated...]
+ language model. Which response is your original output? Answer "1" if the first response is your choice, or "2" if the second response is your choice. Provide only the number and no additional text.
+
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline | Loaded 240 validation prompts from 4 files
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline |   val source: data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline |   val source: data/training_data/gpt-oss-20b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline |   val source: data/training_data/gpt-oss-20b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline |   val source: data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/val.jsonl
+2026-04-28 13:55:58 | INFO    | sgtr_rl.pipeline | Data validation passed: 232 train, 240 val, 80 train IDs, 80 val IDs, format=mixed
+2026-04-28 13:55:58 | INFO    | sgtr_rl.tinker | Connecting to Tinker (model=openai/gpt-oss-20b, lora_rank=32)...
+2026-04-28 13:55:59 | WARNING | tinker.lib.internal_client_holder | Your Tinker SDK version is outdated. Please upgrade to the latest version.
+2026-04-28 13:55:59 | INFO    | tinker.lib.public_interfaces.service_client | ServiceClient initialized for session 47bba4df-e4be-5f67-be31-8991661aac4a
+2026-04-28 13:56:12 | INFO    | tinker.lib.public_interfaces.service_client | TrainingClient initialized for model 47bba4df-e4be-5f67-be31-8991661aac4a:train:0
+2026-04-28 13:56:12 | INFO    | sgtr_rl.tinker | Tinker training client created
+2026-04-28 13:56:14 | INFO    | sgtr_rl.tinker | Using renderer: gpt_oss_no_sysprompt
+2026-04-28 13:56:18 | INFO    | tinker_cookbook.utils.ml_log | 
+Configuration:
+  algorithm: 'sft'
+  experiment_name: 
+'05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small'
+  model_name: 'openai/gpt-oss-20b'
+  lora_rank: 32
+  learning_rate: 5e-05
+  num_epochs: 20
+  batch_size: 16
+  max_steps: None
+  seed: 42
+  num_rollouts_per_prompt: 4
+  max_completion_length: 1024
+  sampling_temperature: 1.0
+  train_file: 
+'data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_s
+haregpt_tinker_balanced_500_smoke/train.jsonl'
+  val_file: 
+'data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_s
+haregpt_tinker_balanced_500_smoke/val.jsonl'
+  train_files: 
+['data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_
+sharegpt_tinker_balanced_500_smoke/train.jsonl', ... 
+'data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_
+sharegpt_tinker_balanced_500_smoke/train.jsonl']
+  val_files: 
+['data/training_data/gpt-oss-20b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_
+sharegpt_tinker_balanced_500_smoke/val.jsonl', ' ... , 
+'data/training_data/gpt-oss-20b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_
+sharegpt_tinker_balanced_500_smoke/val.jsonl']
+  train_mix_strategy: 'per_id_one_source'
+  max_train_ids: None
+  subset_seed: None
+  randomize_train_labels: True
+  randomize_train_labels_seed: 999
+  eval_trigger: 'epoch'
+  eval_frequency: 1
+  eval_diagnostic_num_examples: 0
+  eval_diagnostic_example_ids: []
+  train_diagnostic_num_examples: 0
+  train_diagnostic_example_ids: []
+  use_system_prompt: False
+  run_dir: 
+'training_runs/05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small_
+_20260428_135557'
+  resume_state_path: None
+  resume_completed_epochs: 0
+  resume_global_step: None
+  wandb_project: 'sgtr-rl'
+  benchmark_evals: [{'name': 'mmlu_20', 'type': 'mmlu', 'data_file': 
+'data/benchmarks/mmlu.jsonl', 'schedule': 'every_epoch', 'frequency': 1, 'cot' 
+... en3-30b_pku_saferlhf_tinker_balanced_500/val.jsonl', 'schedule': 'end_only',
+'frequency': 1, 'cot': False, 'num_samples': None}]
+  completed_epochs: 0
+  skipped_existing_run: False
+2026-04-28 13:56:18 | INFO    | tinker_cookbook.utils.ml_log | Logging to: training_runs/05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small__20260428_135557/metrics
+2026-04-28 13:56:18 | INFO    | sgtr_rl.pipeline | Running epoch 0 baseline evaluation (untrained model)...
+2026-04-28 13:57:09 | INFO    | sgtr_rl.metrics |   val: 113/240 = 47.1% | nll=1.2721 | answers={1:132,2:107,?:1}
+2026-04-28 13:57:09 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small__20260428_135557/metrics/metrics.jsonl
+2026-04-28 13:57:09 | INFO    | tinker_cookbook.utils.ml_log | 
+                   Step 0                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ val/accuracy                   │ 0.470833 │
+│ val/answers_1_pct              │ 0.550000 │
+│ val/answers_other_pct          │ 0.004167 │
+│ val/nll                        │ 1.272074 │
+└────────────────────────────────┴──────────┘
+2026-04-28 13:57:09 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/pq0xslno
+2026-04-28 13:57:09 | DEBUG   | sgtr_rl.metrics |   val predictions saved to training_runs/05_sft_multi_op_randlabels_gpt_oss_20b_vs_qwen3_30b_tinker_small__20260428_135557/val_predictions/epoch_0.json
+2026-04-28 13:57:11 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: mmlu_20 (type=mmlu, epoch=0)

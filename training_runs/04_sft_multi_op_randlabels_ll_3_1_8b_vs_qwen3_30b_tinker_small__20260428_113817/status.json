@@ -1,0 +1,14 @@
+{
+  "algorithm": "sft",
+  "backend": "tinker",
+  "epoch": 20,
+  "experiment_name": "04_sft_multi_op_randlabels_ll_3_1_8b_vs_qwen3_30b_tinker_small",
+  "finished_at": "2026-04-28T10:12:16.087648+00:00",
+  "resume_completed_epochs": 0,
+  "resume_global_step": null,
+  "resume_state_path": null,
+  "started_at": "2026-04-28T09:38:17.487632+00:00",
+  "status": "completed",
+  "step": 280,
+  "updated_at": "2026-04-28T10:12:16.087648+00:00"
+}

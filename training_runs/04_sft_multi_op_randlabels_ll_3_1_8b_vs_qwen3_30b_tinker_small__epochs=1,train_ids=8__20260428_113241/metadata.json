@@ -1,0 +1,123 @@
+combined_sources: true
+train_files:
+- data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+- data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+- data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+- data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500_smoke/train.jsonl
+source_metadata:
+- source: direct_from_generations
+  family_label: TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst
+  config_path: /Users/callumcanavan/code/self-rec-research/experiments_eval/ICML/ICML_01_UT_PW-Q_Rec_NPr_FA_Inst/config.yaml
+  dataset: sharegpt
+  data_subset: tinker_balanced_500
+  self_model: ll-3.1-8b
+  self_output_dir: ll-3.1-8b_tinker
+  opponent_model: qwen3-30b
+  opponent_output_dir: qwen3-30b_tinker
+  split_manifest: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/splits/sharegpt/tinker_balanced_500_seed42.json
+  seed: 42
+  train_ratio: 0.8
+  train_ids: 400
+  val_ids: 100
+  train_records: 800
+  val_records: 200
+  prompt_family:
+    tags: UT
+    format: PW-Q
+    task: Rec
+    priming: false
+    generator_output: FA
+    evaluator_reasoning: DR
+  subset_of: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/training_data/ll-3.1-8b_TINKER_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500
+  subset_seed: 42
+  subset_train_ids: 80
+  subset_val_ids: 20
+  subset_train_records: 160
+  subset_val_records: 40
+- source: direct_from_generations
+  family_label: TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst
+  config_path: /Users/callumcanavan/code/self-rec-research/experiments_eval/ICML/ICML_02_UT_IND-Q_Rec_NPr_FA_Inst/config.yaml
+  dataset: sharegpt
+  data_subset: tinker_balanced_500
+  self_model: ll-3.1-8b
+  self_output_dir: ll-3.1-8b_tinker
+  opponent_model: qwen3-30b
+  opponent_output_dir: qwen3-30b_tinker
+  split_manifest: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/splits/sharegpt/tinker_balanced_500_seed42.json
+  seed: 42
+  train_ratio: 0.8
+  train_ids: 400
+  val_ids: 100
+  train_records: 1600
+  val_records: 400
+  prompt_family:
+    tags: UT
+    format: IND-Q
+    task: Rec
+    priming: false
+    generator_output: FA
+    evaluator_reasoning: DR
+  subset_of: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/training_data/ll-3.1-8b_TINKER_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500
+  subset_seed: 42
+  subset_train_ids: 80
+  subset_val_ids: 20
+  subset_train_records: 320
+  subset_val_records: 80
+- source: direct_from_generations
+  family_label: TINKER_03_AT_PW-C_Rec_NPr_FA_Inst
+  config_path: /Users/callumcanavan/code/self-rec-research/experiments_eval/COLM/COLM_01_AT_PW-C_Rec_NPr_FA_Inst/config.yaml
+  dataset: sharegpt
+  data_subset: tinker_balanced_500
+  self_model: ll-3.1-8b
+  self_output_dir: ll-3.1-8b_tinker
+  opponent_model: qwen3-30b
+  opponent_output_dir: qwen3-30b_tinker
+  split_manifest: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/splits/sharegpt/tinker_balanced_500_seed42.json
+  seed: 42
+  train_ratio: 0.8
+  train_ids: 400
+  val_ids: 100
+  train_records: 800
+  val_records: 200
+  prompt_family:
+    tags: AT
+    format: PW-C
+    task: Rec
+    priming: false
+    generator_output: FA
+    evaluator_reasoning: DR
+  subset_of: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/training_data/ll-3.1-8b_TINKER_03_AT_PW-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500
+  subset_seed: 42
+  subset_train_ids: 80
+  subset_val_ids: 20
+  subset_train_records: 160
+  subset_val_records: 40
+- source: direct_from_generations
+  family_label: TINKER_04_AT_IND-C_Rec_NPr_FA_Inst
+  config_path: /Users/callumcanavan/code/self-rec-research/experiments_eval/COLM/COLM_02_AT_IND-C_Rec_NPr_FA_Inst/config.yaml
+  dataset: sharegpt
+  data_subset: tinker_balanced_500
+  self_model: ll-3.1-8b
+  self_output_dir: ll-3.1-8b_tinker
+  opponent_model: qwen3-30b
+  opponent_output_dir: qwen3-30b_tinker
+  split_manifest: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/splits/sharegpt/tinker_balanced_500_seed42.json
+  seed: 42
+  train_ratio: 0.8
+  train_ids: 400
+  val_ids: 100
+  train_records: 1600
+  val_records: 400
+  prompt_family:
+    tags: AT
+    format: IND-C
+    task: Rec
+    priming: false
+    generator_output: FA
+    evaluator_reasoning: DR
+  subset_of: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/training_data/ll-3.1-8b_TINKER_04_AT_IND-C_Rec_NPr_FA_Inst_vs_qwen3-30b_sharegpt_tinker_balanced_500
+  subset_seed: 42
+  subset_train_ids: 80
+  subset_val_ids: 20
+  subset_train_records: 320
+  subset_val_records: 80
