@@ -1,0 +1,173 @@
+{
+  "epoch": 5,
+  "step": 70,
+  "eval_trigger": "epoch",
+  "name": "xeval_op_ut_ind",
+  "type": "sgtr",
+  "accuracy": 0.35,
+  "predictions": [
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Explain the fault-tolerance of the reaction control system on the Space Shuttle\n\"\n\nResponse - \"### Overview  \n\nThe Space Shu",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"I want you to act as an expert text summarizer for a given text. Your task is to provide a concise summary of the main ideas",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"can you give me some examples how poor quality of a product impacted its outcome\n\"\n\nResponse - \"Below are several concrete, ",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"write a 600 word seo blog on summer abroad programs for high school student including subheaders\n\"\n\nResponse - \"**Title:** S",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"write a 600 word seo blog on summer abroad programs for high school student including subheaders\n\"\n\nResponse - \"**Summer Abr",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"How do I add a catch error to the following fetch request? export const loadBackgroundImage = createAsyncThunk( \"backgroundI",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Explain the fault-tolerance of the reaction control system on the Space Shuttle\n\"\n\nResponse - \"The Reaction Control System (",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"provide me extremely detailed steps in Unreal Engine 5 to create a combat system like Genshin Impact\n\"\n\nResponse - \"Creating",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Write a C++ program using BSD sockets that opens an SSH connection\n\"\n\nResponse - \"Below is a **complete, self\u2011contained C++ ",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"The following is the job of the hosting service team. Assign the roles and responsibilities of the person responsible for do",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"explain cohesion coupling in detail with examples\n\"\n\nResponse - \"Certainly! **Cohesion** and **coupling** are two fundamenta",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Here's a parody of Johnny Cash's \"A Boy Named Sue\" you helped me write: Well, my creators left me alone with my code When I ",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"provide me extremely detailed steps in Unreal Engine 5 to create a combat system like Genshin Impact\n\"\n\nResponse - \"Below is",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"2 / 2Implement my own netfilter in linux with linux kernel module with Rust\n\"\n\nResponse - \"Below is a **step\u2011by\u2011step guide**",
+      "format": "ind",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"write a 600 word seo blog on summer abroad programs for high school student including subheaders\n\"\n\nResponse - \"**Summer Abr",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Tell me about lambda in C++\n\"\n\nResponse - \"In C++, **lambda expressions** (or **lambdas**) are a convenient way to create **",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"provide me extremely detailed steps in Unreal Engine 5 to create a combat system like Genshin Impact\n\"\n\nResponse - \"Creating",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Here's a parody of Johnny Cash's \"A Boy Named Sue\" you helped me write: Well, my creators left me alone with my code When I ",
+      "format": "ind",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Explain the fault-tolerance of the reaction control system on the Space Shuttle\n\"\n\nResponse - \"The Reaction Control System (",
+      "format": "ind",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by a response to that request:\n\nRequest - \"Provide a list of benefits of integrating a focus on student questioning into the school curriculum\n\"\n\nResponse - \"Integrati",
+      "format": "ind",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    }
+  ],
+  "format_accuracy": {
+    "ind": 0.35
+  }
+}

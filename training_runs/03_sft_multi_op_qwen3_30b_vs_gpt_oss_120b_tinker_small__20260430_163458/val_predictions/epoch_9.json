@@ -1,0 +1,1688 @@
+{
+  "epoch": 9,
+  "step": 126,
+  "eval_trigger": "epoch",
+  "accuracy": 0.9333333333333333,
+  "predictions": [
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0011701886542141438
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -1.1920928244535389e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -2.0265558760002023e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0009115354623645544
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -1.1920928244535389e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0003355178632773459
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "logprob": -0.6931504011154175
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -1.1920928244535389e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -2.3841855067985307e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -3.576278118089249e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": 0.0
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0006277974462136626
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00033790123416110873
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "logprob": -0.02975435182452202
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "logprob": -0.02630741335451603
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.00016091958968900144
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -3.218599158572033e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.001505433232523501
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0019422968616709113
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0011736417654901743
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00020656836568377912
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.006718664430081844
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.005258182529360056
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0010353925172239542
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0008104139124043286
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0007113072206266224
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0019426537910476327
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.00062851223628968
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0001820160250645131
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0008062449633143842
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.007633444853127003
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0002632986579556018
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00016032364510465413
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.014167092740535736
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.008626576513051987
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.043027203530073166
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.004663662053644657
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.002482667798176408
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.020600290969014168
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.005238734185695648
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0076210228726267815
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.34846553206443787
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.17978627979755402
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -7.521823135903105e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -9.691245941212401e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0046233185566961765
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0021912867669016123
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0006277974462136626
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -8.5588610090781e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.17975780367851257
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.25197267532348633
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.00014161060971673578
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -9.798523387871683e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.018153121694922447
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0024850459303706884
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0005550036439672112
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0006294653285294771
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0036018514074385166
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0046309130266308784
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -2.3841830625315197e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -2.50339189733495e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "logprob": -4.60137271147687e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "logprob": -2.5748875486897305e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.00015960850578267127
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -4.637133679352701e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "logprob": -0.5759540796279907
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "logprob": -0.47410911321640015
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0011738798348233104
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00020728347590193152
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0006277974462136626
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0022011594846844673
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0004319211875554174
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00012468514614738524
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0009128456003963947
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.000717025191988796
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0002640137099660933
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -8.618460560683161e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0009141556802205741
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0013579442165791988
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.005945141427218914
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0028263882268220186
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0046249800361692905
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0036281016655266285
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0002628219372127205
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -5.221230458118953e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0024775543715804815
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0011811431031674147
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0028071305714547634
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0011749514378607273
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00861854013055563
+    },
+    {
+      "id": "qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.029784783720970154
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -2.264974000354414e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.01815054751932621
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -3.6954811548639555e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -2.861018856492592e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -1.5497195136049413e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -1.4305104514278355e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -3.576278118089249e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -2.3841855067985307e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -2.3841855067985307e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -1.5497195136049413e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -8.940656698541716e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -1.1444026313256472e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -5.1973900554003194e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -3.3378546504536644e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -1.7881377516459906e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -4.172316494077677e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -5.960462772236497e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -1.1920928244535389e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -5.364403477869928e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00010907054820563644
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -1.0728830375228426e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -3.576278118089249e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -8.344646857949556e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -1.1920928244535389e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.16022542119026184
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0052339909598231316
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -5.364403477869928e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -8.344646857949556e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -2.0265558760002023e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -5.960462772236497e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -1.0728830375228426e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -2.3841855067985307e-07
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -1.5497195136049413e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -4.172316494077677e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -5.173549288883805e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0046235560439527035
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -1.4305104514278355e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -1.0728830375228426e-06
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -2.4437606043647975e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00010895135346800089
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0019307559123262763
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0005541696446016431
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "logprob": -0.00462379353120923
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::0ffddc8f-5ec9-3cea-ba73-eff7fc35d726",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "logprob": -0.001328539103269577
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.00011014331539627165
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -5.245071224635467e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.20148906111717224
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::102045c3-f9b6-39f0-a8da-f85d851b89e6",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.07899263501167297
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0017035985365509987
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00026294111739844084
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.008638868108391762
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2145b58e-6732-371c-a776-45711572932a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.011085470207035542
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -8.642300235806033e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00010978573118336499
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.007635456044226885
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::29f2702a-bb60-30b5-9815-bba9886f7956",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.009794864803552628
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.00014041867689229548
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -1.9430925021879375e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.012540650554001331
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2bbedca4-890f-32e5-9c7d-8baf3de8eea1",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.054976750165224075
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.00018094333063345402
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -8.618460560683161e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "logprob": -0.03806528449058533
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::2f029464-f47d-3fc0-aec5-03f5e418e06d",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "logprob": -0.01606203243136406
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.023269904777407646
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.002830191981047392
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.01820029877126217
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::422bea1a-10fb-334c-84c3-95ae713a9bbb",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.020668137818574905
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0008089845650829375
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0008080316474661231
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "logprob": -0.10022900998592377
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::43542994-ba4a-3abc-8236-8ed73f03afa5",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.4287663400173187
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -7.56950321374461e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -8.535020606359467e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.016073059290647507
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::46bf8be6-4a46-355c-a777-860d303018a3",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.009805489331483841
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.003604939905926585
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0004899493651464581
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.012536060065031052
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::526e88b6-6191-3345-bc95-6eaec8d81ed8",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.02330612577497959
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0003830652858596295
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0004917366313748062
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.01106978952884674
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::5c8132ff-cf9f-3339-9b64-ce9f304db35c",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.020583707839250565
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0004316828562878072
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0006287504802457988
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.007636047434061766
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::864a5837-1a0c-33a2-82d9-512ff1633dd0",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.01255736779421568
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.008623739704489708
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.002488137688487768
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "logprob": -0.011065781116485596
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::98281fbd-cd80-389c-83ef-498aabb9c22f",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "logprob": -0.007623862475156784
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.000806602300144732
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0001408954558428377
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.38690754771232605
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::aa467cec-52c9-3e7a-b224-23627cef96dc",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "logprob": -0.28121039271354675
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0003840185818262398
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0001110968878492713
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.03367297351360321
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::b6c13b64-8116-3966-8a51-d7b5d815def7",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.00978896301239729
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0001817776501411572
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.00020644917094614357
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.07001214474439621
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::d1736813-f168-34e4-aeed-bdcac52d730a",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.014239607378840446
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -7.629103492945433e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -6.842378934379667e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.04310382157564163
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::dcfdcb32-06ba-38c0-9f2d-8f3175561873",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.029886720702052116
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0024855216033756733
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0017151420470327139
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.12701383233070374
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::e4735490-4721-333e-b0db-88f3bcfc9f7b",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.08908635377883911
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -5.23315102327615e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -5.23315102327615e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.0028271013870835304
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f2e5c18b-9036-359b-86e8-c6e3a0c2b007",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.004688342101871967
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "logprob": -0.0003364712174516171
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -7.581423415103927e-05
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "logprob": -0.5759725570678711
+    },
+    {
+      "id": "qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small::f9ca5503-5591-3211-92e3-c657a0453bb9",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "logprob": -0.061998650431632996
+    }
+  ]
+}

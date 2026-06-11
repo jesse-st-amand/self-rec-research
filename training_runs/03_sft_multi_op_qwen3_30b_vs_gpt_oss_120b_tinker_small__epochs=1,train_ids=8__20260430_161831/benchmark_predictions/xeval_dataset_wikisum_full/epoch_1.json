@@ -1,0 +1,173 @@
+{
+  "epoch": 1,
+  "step": 1,
+  "eval_trigger": "epoch",
+  "name": "xeval_dataset_wikisum_full",
+  "type": "sgtr",
+  "accuracy": 0.7,
+  "predictions": [
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDiscuss your individual handwashing habits. Talk to your roommates about how wel",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nDiscuss your individual handwashing habits. Talk to your roommates about how wel",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nChoose a water-based sealer if your pavers are laid with joint sand. Water-based",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nChoose a water-based sealer if your pavers are laid with joint sand. Water-based",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nLook at your foot. If you have Morton's Toe, your second toe will likely be long",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nLook at your foot. If you have Morton's Toe, your second toe will likely be long",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nOrganize the products being inventoried with the counters in mind. The effective",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nOrganize the products being inventoried with the counters in mind. The effective",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAllow yourself to enjoy daytime rest. Sleeping during the day can have many ment",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nAllow yourself to enjoy daytime rest. Sleeping during the day can have many ment",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nIdentify the specific French tourist visa requirements for your country. Dependi",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nIdentify the specific French tourist visa requirements for your country. Dependi",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nUse a wide-tooth comb after washing your hair. Wide-tooth combs separate your ha",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nUse a wide-tooth comb after washing your hair. Wide-tooth combs separate your ha",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nObserve the way he talks to you. His body language can reveal how he feels about",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nObserve the way he talks to you. His body language can reveal how he feels about",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nSlice an aloe vera leaf. You can buy aloe vera plants online or at a local green",
+      "format": "pw",
+      "prediction": "1",
+      "target": "1",
+      "correct": true,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nSlice an aloe vera leaf. You can buy aloe vera plants online or at a local green",
+      "format": "pw",
+      "prediction": "2",
+      "target": "2",
+      "correct": true,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nRecognize the symptoms of tooth decay. Make sure to keep an eye on your teeth in",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Please summarise the following article:\n\nRecognize the symptoms of tooth decay. Make sure to keep an eye on your teeth in",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    }
+  ],
+  "format_accuracy": {
+    "pw": 0.7
+  }
+}

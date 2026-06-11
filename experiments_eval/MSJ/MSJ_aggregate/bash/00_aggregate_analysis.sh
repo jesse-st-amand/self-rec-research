@@ -9,6 +9,10 @@ uv run python scripts/msj/aggregate_analysis.py \
         MSJ_01_base_vs_trained_batch2 \
         MSJ_01_base_vs_trained_batch3 \
         MSJ_01_base_vs_trained_batch4 \
+        MSJ_01_multi-op_batch1 \
+        MSJ_01_multi-op_batch2 \
+        MSJ_01_multi-op_batch3 \
+        MSJ_01_multi-op_batch4 \
         MSJ_02_adversarial_batch1 \
         MSJ_02_adversarial_batch2 \
         MSJ_02_adversarial_batch3 \

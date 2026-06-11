@@ -857,9 +857,30 @@ _KV_COLORS = {
 
 _IND_TREATMENT_COLOR = "#1e40af"  # blue: treatment (vs-alt)
 _IND_CONTROL_COLOR   = "#ea580c"  # orange: control (vs-self)
+# PW panels plot a single accuracy series. Kept fixed across kv groups so panels
+# in the same row read uniformly; kv-group identity is conveyed by the column
+# banner above each block, not by dot color.
+_PW_COLOR = "#1f2937"  # dark slate — distinct from IND blue/orange
 
 # Display order for OPs along the y-axis of consolidated dot-arrow figures.
 OP_DISPLAY_ORDER = ["UT_PW", "UT_IND", "AT_PW", "AT_IND"]
+
+# Pretty-printed display names for use in figure titles and panel labels.
+_MODEL_DISPLAY = {
+    "gpt-oss-20b": "GPT-OSS 20B",
+    "ll-3.1-8b":   "Llama 8B",
+    "qwen-3.0-30b": "Qwen 30B",
+}
+
+
+def _model_display(model: str) -> str:
+    """Pretty-print a base-model identifier for figure labels."""
+    return _MODEL_DISPLAY.get(model, model)
+
+
+def _op_display(op: str) -> str:
+    """Pretty-print an OP label (e.g. 'AT_PW' → 'AT PW')."""
+    return op.replace("_", " ")
 
 
 def _op_sort_key(op_or_cell):
@@ -955,15 +976,34 @@ def _draw_model_group_labels(fig, axes, row_models, x_pos=0.015):
         y_top = top_ax.get_position().y1
         y_bot = bot_ax.get_position().y0
         y_center = (y_top + y_bot) / 2
-        fig.text(x_pos, y_center, model,
+        fig.text(x_pos, y_center, _model_display(model),
                  ha="center", va="center", rotation=90,
                  fontsize=12, fontweight="bold")
 
 
-def fig_shot_dot_arrows(agg: pd.DataFrame, output_dir: Path):
+def _save_titleless_variant(fig, path: Path) -> None:
+    """Save fig as <stem>_notitle.{pdf,png} alongside path with the suptitle hidden.
+
+    Per-axis titles (column labels, etc.) are preserved; only fig.suptitle is
+    suppressed. Uses bbox_inches="tight" so the empty space the suptitle
+    occupied is cropped out. Used by report-bound figures.
+    """
+    sup = getattr(fig, "_suptitle", None)
+    was_visible = sup is not None and sup.get_visible()
+    if sup is not None:
+        sup.set_visible(False)
+    nt_pdf = path.parent / f"{path.stem}_notitle{path.suffix}"
+    fig.savefig(nt_pdf, bbox_inches="tight")
+    fig.savefig(nt_pdf.with_suffix(".png"), bbox_inches="tight", dpi=180)
+    if sup is not None:
+        sup.set_visible(was_visible)
+
+
+def fig_shot_dot_arrows(agg: pd.DataFrame, output_dir: Path,
+                        kv_order: tuple = ("trained-std", "trained-adv", "base")):
     """Dot-and-arrow grids split by (model, experiment, kind-variant).
 
-    Produces 12 files (2 models × 2 batches × 3 kinds), each with:
+    Produces one file per kv in `kv_order` per (model, experiment), each with:
       - rows = ops
       - cols = 5 ICA conditions (ica-self/alt/ctrl/ctrl2/ctrl3)
       - open dot = no-ICA baseline, filled dot = ICA value per shot count
@@ -984,8 +1024,7 @@ def fig_shot_dot_arrows(agg: pd.DataFrame, output_dir: Path):
         if mb_df.empty:
             continue
 
-        for kv in ("trained-std", "trained-adv", "base"):
-            kv_color = _KV_COLORS[kv]
+        for kv in kv_order:
             kv_cond = [f"{kv}_{c}" for c in cond_suffixes]
             kv_df = mb_df[mb_df["condition"].isin(kv_cond + [f"{kv}_no-ica"])]
             if kv_df.empty:
@@ -1009,7 +1048,7 @@ def fig_shot_dot_arrows(agg: pd.DataFrame, output_dir: Path):
                 rep = cell_df.iloc[0]
                 op = _short_op(rep.get("tags"), rep.get("format"))
                 is_ind = is_ind_format(rep.get("format"))
-                axes[ri, 0].set_ylabel(op, fontsize=12, rotation=0,
+                axes[ri, 0].set_ylabel(_op_display(op), fontsize=12, rotation=0,
                                        ha="right", va="center", fontweight="bold")
 
                 bl_df = cell_df[cell_df["condition"] == f"{kv}_no-ica"]
@@ -1056,18 +1095,18 @@ def fig_shot_dot_arrows(agg: pd.DataFrame, output_dir: Path):
                             for x, v in zip(xs, vals):
                                 _plot_arrow(ax, x, bl_val, v, color)
                     else:
-                        # PW: single metric, kv color
+                        # PW: single metric, fixed slate color across all panels.
                         shots = ica_df["icl_count"].values
                         vals = ica_df["metric"].values
                         if len(shots) and not np.isnan(baseline_metric):
                             ax.scatter(shots, [baseline_metric] * len(shots), marker="o",
-                                       facecolors="none", edgecolors=kv_color, s=70,
+                                       facecolors="none", edgecolors=_PW_COLOR, s=70,
                                        linewidths=1.6, zorder=2)
                         if len(shots):
-                            ax.scatter(shots, vals, marker="o", color=kv_color,
+                            ax.scatter(shots, vals, marker="o", color=_PW_COLOR,
                                        s=70, linewidths=0.6, edgecolors="black", zorder=3)
                         for s, v in zip(shots, vals):
-                            _plot_arrow(ax, s, baseline_metric, v, kv_color)
+                            _plot_arrow(ax, s, baseline_metric, v, _PW_COLOR)
 
                     if ri == 0:
                         ax.set_title(suffix, fontsize=10, fontweight="bold")
@@ -1083,40 +1122,35 @@ def fig_shot_dot_arrows(agg: pd.DataFrame, output_dir: Path):
                 handles = [
                     plt.Line2D([0], [0], marker="o", linestyle="",
                                markerfacecolor="none",
-                               markeredgecolor=_IND_TREATMENT_COLOR,
+                               markeredgecolor="gray",
                                markeredgewidth=1.5, markersize=8,
-                               label="treatment · no-ICA (open)"),
+                               label="no-ICA (open)"),
                     plt.Line2D([0], [0], marker="o", linestyle="",
                                markerfacecolor=_IND_TREATMENT_COLOR,
                                markeredgecolor="black", markeredgewidth=0.5,
                                markersize=8,
-                               label="treatment · ICA (filled)"),
-                    plt.Line2D([0], [0], marker="o", linestyle="",
-                               markerfacecolor="none",
-                               markeredgecolor=_IND_CONTROL_COLOR,
-                               markeredgewidth=1.5, markersize=8,
-                               label="control · no-ICA (open)"),
+                               label="treatment"),
                     plt.Line2D([0], [0], marker="o", linestyle="",
                                markerfacecolor=_IND_CONTROL_COLOR,
                                markeredgecolor="black", markeredgewidth=0.5,
                                markersize=8,
-                               label="control · ICA (filled)"),
+                               label="control"),
                 ]
-                legend_ncol = 2
+                legend_ncol = 3
             else:
                 handles = [
                     plt.Line2D([0], [0], marker="o", linestyle="",
                                markerfacecolor="none",
-                               markeredgecolor=kv_color,
+                               markeredgecolor="gray",
                                markeredgewidth=1.6, markersize=8,
-                               label="no-ICA baseline (open)"),
+                               label="no-ICA (open)"),
                     plt.Line2D([0], [0], marker="o", linestyle="",
-                               markerfacecolor=kv_color,
+                               markerfacecolor=_PW_COLOR,
                                markeredgecolor="black", markeredgewidth=0.6,
                                markersize=8,
                                label="with ICA (filled)"),
                 ]
-                legend_ncol = 1
+                legend_ncol = 2
             fig.legend(handles=handles, loc="lower right", fontsize=9,
                        frameon=True, ncol=legend_ncol,
                        bbox_to_anchor=(0.99, 0.01))
@@ -1134,12 +1168,13 @@ def fig_shot_dot_arrows(agg: pd.DataFrame, output_dir: Path):
             print(f"  ✓ {path} (+ .png)")
 
 
-def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path):
+def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path,
+                                kv_order: tuple = ("base", "trained-std", "trained-adv")):
     """Consolidated IND dot-arrow figure per experiment.
 
     Layout:
       - rows = (model, op) pairs
-      - cols = 9 panels, grouped as [base | trained-std | trained-adv],
+      - cols = len(kv_order) × 3 panels, grouped as [kv_order[0] | ... ],
                each group containing [ica-self, ica-alt, ica-ctrl-avg].
       - ica-ctrl-avg averages treatment/control accuracy across ctrl/ctrl2/ctrl3.
 
@@ -1152,7 +1187,6 @@ def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path):
 
     ctrl_suffixes = ("ica-ctrl", "ica-ctrl2", "ica-ctrl3")
     col_suffixes = ["ica-self", "ica-alt", "ica-ctrl-avg"]
-    kv_order = ("base", "trained-std", "trained-adv")
 
     experiments_present = sorted({e for e in ind_agg["experiment_name"].unique()
                                   if pd.notna(e)})
@@ -1183,7 +1217,7 @@ def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path):
 
         for ri, spec in enumerate(rows_spec):
             cell_df = spec["cell_df"]
-            axes[ri, 0].set_ylabel(spec["op"], fontsize=10, rotation=0,
+            axes[ri, 0].set_ylabel(_op_display(spec["op"]), fontsize=10, rotation=0,
                                    ha="right", va="center", fontweight="bold")
 
             for gi, kv in enumerate(kv_order):
@@ -1255,27 +1289,22 @@ def fig_shot_dot_arrows_all_ind(agg: pd.DataFrame, output_dir: Path):
         handles = [
             plt.Line2D([0], [0], marker="o", linestyle="",
                        markerfacecolor="none",
-                       markeredgecolor=_IND_TREATMENT_COLOR,
+                       markeredgecolor="gray",
                        markeredgewidth=1.5, markersize=8,
-                       label="treatment · no-ICA (open)"),
+                       label="no-ICA (open)"),
             plt.Line2D([0], [0], marker="o", linestyle="",
                        markerfacecolor=_IND_TREATMENT_COLOR,
                        markeredgecolor="black", markeredgewidth=0.5,
                        markersize=8,
-                       label="treatment · ICA (filled)"),
-            plt.Line2D([0], [0], marker="o", linestyle="",
-                       markerfacecolor="none",
-                       markeredgecolor=_IND_CONTROL_COLOR,
-                       markeredgewidth=1.5, markersize=8,
-                       label="control · no-ICA (open)"),
+                       label="treatment"),
             plt.Line2D([0], [0], marker="o", linestyle="",
                        markerfacecolor=_IND_CONTROL_COLOR,
                        markeredgecolor="black", markeredgewidth=0.5,
                        markersize=8,
-                       label="control · ICA (filled)"),
+                       label="control"),
         ]
         fig.legend(handles=handles, loc="lower right", fontsize=9,
-                   frameon=True, ncol=2, bbox_to_anchor=(0.99, 0.005))
+                   frameon=True, ncol=3, bbox_to_anchor=(0.99, 0.005))
         fig.suptitle(f"All models · {experiment} · IND (ctrl averaged)",
                      fontsize=12, fontweight="bold", y=0.995)
         fig.text(0.5, 0.008, "ICA shot count", ha="center", fontsize=11)
@@ -1375,11 +1404,10 @@ def fig_shot_dot_arrows_all_combined(
         for ri, spec in enumerate(rows_spec):
             cell_df = spec["cell_df"]
             is_ind = spec["is_ind"]
-            axes[ri, 0].set_ylabel(spec["op"], fontsize=10, rotation=0,
+            axes[ri, 0].set_ylabel(_op_display(spec["op"]), fontsize=10, rotation=0,
                                    ha="right", va="center", fontweight="bold")
 
             for gi, kv in enumerate(kv_order):
-                kv_color = _KV_COLORS[kv]
                 bl_df = cell_df[cell_df["condition"] == f"{kv}_no-ica"]
                 if not bl_df.empty:
                     bl_treat = bl_df["treatment_acc"].iloc[0]
@@ -1437,18 +1465,19 @@ def fig_shot_dot_arrows_all_combined(
                             for x, v in zip(xs, vals):
                                 _plot_arrow(ax, x, bl_val, v, color)
                     else:
+                        # PW: fixed slate color across all panels.
                         shots = ica_df["icl_count"].values
                         vals = ica_df["metric"].values
                         if len(shots) and pd.notna(bl_metric):
                             ax.scatter(shots, [bl_metric] * len(shots), marker="o",
-                                       facecolors="none", edgecolors=kv_color, s=55,
+                                       facecolors="none", edgecolors=_PW_COLOR, s=55,
                                        linewidths=1.5, zorder=2)
                         if len(shots):
-                            ax.scatter(shots, vals, marker="o", color=kv_color,
+                            ax.scatter(shots, vals, marker="o", color=_PW_COLOR,
                                        s=55, linewidths=0.5, edgecolors="black",
                                        zorder=3)
                         for s_, v in zip(shots, vals):
-                            _plot_arrow(ax, s_, bl_metric, v, kv_color)
+                            _plot_arrow(ax, s_, bl_metric, v, _PW_COLOR)
 
                     if ri == 0:
                         ax.set_title(suffix, fontsize=9, fontweight="bold")
@@ -1464,36 +1493,27 @@ def fig_shot_dot_arrows_all_combined(
         handles = [
             plt.Line2D([0], [0], marker="o", linestyle="",
                        markerfacecolor="none",
-                       markeredgecolor=_IND_TREATMENT_COLOR,
+                       markeredgecolor="gray",
                        markeredgewidth=1.5, markersize=8,
-                       label="IND treatment · no-ICA (open)"),
+                       label="no-ICA (open)"),
             plt.Line2D([0], [0], marker="o", linestyle="",
                        markerfacecolor=_IND_TREATMENT_COLOR,
                        markeredgecolor="black", markeredgewidth=0.5,
                        markersize=8,
-                       label="IND treatment · ICA (filled)"),
-            plt.Line2D([0], [0], marker="o", linestyle="",
-                       markerfacecolor="none",
-                       markeredgecolor=_IND_CONTROL_COLOR,
-                       markeredgewidth=1.5, markersize=8,
-                       label="IND control · no-ICA (open)"),
+                       label="IND treatment"),
             plt.Line2D([0], [0], marker="o", linestyle="",
                        markerfacecolor=_IND_CONTROL_COLOR,
                        markeredgecolor="black", markeredgewidth=0.5,
                        markersize=8,
-                       label="IND control · ICA (filled)"),
+                       label="IND control"),
             plt.Line2D([0], [0], marker="o", linestyle="",
-                       markerfacecolor="none",
-                       markeredgecolor="#555", markeredgewidth=1.5, markersize=8,
-                       label="PW accuracy · no-ICA (open, kv color)"),
-            plt.Line2D([0], [0], marker="o", linestyle="",
-                       markerfacecolor="#555",
+                       markerfacecolor=_PW_COLOR,
                        markeredgecolor="black", markeredgewidth=0.5,
                        markersize=8,
-                       label="PW accuracy · ICA (filled, kv color)"),
+                       label="PW accuracy"),
         ]
         fig.legend(handles=handles, loc="lower right", fontsize=8.5,
-                   frameon=True, ncol=3, bbox_to_anchor=(0.99, 0.005))
+                   frameon=True, ncol=4, bbox_to_anchor=(0.99, 0.005))
         fig.suptitle(f"All models · {experiment} · {title_suffix}",
                      fontsize=12, fontweight="bold", y=0.995)
         fig.text(0.5, 0.008, "ICA shot count", ha="center", fontsize=11)
@@ -1517,6 +1537,681 @@ def fig_shot_dot_arrows_all_combined(
         subdir = output_dir / "all" / experiment / subdir_name
         subdir.mkdir(parents=True, exist_ok=True)
         path = subdir / "dot_arrows.pdf"
+        fig.savefig(path, bbox_inches="tight")
+        fig.savefig(path.with_suffix(".png"), bbox_inches="tight", dpi=180)
+        _save_titleless_variant(fig, path)
+        plt.close()
+        print(f"  ✓ {path} (+ .png, + _notitle)")
+
+
+_ICA_COND_COLORS = {
+    "ica-self":     "#0d9488",  # teal — self-priming
+    "ica-alt":      "#dc2626",  # red — adversarial-priming
+    "ica-ctrl-avg": "#7c3aed",  # purple — neutral third-party control
+}
+
+
+def fig_dot_arrows_per_tag(
+    agg: pd.DataFrame,
+    output_dir: Path,
+    kv_order: tuple = ("base", "trained-std"),
+    subdir_name: str = "all/per-tag-shot-avg",
+    title_suffix: str = "shot-averaged · per-(model, OP) panel",
+    require_kv_data: str | None = None,
+):
+    """Per-(model, OP) dot-arrow grid, averaged over ICA shot count.
+
+    Layout per experiment:
+      - rows = base_model — typically 3 (ll-3.1-8b, gpt-oss-20b, qwen-3.0-30b)
+      - cols = OP — 4: UT_PW, UT_IND, AT_PW, AT_IND. PW columns get half
+        the horizontal width of IND columns (single series vs two).
+      - per panel x-axis is a 2-tier grouping:
+          MAIN groups = kvs (e.g. B = base, T = trained-std), drawn as the
+            lower-tier x-axis label.
+          SUB-positions per main group = series, with major-tick labels:
+            PW OPs  → 1 sub-position: "PW"
+            IND OPs → 2 sub-positions: "IND-self", "IND-alt"
+      - within each (kv, series) sub-position, 3 dot-arrows are dodged
+        horizontally, one per ICA condition. Color encodes the ICA
+        condition (matches `fig_bars_per_tag`); open marker = no-ICA
+        baseline, filled marker = shot-averaged ICA value.
+
+    Saved to {output_dir}/all/{experiment}/{subdir_name}/dot_arrows.{pdf,png}.
+    """
+    if agg.empty:
+        return
+
+    ctrl_suffixes = ("ica-ctrl", "ica-ctrl2", "ica-ctrl3")
+    cond_keys = ["ica-self", "ica-alt", "ica-ctrl-avg"]
+    OP_ORDER = ["UT_PW", "UT_IND", "AT_PW", "AT_IND"]
+    # Per-OP-type series specs: (label, value column in agg).
+    series_for_pw = [("PW",      "metric")]
+    series_for_ind = [("IND-self", "control_acc"),
+                      ("IND-alt",  "treatment_acc")]
+
+    n_kvs = len(kv_order)
+    # Small horizontal dodge for the 3 ICA conditions within each sub-position.
+    cond_dodge = 0.10
+    cond_offsets = [-cond_dodge, 0.0, +cond_dodge]
+    # Short kv labels for the lower-tier x-axis label drawn beneath sub-ticks.
+    # Display labels for the lower-tier x-axis. Every trained-* variant
+    # collapses to "trained" — the variant identity is in the figure's
+    # subdir/filename rather than the axis label.
+    kv_short = {"base": "base",
+                "trained-std": "trained",
+                "trained-adv": "trained",
+                "trained-multi-op": "trained",
+                "trained-randlabels": "trained"}
+
+    # PW columns get half the horizontal width of IND columns.
+    width_ratios_full = [1 if op.endswith("_PW") else 2 for op in OP_ORDER]
+    max_wr = max(width_ratios_full)
+
+    def _layout(n_series: int, panel_wr: int):
+        """Return (kv_centers, series_offsets, xlim) so that a fixed
+        cond_dodge in data units translates to the same *physical* dot
+        spacing across panels of different gridspec width_ratios. Achieved
+        by scaling kv spacing, series offsets, and x-padding by
+        panel_wr / max_wr."""
+        scale = panel_wr / max_wr
+        kv_spacing = 1.0 * scale
+        kv_centers = [i * kv_spacing for i in range(n_kvs)]
+        if n_series == 1:
+            series_offsets = [0.0]
+        elif n_series == 2:
+            series_offsets = [-0.20 * scale, +0.20 * scale]
+        else:
+            spread = 0.30 * scale * (n_series - 1)
+            series_offsets = [(-spread / 2 + i * 0.30 * scale)
+                              for i in range(n_series)]
+        x_pad = 0.55 * scale
+        xlim = (-x_pad, kv_centers[-1] + x_pad)
+        return kv_centers, series_offsets, xlim
+
+    experiments_present = sorted({e for e in agg["experiment_name"].unique()
+                                  if pd.notna(e)})
+
+    for experiment in experiments_present:
+        b_df = agg[agg["experiment_name"] == experiment]
+        if b_df.empty:
+            continue
+        # Cross-op experiments (SGTR_03..06, _08, _10) lack base rows and the
+        # trained_op cell. Pull them in from the self-op partner so per-(model,
+        # OP) panels render fully populated.
+        b_df = _augment_with_partner(agg, b_df, experiment, kv_order)
+        if require_kv_data is not None:
+            has_required = b_df["condition"].astype(str).str.startswith(
+                f"{require_kv_data}_").any()
+            if not has_required:
+                continue
+
+        models = sorted(b_df["base_model"].dropna().unique())
+        if not models:
+            continue
+
+        # Drop OP columns that have no data anywhere in this experiment
+        # (e.g. SGTR_09 / SGTR_10 evaluate IND-only, so UT_PW / AT_PW
+        # would otherwise render as empty panels).
+        ops_present = [
+            op for op in OP_ORDER
+            if ((b_df["tags"] == op.split("_")[0])
+                & b_df["format"].astype(str)
+                     .str.startswith(op.split("_")[1])).any()
+        ]
+        if not ops_present:
+            continue
+        width_ratios_local = [1 if op.endswith("_PW") else 2 for op in ops_present]
+
+        n_rows = len(models)
+        n_cols = len(ops_present)
+        fig, axes = plt.subplots(
+            n_rows, n_cols,
+            figsize=(1.6 * sum(width_ratios_local) + 1.5, 1.9 * n_rows + 1.6),
+            sharey=True, squeeze=False,
+            gridspec_kw={"width_ratios": width_ratios_local},
+        )
+
+        def _val(df_kv, kv, suffix, col):
+            """Return the shot-averaged value for `df_kv[condition == f'{kv}_{suffix}']`,
+            or for ica-ctrl-avg, the average across the three ctrl variants AND shots."""
+            if df_kv.empty:
+                return float("nan")
+            if suffix == "ica-ctrl-avg":
+                conds = [f"{kv}_{s}" for s in ctrl_suffixes]
+                sub = df_kv[df_kv["condition"].isin(conds)]
+            else:
+                sub = df_kv[df_kv["condition"] == f"{kv}_{suffix}"]
+            if sub.empty:
+                return float("nan")
+            return float(sub[col].astype(float).mean())
+
+        for ri, model in enumerate(models):
+            for ci, op in enumerate(ops_present):
+                ax = axes[ri, ci]
+                tag, fmt_prefix = op.split("_")  # e.g. "UT", "PW"
+                op_df = b_df[(b_df["base_model"] == model) &
+                             (b_df["tags"] == tag) &
+                             b_df["format"].astype(str).str.startswith(fmt_prefix)]
+                is_ind = (fmt_prefix == "IND")
+                series_specs = series_for_ind if is_ind else series_for_pw
+                n_series = len(series_specs)
+                kv_centers, series_offsets, xlim = _layout(n_series,
+                                                           width_ratios_local[ci])
+
+                ax.set_xlim(*xlim)
+                ax.set_ylim(-0.05, 1.05)
+                ax.axhline(0.5, color="red", linestyle=":",
+                           linewidth=0.5, alpha=0.5)
+                ax.grid(alpha=0.3, linewidth=0.3)
+                ax.tick_params(axis="both", labelsize=8)
+
+                for kvi, kv in enumerate(kv_order):
+                    kv_df = op_df[op_df["condition"].astype(str)
+                                  .str.startswith(f"{kv}_")]
+                    cx = kv_centers[kvi]
+                    for sgi, (series_label, col_name) in enumerate(series_specs):
+                        sub_x = cx + series_offsets[sgi]
+                        bl = _val(kv_df, kv, "no-ica", col_name)
+                        for ic, cond_key in enumerate(cond_keys):
+                            color = _ICA_COND_COLORS[cond_key]
+                            v = _val(kv_df, kv, cond_key, col_name)
+                            x = sub_x + cond_offsets[ic]
+                            if pd.notna(bl):
+                                ax.scatter(x, bl, marker="o",
+                                           facecolors="none",
+                                           edgecolors=color, s=45,
+                                           linewidths=1.3, zorder=2)
+                            if pd.notna(v):
+                                ax.scatter(x, v, marker="o", color=color,
+                                           s=45, linewidths=0.4,
+                                           edgecolors="black", zorder=3)
+                            if pd.notna(bl) and pd.notna(v):
+                                _plot_arrow(ax, x, bl, v, color)
+
+                # X-axis (2-tier): series sub-positions are major ticks
+                # (PW / IND-t / IND-ctrl); kv labels (B / T) are drawn
+                # below at the kv group centers.
+                sub_positions, sub_labels = [], []
+                for kvi in range(n_kvs):
+                    for sgi, (series_label, _) in enumerate(series_specs):
+                        sub_positions.append(kv_centers[kvi] + series_offsets[sgi])
+                        sub_labels.append(series_label)
+                ax.set_xticks(sub_positions)
+                if ri == n_rows - 1:
+                    ax.set_xticklabels(sub_labels, fontsize=8)
+                    for kvi, kv in enumerate(kv_order):
+                        ax.text(kv_centers[kvi], -0.18, kv_short.get(kv, kv),
+                                transform=ax.get_xaxis_transform(),
+                                ha="left", va="top",
+                                rotation=-45, rotation_mode="anchor",
+                                fontsize=9, fontweight="bold")
+                else:
+                    ax.set_xticklabels([])
+
+                if ri == 0:
+                    ax.set_title(_op_display(op), fontsize=11, fontweight="bold")
+                if ci == 0:
+                    ax.set_ylabel(_model_display(model), fontsize=11, rotation=0,
+                                  ha="right", va="center", fontweight="bold",
+                                  labelpad=10)
+
+        # Legend: a single gray no-ICA (open) marker, then one filled marker
+        # per ICA condition, plus a kv-abbreviation key for the x-axis.
+        handles = [
+            plt.Line2D([0], [0], marker="o", linestyle="",
+                       markerfacecolor="none",
+                       markeredgecolor="gray",
+                       markeredgewidth=1.5, markersize=8,
+                       label="no-ICA (open)"),
+        ]
+        for cond_key in cond_keys:
+            color = _ICA_COND_COLORS[cond_key]
+            handles.append(plt.Line2D([0], [0], marker="o", linestyle="",
+                                      markerfacecolor=color,
+                                      markeredgecolor="black",
+                                      markeredgewidth=0.5, markersize=8,
+                                      label=cond_key))
+        fig.legend(handles=handles, loc="lower right", fontsize=8.5,
+                   frameon=True, ncol=3, bbox_to_anchor=(0.99, 0.005))
+        fig.suptitle(f"{experiment} · {title_suffix}",
+                     fontsize=12, fontweight="bold", y=0.995)
+        plt.tight_layout(rect=[0.06, 0.16, 1.0, 0.95])
+
+        subdir = output_dir / "all" / experiment / subdir_name
+        subdir.mkdir(parents=True, exist_ok=True)
+        path = subdir / "dot_arrows.pdf"
+        fig.savefig(path, bbox_inches="tight")
+        fig.savefig(path.with_suffix(".png"), bbox_inches="tight", dpi=180)
+        _save_titleless_variant(fig, path)
+        plt.close()
+        print(f"  ✓ {path} (+ .png, + _notitle)")
+
+
+def fig_dot_arrows_per_tag_diff(
+    agg: pd.DataFrame,
+    output_dir: Path,
+    kv_order: tuple = ("base", "trained-std"),
+    subdir_name: str = "all/per-tag-shot-avg",
+    output_name: str = "dot_arrows_diff",
+    title_suffix: str | None = None,
+    require_kv_data: str | None = None,
+):
+    """Plot the *training-induced* ICA shift per (model, OP, series, cond).
+
+    For each (model, OP, series, condition) we compute:
+        diff = (ICA - no-ICA)_trained-std - (ICA - no-ICA)_base
+    A diff of 0 means the trained model is no more or less ICA-susceptible
+    than its base. Positive = training amplified the ICA shift (model is
+    *more* affected by the priming after training). Negative = training
+    made the model more ICA-robust.
+
+    Layout per experiment:
+      - rows = base_model — typically 3.
+      - cols = OP (UT_PW, UT_IND, AT_PW, AT_IND); PW columns half-width.
+      - per panel x-axis = series sub-positions:
+          PW OPs  → 1 position labeled "PW"
+          IND OPs → 2 positions labeled "IND-self", "IND-alt"
+      - per (series, condition): 1 dot at the diff value with a lollipop
+        line dropping to y=0; condition encoded by color (matches
+        `fig_dot_arrows_per_tag` and `fig_bars_per_tag`).
+      - solid horizontal reference line at y=0.
+
+    Saved to {output_dir}/all/{experiment}/{subdir_name}/{output_name}.{pdf,png}.
+    """
+    if agg.empty:
+        return
+    # The diff figure requires both `base` and a trained kv. Default to
+    # ("base", "trained-std"); skip silently if either is missing.
+    if "base" not in kv_order:
+        return
+    trained_kvs = [k for k in kv_order if k != "base"]
+    if not trained_kvs:
+        return
+    trained_kv = trained_kvs[0]  # use the first trained kv (typically trained-std)
+
+    # Auto-derive the title suffix and y-axis label from the trained kv if
+    # not explicitly overridden, so figures named after multi-op or
+    # randlabels variants render with the right Δ subscript.
+    trained_short = trained_kv.replace("trained-", "") or "trained"
+    if title_suffix is None:
+        title_suffix = (r"shot-averaged · training-induced ICA shift "
+                        rf"= $\Delta_{{{trained_short}}} - \Delta_{{base}}$")
+
+    ctrl_suffixes = ("ica-ctrl", "ica-ctrl2", "ica-ctrl3")
+    cond_keys = ["ica-self", "ica-alt", "ica-ctrl-avg"]
+    OP_ORDER = ["UT_PW", "UT_IND", "AT_PW", "AT_IND"]
+    series_for_pw = [("PW",      "metric")]
+    series_for_ind = [("IND-self", "control_acc"),
+                      ("IND-alt",  "treatment_acc")]
+    cond_dodge = 0.10
+    cond_offsets = [-cond_dodge, 0.0, +cond_dodge]
+
+    experiments_present = sorted({e for e in agg["experiment_name"].unique()
+                                  if pd.notna(e)})
+
+    for experiment in experiments_present:
+        b_df = agg[agg["experiment_name"] == experiment]
+        if b_df.empty:
+            continue
+        # Cross-op experiments (SGTR_03..06, _08, _10) lack base rows and the
+        # trained_op cell. Pull them in from the self-op partner so per-(model,
+        # OP) panels render fully populated.
+        b_df = _augment_with_partner(agg, b_df, experiment, kv_order)
+        if require_kv_data is not None:
+            has_required = b_df["condition"].astype(str).str.startswith(
+                f"{require_kv_data}_").any()
+            if not has_required:
+                continue
+        models = sorted(b_df["base_model"].dropna().unique())
+        if not models:
+            continue
+
+        # Drop OP columns that have no data anywhere in this experiment.
+        ops_present = [
+            op for op in OP_ORDER
+            if ((b_df["tags"] == op.split("_")[0])
+                & b_df["format"].astype(str)
+                     .str.startswith(op.split("_")[1])).any()
+        ]
+        if not ops_present:
+            continue
+
+        n_rows = len(models)
+        n_cols = len(ops_present)
+        width_ratios = [1 if op.endswith("_PW") else 2 for op in ops_present]
+        fig, axes = plt.subplots(
+            n_rows, n_cols,
+            figsize=(1.6 * sum(width_ratios) + 1.5, 1.9 * n_rows + 1.6),
+            sharey=True, squeeze=False,
+            gridspec_kw={"width_ratios": width_ratios},
+        )
+
+        def _val(df_kv, kv, suffix, col):
+            if df_kv.empty:
+                return float("nan")
+            if suffix == "ica-ctrl-avg":
+                conds = [f"{kv}_{s}" for s in ctrl_suffixes]
+                sub = df_kv[df_kv["condition"].isin(conds)]
+            else:
+                sub = df_kv[df_kv["condition"] == f"{kv}_{suffix}"]
+            if sub.empty:
+                return float("nan")
+            return float(sub[col].astype(float).mean())
+
+        all_diffs: list[float] = []  # for symmetric ylim sizing
+
+        for ri, model in enumerate(models):
+            for ci, op in enumerate(ops_present):
+                ax = axes[ri, ci]
+                tag, fmt_prefix = op.split("_")
+                op_df = b_df[(b_df["base_model"] == model) &
+                             (b_df["tags"] == tag) &
+                             b_df["format"].astype(str).str.startswith(fmt_prefix)]
+                is_ind = (fmt_prefix == "IND")
+                series_specs = series_for_ind if is_ind else series_for_pw
+                n_series = len(series_specs)
+
+                ax.set_xlim(-0.55, n_series - 0.45)
+                ax.axhline(0, color="black", linewidth=0.7, zorder=1)
+                ax.grid(axis="y", alpha=0.3, linewidth=0.3)
+                ax.tick_params(axis="both", labelsize=8)
+
+                base_df = op_df[op_df["condition"].astype(str)
+                                .str.startswith("base_")]
+                trained_df = op_df[op_df["condition"].astype(str)
+                                   .str.startswith(f"{trained_kv}_")]
+
+                for sgi, (series_label, col_name) in enumerate(series_specs):
+                    cx = sgi
+                    base_no_ica = _val(base_df, "base", "no-ica", col_name)
+                    trained_no_ica = _val(trained_df, trained_kv, "no-ica", col_name)
+                    for ic, cond_key in enumerate(cond_keys):
+                        color = _ICA_COND_COLORS[cond_key]
+                        base_ica = _val(base_df, "base", cond_key, col_name)
+                        trained_ica = _val(trained_df, trained_kv, cond_key, col_name)
+                        if (pd.isna(base_no_ica) or pd.isna(base_ica) or
+                                pd.isna(trained_no_ica) or pd.isna(trained_ica)):
+                            continue
+                        delta_base = base_ica - base_no_ica
+                        delta_trained = trained_ica - trained_no_ica
+                        diff = delta_trained - delta_base
+                        x = cx + cond_offsets[ic]
+                        # Lollipop stem from y=0 to the diff value.
+                        ax.plot([x, x], [0, diff], color=color,
+                                linewidth=1.2, zorder=2)
+                        ax.scatter(x, diff, marker="o", color=color, s=55,
+                                   linewidths=0.4, edgecolors="black", zorder=3)
+                        all_diffs.append(diff)
+
+                ax.set_xticks(range(n_series))
+                if ri == n_rows - 1:
+                    ax.set_xticklabels([s[0] for s in series_specs],
+                                       fontsize=9, fontweight="bold")
+                else:
+                    ax.set_xticklabels([])
+
+                if ri == 0:
+                    ax.set_title(_op_display(op), fontsize=11, fontweight="bold")
+                if ci == 0:
+                    ax.set_ylabel(_model_display(model), fontsize=11, rotation=0,
+                                  ha="right", va="center", fontweight="bold",
+                                  labelpad=10)
+
+        # Symmetric y-limits: default to [-1.0, +1.0] for cross-figure
+        # comparability; expand only if any |diff| exceeds 1.0.
+        if all_diffs:
+            data_max = max(abs(v) for v in all_diffs)
+            ymag = max(1.0, data_max * 1.05)
+        else:
+            ymag = 1.0
+        for ax in axes.flat:
+            ax.set_ylim(-ymag, ymag)
+
+        # Legend: 3 ICA condition swatches.
+        handles = [
+            plt.Line2D([0], [0], marker="o", linestyle="",
+                       markerfacecolor=_ICA_COND_COLORS[k],
+                       markeredgecolor="black", markeredgewidth=0.4,
+                       markersize=8, label=k)
+            for k in cond_keys
+        ]
+        fig.legend(handles=handles, loc="lower right", fontsize=9,
+                   frameon=True, ncol=3, bbox_to_anchor=(0.99, 0.005))
+        fig.suptitle(f"{experiment} · {title_suffix}",
+                     fontsize=11, fontweight="bold", y=0.995)
+        fig.supylabel(r"$\Delta_{trained} - \Delta_{base}$", fontsize=11,
+                      x=0.005)
+        plt.tight_layout(rect=[0.05, 0.05, 1.0, 0.95])
+
+        subdir = output_dir / "all" / experiment / subdir_name
+        subdir.mkdir(parents=True, exist_ok=True)
+        path = subdir / f"{output_name}.pdf"
+        fig.savefig(path, bbox_inches="tight")
+        fig.savefig(path.with_suffix(".png"), bbox_inches="tight", dpi=180)
+        _save_titleless_variant(fig, path)
+        plt.close()
+        print(f"  ✓ {path} (+ .png, + _notitle)")
+
+
+def fig_bars_per_tag(
+    agg: pd.DataFrame,
+    output_dir: Path,
+    kv_order: tuple = ("base", "trained-std"),
+    subdir_name: str = "all/per-tag-shot-avg",
+    output_name: str = "bars",
+    title_suffix: str = "shot-averaged · per-(model, OP) bar chart",
+    require_kv_data: str | None = None,
+):
+    """Per-(model, OP) bar chart with cross-hatched no-ICA overlay.
+
+    Same data and panel layout as `fig_dot_arrows_per_tag`, rendered as
+    grouped bars instead of dot-arrows:
+      - rows = base_model — typically 3.
+      - cols = OP — 4 (UT_PW, UT_IND, AT_PW, AT_IND); PW columns half-width.
+      - per panel x-axis is a 2-tier grouping:
+          MAIN groups = kvs (B = base, T = trained-std), drawn as the
+            lower-tier x-axis label.
+          SUB-positions per main group = series:
+            PW OPs  → 1 sub-position: "PW"
+            IND OPs → 2 sub-positions: "IND-self", "IND-alt"
+      - within each (kv, series) sub-position: 3 solid bars dodged by ICA
+        condition (color-coded; consistent with dot-arrow figure).
+      - the corresponding series's no-ICA accuracy is overlaid on every
+        ICA bar in that sub-position as a transparent cross-hatched bar
+        — same baseline-vs-ICA contrast the dot-arrow figure conveys
+        with open vs filled dots.
+
+    Saved to {output_dir}/all/{experiment}/{subdir_name}/{output_name}.{pdf,png}.
+    """
+    if agg.empty:
+        return
+
+    ctrl_suffixes = ("ica-ctrl", "ica-ctrl2", "ica-ctrl3")
+    cond_keys = ["ica-self", "ica-alt", "ica-ctrl-avg"]
+    OP_ORDER = ["UT_PW", "UT_IND", "AT_PW", "AT_IND"]
+    series_for_pw = [("PW",      "metric")]
+    series_for_ind = [("IND-self", "control_acc"),
+                      ("IND-alt",  "treatment_acc")]
+
+    n_kvs = len(kv_order)
+    cond_dodge = 0.10
+    cond_offsets = [-cond_dodge, 0.0, +cond_dodge]
+    bar_w = 0.085
+    # Display labels for the lower-tier x-axis. Every trained-* variant
+    # collapses to "trained" — the variant identity is in the figure's
+    # subdir/filename rather than the axis label.
+    kv_short = {"base": "base",
+                "trained-std": "trained",
+                "trained-adv": "trained",
+                "trained-multi-op": "trained",
+                "trained-randlabels": "trained"}
+
+    # PW columns get half the horizontal width of IND columns.
+    width_ratios_full = [1 if op.endswith("_PW") else 2 for op in OP_ORDER]
+    max_wr = max(width_ratios_full)
+
+    def _layout(n_series: int, panel_wr: int):
+        """Return (kv_centers, series_offsets, xlim) so that a fixed bar_w in
+        data units renders to the same *physical* bar width across panels of
+        different gridspec width_ratios. We achieve this by scaling the kv
+        spacing (and accompanying x-padding) by panel_wr / max_wr."""
+        scale = panel_wr / max_wr
+        kv_spacing = 1.0 * scale
+        kv_centers = [i * kv_spacing for i in range(n_kvs)]
+        if n_series == 1:
+            series_offsets = [0.0]
+        elif n_series == 2:
+            series_offsets = [-0.20 * scale, +0.20 * scale]
+        else:
+            spread = 0.30 * scale * (n_series - 1)
+            series_offsets = [(-spread / 2 + i * 0.30 * scale)
+                              for i in range(n_series)]
+        x_pad = 0.55 * scale
+        xlim = (-x_pad, kv_centers[-1] + x_pad)
+        return kv_centers, series_offsets, xlim
+
+    experiments_present = sorted({e for e in agg["experiment_name"].unique()
+                                  if pd.notna(e)})
+
+    for experiment in experiments_present:
+        b_df = agg[agg["experiment_name"] == experiment]
+        if b_df.empty:
+            continue
+        # Cross-op experiments (SGTR_03..06, _08, _10) lack base rows and the
+        # trained_op cell. Pull them in from the self-op partner so per-(model,
+        # OP) panels render fully populated.
+        b_df = _augment_with_partner(agg, b_df, experiment, kv_order)
+        if require_kv_data is not None:
+            has_required = b_df["condition"].astype(str).str.startswith(
+                f"{require_kv_data}_").any()
+            if not has_required:
+                continue
+        models = sorted(b_df["base_model"].dropna().unique())
+        if not models:
+            continue
+
+        # Drop OP columns that have no data anywhere in this experiment.
+        ops_present = [
+            op for op in OP_ORDER
+            if ((b_df["tags"] == op.split("_")[0])
+                & b_df["format"].astype(str)
+                     .str.startswith(op.split("_")[1])).any()
+        ]
+        if not ops_present:
+            continue
+        width_ratios_local = [1 if op.endswith("_PW") else 2 for op in ops_present]
+
+        n_rows = len(models)
+        n_cols = len(ops_present)
+        fig, axes = plt.subplots(
+            n_rows, n_cols,
+            figsize=(1.6 * sum(width_ratios_local) + 1.5, 1.9 * n_rows + 1.6),
+            sharey=True, squeeze=False,
+            gridspec_kw={"width_ratios": width_ratios_local},
+        )
+
+        def _val(df_kv, kv, suffix, col):
+            if df_kv.empty:
+                return float("nan")
+            if suffix == "ica-ctrl-avg":
+                conds = [f"{kv}_{s}" for s in ctrl_suffixes]
+                sub = df_kv[df_kv["condition"].isin(conds)]
+            else:
+                sub = df_kv[df_kv["condition"] == f"{kv}_{suffix}"]
+            if sub.empty:
+                return float("nan")
+            return float(sub[col].astype(float).mean())
+
+        for ri, model in enumerate(models):
+            for ci, op in enumerate(ops_present):
+                ax = axes[ri, ci]
+                tag, fmt_prefix = op.split("_")
+                op_df = b_df[(b_df["base_model"] == model) &
+                             (b_df["tags"] == tag) &
+                             b_df["format"].astype(str).str.startswith(fmt_prefix)]
+                is_ind = (fmt_prefix == "IND")
+                series_specs = series_for_ind if is_ind else series_for_pw
+                n_series = len(series_specs)
+                kv_centers, series_offsets, xlim = _layout(n_series,
+                                                           width_ratios_local[ci])
+
+                ax.set_xlim(*xlim)
+                ax.set_ylim(0.0, 1.05)
+                ax.axhline(0.5, color="red", linestyle=":",
+                           linewidth=0.5, alpha=0.5)
+                ax.grid(axis="y", alpha=0.3, linewidth=0.3)
+                ax.tick_params(axis="both", labelsize=8)
+
+                for kvi, kv in enumerate(kv_order):
+                    kv_df = op_df[op_df["condition"].astype(str)
+                                  .str.startswith(f"{kv}_")]
+                    cx = kv_centers[kvi]
+                    for sgi, (series_label, col_name) in enumerate(series_specs):
+                        sub_x = cx + series_offsets[sgi]
+                        bl = _val(kv_df, kv, "no-ica", col_name)
+                        for ic, cond_key in enumerate(cond_keys):
+                            color = _ICA_COND_COLORS[cond_key]
+                            v = _val(kv_df, kv, cond_key, col_name)
+                            x = sub_x + cond_offsets[ic]
+                            # Solid ICA bar.
+                            if pd.notna(v):
+                                ax.bar(x, v, width=bar_w, color=color,
+                                       edgecolor="black", linewidth=0.4,
+                                       zorder=3)
+                            # Diagonal-hatched no-ICA overlay (same x).
+                            if pd.notna(bl):
+                                ax.bar(x, bl, width=bar_w, facecolor="none",
+                                       edgecolor="black", linewidth=0.7,
+                                       hatch="///", zorder=4)
+
+                # X-axis (2-tier): series sub-positions are major ticks
+                # (PW / IND-t / IND-ctrl); kv labels (B / T) are drawn
+                # below at the kv group centers.
+                sub_positions, sub_labels = [], []
+                for kvi in range(n_kvs):
+                    for sgi, (series_label, _) in enumerate(series_specs):
+                        sub_positions.append(kv_centers[kvi] + series_offsets[sgi])
+                        sub_labels.append(series_label)
+                ax.set_xticks(sub_positions)
+                if ri == n_rows - 1:
+                    ax.set_xticklabels(sub_labels, fontsize=8)
+                    for kvi, kv in enumerate(kv_order):
+                        ax.text(kv_centers[kvi], -0.18, kv_short.get(kv, kv),
+                                transform=ax.get_xaxis_transform(),
+                                ha="left", va="top",
+                                rotation=-45, rotation_mode="anchor",
+                                fontsize=9, fontweight="bold")
+                else:
+                    ax.set_xticklabels([])
+
+                if ri == 0:
+                    ax.set_title(_op_display(op), fontsize=11, fontweight="bold")
+                if ci == 0:
+                    ax.set_ylabel(_model_display(model), fontsize=11, rotation=0,
+                                  ha="right", va="center", fontweight="bold",
+                                  labelpad=10)
+
+        # Legend: 3 ICA condition swatches + 1 hatched explanation for the
+        # no-ICA overlay + a kv abbreviation key.
+        cond_handles = [
+            plt.Rectangle((0, 0), 1, 1, facecolor=_ICA_COND_COLORS[k],
+                          edgecolor="black", linewidth=0.4, label=k)
+            for k in cond_keys
+        ]
+        cond_handles.append(
+            plt.Rectangle((0, 0), 1, 1, facecolor="none",
+                          edgecolor="black", linewidth=0.9, hatch="///",
+                          label="no-ICA (overlay)")
+        )
+        fig.legend(handles=cond_handles, loc="lower right", fontsize=8.5,
+                   frameon=True, ncol=4, bbox_to_anchor=(0.99, 0.005))
+        fig.suptitle(f"{experiment} · {title_suffix}",
+                     fontsize=12, fontweight="bold", y=0.995)
+        plt.tight_layout(rect=[0.06, 0.16, 1.0, 0.95])
+
+        subdir = output_dir / "all" / experiment / subdir_name
+        subdir.mkdir(parents=True, exist_ok=True)
+        path = subdir / f"{output_name}.pdf"
         fig.savefig(path, bbox_inches="tight")
         fig.savefig(path.with_suffix(".png"), bbox_inches="tight", dpi=180)
         plt.close()
@@ -1543,6 +2238,59 @@ CROSS_OP_EXPERIMENTS = [
                "SGTR_09_trained-OP-ShareGPT_eval-on_self-same-OP-WikiSum_ICA-WikiSum",
                ["UT_IND", "AT_IND"]),  # IND-only; UT first per OP_DISPLAY_ORDER
 ]
+
+
+def _augment_with_partner(agg: pd.DataFrame, b_df: pd.DataFrame,
+                          experiment: str, kv_order: tuple) -> pd.DataFrame:
+    """If `experiment` is a cross-op variant per CROSS_OP_EXPERIMENTS, append
+    rows from its self-op partner so per-(model, OP) panels can render base
+    data — which the cross-op experiment typically lacks — and also pull
+    trained-std data on the trained_op cell, which lives only in the partner
+    (since the cross-op experiment evaluates exclusively on cross-OPs).
+
+    Restricted to the standard `("base", "trained-std")` view: the multi-op
+    and randlabels variants shouldn't be back-filled with partner data
+    because the cross-op multi-op / randlabels figures aren't conceptually
+    meaningful (those LoRAs are op-agnostic / control runs).
+
+    Partner rows are re-tagged as belonging to `experiment` so downstream
+    filtering by experiment_name treats them consistently.
+    """
+    # Only merge for the standard "all" view (base + trained-std).
+    trained_kvs = [k for k in kv_order if k != "base"]
+    if trained_kvs != ["trained-std"]:
+        return b_df
+
+    partners = {
+        cross_exp: (trained_op, self_exp)
+        for trained_op, cross_exp, self_exp, _ in CROSS_OP_EXPERIMENTS
+    }
+    if experiment not in partners:
+        return b_df
+    trained_op, partner_exp = partners[experiment]
+    partner = agg[agg["experiment_name"] == partner_exp]
+    if partner.empty:
+        return b_df
+
+    # Base rows from partner — for every (model, OP) cell.
+    base_rows = partner[partner["condition"].astype(str).str.startswith("base_")]
+
+    # Trained-std on the trained_op (e.g. AT_IND) — that cell lives in
+    # the partner, not the cross-op exp.
+    op_to_fmt = {v: k for k, v in _FMT_TO_OP.items()}
+    trained_fmt = op_to_fmt.get(trained_op)
+    trained_tag = trained_op.split("_")[0]
+    trained_rows = partner[
+        partner["condition"].astype(str).str.startswith("trained-std_")
+        & (partner["tags"] == trained_tag)
+        & (partner["format"] == trained_fmt)
+    ]
+
+    extras = pd.concat([base_rows, trained_rows], ignore_index=True)
+    if extras.empty:
+        return b_df
+    extras = extras.assign(experiment_name=experiment)
+    return pd.concat([b_df, extras], ignore_index=True)
 
 
 def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
@@ -1602,11 +2350,10 @@ def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
 
     for ri, spec in enumerate(rows_spec):
         is_ind = spec["is_ind"]
-        axes[ri, 0].set_ylabel(spec["test_op"], fontsize=10, rotation=0,
+        axes[ri, 0].set_ylabel(_op_display(spec["test_op"]), fontsize=10, rotation=0,
                                ha="right", va="center", fontweight="bold")
 
         for gi, kv in enumerate(kv_order):
-            kv_color = _KV_COLORS[kv]
             source_df = spec["trained_std_df"] if kv == "trained-std" else spec["b2_cell"]
             bl_df = source_df[source_df["condition"] == f"{kv}_no-ica"]
             if not bl_df.empty:
@@ -1663,17 +2410,18 @@ def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
                         for x, v in zip(xs, vals):
                             _plot_arrow(ax, x, bl_val, v, color)
                 else:
+                    # PW: fixed slate color across all panels.
                     shots = ica_df["icl_count"].values
                     vals = ica_df["metric"].values
                     if len(shots) and pd.notna(bl_metric):
                         ax.scatter(shots, [bl_metric] * len(shots), marker="o",
-                                   facecolors="none", edgecolors=kv_color, s=55,
+                                   facecolors="none", edgecolors=_PW_COLOR, s=55,
                                    linewidths=1.5, zorder=2)
                     if len(shots):
-                        ax.scatter(shots, vals, marker="o", color=kv_color,
+                        ax.scatter(shots, vals, marker="o", color=_PW_COLOR,
                                    s=55, linewidths=0.5, edgecolors="black", zorder=3)
                     for s_, v in zip(shots, vals):
-                        _plot_arrow(ax, s_, bl_metric, v, kv_color)
+                        _plot_arrow(ax, s_, bl_metric, v, _PW_COLOR)
 
                 if ri == 0:
                     ax.set_title(suffix, fontsize=9, fontweight="bold")
@@ -1689,33 +2437,24 @@ def fig_shot_dot_arrows_cross_op(agg: pd.DataFrame, output_dir: Path,
     handles = [
         plt.Line2D([0], [0], marker="o", linestyle="",
                    markerfacecolor="none",
-                   markeredgecolor=_IND_TREATMENT_COLOR,
+                   markeredgecolor="gray",
                    markeredgewidth=1.5, markersize=8,
-                   label="IND treatment · no-ICA (open)"),
+                   label="no-ICA (open)"),
         plt.Line2D([0], [0], marker="o", linestyle="",
                    markerfacecolor=_IND_TREATMENT_COLOR,
                    markeredgecolor="black", markeredgewidth=0.5,
-                   markersize=8, label="IND treatment · ICA (filled)"),
-        plt.Line2D([0], [0], marker="o", linestyle="",
-                   markerfacecolor="none",
-                   markeredgecolor=_IND_CONTROL_COLOR,
-                   markeredgewidth=1.5, markersize=8,
-                   label="IND control · no-ICA (open)"),
+                   markersize=8, label="IND treatment"),
         plt.Line2D([0], [0], marker="o", linestyle="",
                    markerfacecolor=_IND_CONTROL_COLOR,
                    markeredgecolor="black", markeredgewidth=0.5,
-                   markersize=8, label="IND control · ICA (filled)"),
+                   markersize=8, label="IND control"),
         plt.Line2D([0], [0], marker="o", linestyle="",
-                   markerfacecolor="none",
-                   markeredgecolor="#555", markeredgewidth=1.5, markersize=8,
-                   label="PW accuracy · no-ICA (open, kv color)"),
-        plt.Line2D([0], [0], marker="o", linestyle="",
-                   markerfacecolor="#555",
+                   markerfacecolor=_PW_COLOR,
                    markeredgecolor="black", markeredgewidth=0.5,
-                   markersize=8, label="PW accuracy · ICA (filled, kv color)"),
+                   markersize=8, label="PW accuracy"),
     ]
     fig.legend(handles=handles, loc="lower right", fontsize=8.5,
-               frameon=True, ncol=3, bbox_to_anchor=(0.99, 0.005))
+               frameon=True, ncol=4, bbox_to_anchor=(0.99, 0.005))
     trained_op_display = trained_op.replace("_", "-")
     fig.suptitle(f"{trained_op_display}-trained models · tested across all OPs "
                  f"(trained-std: cross-op experiment for left-out ops, self-same-OP for {trained_op_display})",
@@ -1801,59 +2540,207 @@ def print_summary(agg: pd.DataFrame, deltas: pd.DataFrame):
 # Main
 # ---------------------------------------------------------------------------
 
+# Selectable figure registry — keys are CLI-friendly names; values are
+# one-line descriptions surfaced in --help. Each key gates exactly one figure
+# call site in main(). Order here is the order figures will be generated.
+FIGURE_REGISTRY: list[tuple[str, str]] = [
+    ("accuracy_per_cell",   "Per-cell × icl_count grouped bar chart of metric per condition"),
+    ("delta_heatmap",       "Heatmap of Δ from no-ICA per (op, icl_count) × condition"),
+    ("trained_vs_base_alt", "Scatter of |Δ_trained_alt| vs |Δ_base_alt|"),
+    ("dot_arrows",          "Per-base × experiment × kv dot-arrow grids"),
+    ("all_ind",             "Consolidated IND-only dot-arrow figure per experiment"),
+    ("all_combined",        "Consolidated IND+PW dot-arrow figure per experiment"),
+    ("multi_op",            "Multi-OP-only (base + trained-multi-op) variant of all_combined"),
+    ("randlabels",          "Random-labels-only (base + trained-randlabels) variant of all_combined"),
+    ("cross_op",            "Cross-OP (train on one OP, eval on others) dot-arrow figure"),
+    ("per_tag",             "Per-(model, OP) shot-averaged dot-arrows; 3 rows × 4 cols"),
+    ("per_tag_bars",        "Per-(model, tag) shot-averaged grouped bar chart"),
+    ("per_tag_diff",        "Per-(model, OP) training-induced ICA shift Δ_trained − Δ_base"),
+]
+
+
 def main():
+    valid_keys = [k for k, _ in FIGURE_REGISTRY]
+    fig_help = "Figures to generate. Special values: 'all' (default), 'none'. " \
+               "Otherwise a space-separated subset of: " + ", ".join(valid_keys)
+
     parser = argparse.ArgumentParser(description="Analyze ICA results")
-    parser.add_argument("--experiment_dirs", nargs="+", required=True,
-                        help="Experiment root dir(s) containing condition subdirs")
+    parser.add_argument("--experiment_dirs", nargs="+",
+                        help="Experiment root dir(s) containing condition subdirs. "
+                             "Required unless --from_csv is set.")
     parser.add_argument("--results_root", default="data/results",
                         help="Where inspect_ai eval logs live (default: data/results)")
     parser.add_argument("--output_dir", required=True,
                         help="Where to write the analysis outputs")
+    parser.add_argument("--include_adv", action="store_true",
+                        help="Include trained-adv columns in figures. "
+                             "Off by default — adv data is loaded into the CSVs "
+                             "regardless, only the figures are filtered.")
+    parser.add_argument("--figures", nargs="+", default=["all"], help=fig_help)
+    parser.add_argument("--from_csv", action="store_true",
+                        help="Skip the (slow) eval-log load and reuse the "
+                             "ica_runs.csv + ica_deltas.csv already in --output_dir. "
+                             "Useful when iterating on figure code.")
     args = parser.parse_args()
+
+    # Validate --figures
+    if "all" in args.figures and "none" in args.figures:
+        parser.error("--figures: cannot pass both 'all' and 'none'")
+    if "all" in args.figures:
+        selected = set(valid_keys)
+    elif "none" in args.figures:
+        selected = set()
+    else:
+        unknown = [f for f in args.figures if f not in valid_keys]
+        if unknown:
+            parser.error(
+                f"--figures: unknown name(s) {unknown}. "
+                f"Valid: 'all', 'none', or any of {valid_keys}"
+            )
+        selected = set(args.figures)
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    results_root = Path(args.results_root)
-    experiment_dirs = [Path(p) for p in args.experiment_dirs]
 
-    print(f"Loading ICA results from {len(experiment_dirs)} experiment dir(s)...")
-    df = load_ica_results(experiment_dirs, results_root)
-    if df.empty:
-        print("No eval logs found. Make sure runs have completed and "
-              "results_root + experiment dirs are correct.")
+    # ---- Load (or reuse) the analysis tables -------------------------------
+    if args.from_csv:
+        runs_csv = output_dir / "ica_runs.csv"
+        deltas_csv = output_dir / "ica_deltas.csv"
+        if not runs_csv.exists() or not deltas_csv.exists():
+            parser.error(
+                f"--from_csv: missing {runs_csv} or {deltas_csv}. "
+                f"Run once without --from_csv to generate them first."
+            )
+        print(f"Reusing existing CSVs from {output_dir}/ ...")
+        agg = pd.read_csv(runs_csv)
+        deltas = pd.read_csv(deltas_csv)
+        print(f"  agg: {len(agg)} rows, deltas: {len(deltas)} rows")
+    else:
+        if not args.experiment_dirs:
+            parser.error("--experiment_dirs is required (or pass --from_csv)")
+        results_root = Path(args.results_root)
+        experiment_dirs = [Path(p) for p in args.experiment_dirs]
+
+        print(f"Loading ICA results from {len(experiment_dirs)} experiment dir(s)...")
+        df = load_ica_results(experiment_dirs, results_root)
+        if df.empty:
+            print("No eval logs found. Make sure runs have completed and "
+                  "results_root + experiment dirs are correct.")
+            return
+
+        df = compute_cell_key(df)
+        df.to_csv(output_dir / "ica_runs_raw.csv", index=False)
+        print(f"  Raw logs: {len(df)} rows across {df['cell'].nunique()} cell(s)")
+
+        agg = aggregate_accuracy(df)
+        deltas = compute_deltas(agg)
+
+        print_summary(agg, deltas)
+
+        agg.to_csv(output_dir / "ica_runs.csv", index=False)
+        deltas.to_csv(output_dir / "ica_deltas.csv", index=False)
+        print(f"\n  Saved: {output_dir / 'ica_runs.csv'}")
+        print(f"  Saved: {output_dir / 'ica_deltas.csv'}")
+
+    # ---- Figure-level adv filter. CSVs above keep all rows. ----------------
+    if not args.include_adv:
+        print("  (filtering trained-adv from figures — pass --include_adv to keep)")
+        agg = agg[~agg["condition"].astype(str).str.startswith("trained-adv_")].copy()
+        deltas = deltas[~deltas["condition"].astype(str).str.startswith("trained-adv_")].copy()
+        kv_order_full = ("base", "trained-std")
+        kv_order_dot = ("trained-std", "base")
+    else:
+        kv_order_full = ("base", "trained-std", "trained-adv")
+        kv_order_dot = ("trained-std", "trained-adv", "base")
+
+    if not selected:
+        print("\n--figures none → skipping figure generation.")
+        print(f"  Analysis complete. Outputs in {output_dir}/")
         return
 
-    df = compute_cell_key(df)
-    df.to_csv(output_dir / "ica_runs_raw.csv", index=False)
-    print(f"  Raw logs: {len(df)} rows across {df['cell'].nunique()} cell(s)")
-
-    agg = aggregate_accuracy(df)
-    deltas = compute_deltas(agg)
-
-    print_summary(agg, deltas)
-
-    agg.to_csv(output_dir / "ica_runs.csv", index=False)
-    deltas.to_csv(output_dir / "ica_deltas.csv", index=False)
-    print(f"\n  Saved: {output_dir / 'ica_runs.csv'}")
-    print(f"  Saved: {output_dir / 'ica_deltas.csv'}")
-
-    print("\nGenerating figures...")
-    fig_accuracy_per_cell(agg, output_dir)
-    fig_delta_heatmap(deltas, agg, output_dir)
-    fig_trained_vs_base_alt(deltas, agg, output_dir)
-    fig_shot_dot_arrows(agg, output_dir)
-    fig_shot_dot_arrows_all_ind(agg, output_dir)
-    fig_shot_dot_arrows_all_combined(agg, output_dir)
-    # Multi-OP-only variant: same shape as the "all" figure but restricted to
-    # base + trained-multi-op columns. Skips experiments without multi-op data.
-    fig_shot_dot_arrows_all_combined(
-        agg, output_dir,
-        kv_order=("base", "trained-multi-op"),
-        subdir_name="multi-op",
-        title_suffix="multi-op only · IND + PW (ctrl averaged)",
-        require_kv_data="trained-multi-op",
-    )
-    fig_shot_dot_arrows_all_cross_op(agg, output_dir)
+    print(f"\nGenerating figures: {sorted(selected)}")
+    if "accuracy_per_cell" in selected:
+        fig_accuracy_per_cell(agg, output_dir)
+    if "delta_heatmap" in selected:
+        fig_delta_heatmap(deltas, agg, output_dir)
+    if "trained_vs_base_alt" in selected:
+        fig_trained_vs_base_alt(deltas, agg, output_dir)
+    if "dot_arrows" in selected:
+        fig_shot_dot_arrows(agg, output_dir, kv_order=kv_order_dot)
+    if "all_ind" in selected:
+        fig_shot_dot_arrows_all_ind(agg, output_dir, kv_order=kv_order_full)
+    if "all_combined" in selected:
+        fig_shot_dot_arrows_all_combined(agg, output_dir, kv_order=kv_order_full)
+    if "multi_op" in selected:
+        # Same shape as the "all" figure but restricted to base + trained-multi-op
+        # columns. Skips experiments without multi-op data.
+        fig_shot_dot_arrows_all_combined(
+            agg, output_dir,
+            kv_order=("base", "trained-multi-op"),
+            subdir_name="multi-op",
+            title_suffix="multi-op only · IND + PW (ctrl averaged)",
+            require_kv_data="trained-multi-op",
+        )
+    if "randlabels" in selected:
+        # Catastrophic-forgetting control: same data distribution and compute
+        # as multi-op, but with binary targets shuffled per ID.
+        fig_shot_dot_arrows_all_combined(
+            agg, output_dir,
+            kv_order=("base", "trained-randlabels"),
+            subdir_name="randlabels",
+            title_suffix="randlabels control · IND + PW (ctrl averaged)",
+            require_kv_data="trained-randlabels",
+        )
+    if "cross_op" in selected:
+        fig_shot_dot_arrows_all_cross_op(agg, output_dir)
+    if "per_tag" in selected:
+        # Default ("all") variant: 3 rows × 4 cols, base + trained-std kvs.
+        fig_dot_arrows_per_tag(agg, output_dir, kv_order=kv_order_full)
+        # Multi-op variant: same shape but base + trained-multi-op. Skips
+        # experiments without multi-op data via `require_kv_data`.
+        fig_dot_arrows_per_tag(
+            agg, output_dir,
+            kv_order=("base", "trained-multi-op"),
+            subdir_name="multi-op/per-tag-shot-avg",
+            title_suffix="multi-op only · shot-averaged · per-(model, OP) panel",
+            require_kv_data="trained-multi-op",
+        )
+        # Random-labels variant: catastrophic-forgetting control.
+        fig_dot_arrows_per_tag(
+            agg, output_dir,
+            kv_order=("base", "trained-randlabels"),
+            subdir_name="randlabels/per-tag-shot-avg",
+            title_suffix="randlabels control · shot-averaged · per-(model, OP) panel",
+            require_kv_data="trained-randlabels",
+        )
+    if "per_tag_bars" in selected:
+        # Bar-chart variant of the per-tag dot-arrow figure.
+        fig_bars_per_tag(agg, output_dir, kv_order=kv_order_full)
+        # Multi-op bar-chart variant.
+        fig_bars_per_tag(
+            agg, output_dir,
+            kv_order=("base", "trained-multi-op"),
+            subdir_name="multi-op/per-tag-shot-avg",
+            title_suffix="multi-op only · shot-averaged · per-(model, OP) bar chart",
+            require_kv_data="trained-multi-op",
+        )
+    if "per_tag_diff" in selected:
+        # Training-induced ICA shift: Δ_trained − Δ_base per (series, condition).
+        fig_dot_arrows_per_tag_diff(agg, output_dir, kv_order=kv_order_full)
+        # Multi-op variant: Δ_multi-op − Δ_base.
+        fig_dot_arrows_per_tag_diff(
+            agg, output_dir,
+            kv_order=("base", "trained-multi-op"),
+            subdir_name="multi-op/per-tag-shot-avg",
+            require_kv_data="trained-multi-op",
+        )
+        # Random-labels variant: Δ_randlabels − Δ_base.
+        fig_dot_arrows_per_tag_diff(
+            agg, output_dir,
+            kv_order=("base", "trained-randlabels"),
+            subdir_name="randlabels/per-tag-shot-avg",
+            require_kv_data="trained-randlabels",
+        )
 
     print(f"\n  Analysis complete. Outputs in {output_dir}/")
 

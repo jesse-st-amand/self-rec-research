@@ -1,0 +1,10 @@
+# Cursor AI / indexing excludes.
+# Claude Code reads these on demand via Read/Grep/Bash — it doesn't need the IDE index.
+# Keeping these dirs out of Cursor's index dramatically reduces file-watcher and
+# Pyright load (workspace has ~190k files in these dirs vs. ~3k tracked).
+
+data/
+_external/
+_archive/
+_research/
+training_runs/

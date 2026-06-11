@@ -1,0 +1,14 @@
+{
+  "algorithm": "sft",
+  "backend": "tinker",
+  "epoch": 20,
+  "experiment_name": "03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small",
+  "finished_at": "2026-04-30T15:47:50.652542+00:00",
+  "resume_completed_epochs": 0,
+  "resume_global_step": null,
+  "resume_state_path": null,
+  "started_at": "2026-04-30T14:34:58.540720+00:00",
+  "status": "completed",
+  "step": 280,
+  "updated_at": "2026-04-30T15:47:50.652542+00:00"
+}

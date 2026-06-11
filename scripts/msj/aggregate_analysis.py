@@ -35,14 +35,31 @@ FMT_LINESTYLE = {"PW": "-", "IND": "--"}
 TAG_MARKER = {"UT": "o", "AT": "s"}
 
 
-def _save_fig(fig, output_dir: Path, stem: str):
-    """Save figure as both PDF and PNG."""
+def _save_fig(fig, output_dir: Path, stem: str, save_notitle: bool = False):
+    """Save figure as both PDF and PNG.
+
+    If save_notitle is True, also save a `<stem>_notitle.{pdf,png}` variant
+    with the suptitle hidden (used by report-bound figures so a clean
+    titleless version exists alongside the canonical one).
+    """
     pdf_path = output_dir / f"{stem}.pdf"
     png_path = output_dir / f"{stem}.png"
     fig.savefig(pdf_path, bbox_inches="tight")
     fig.savefig(png_path, bbox_inches="tight", dpi=200)
+    if save_notitle:
+        sup = getattr(fig, "_suptitle", None)
+        was_visible = sup is not None and sup.get_visible()
+        if sup is not None:
+            sup.set_visible(False)
+        nt_pdf = output_dir / f"{stem}_notitle.pdf"
+        nt_png = output_dir / f"{stem}_notitle.png"
+        fig.savefig(nt_pdf, bbox_inches="tight")
+        fig.savefig(nt_png, bbox_inches="tight", dpi=200)
+        if sup is not None:
+            sup.set_visible(was_visible)
     plt.close(fig)
-    print(f"  ✓ Saved: {pdf_path} (+ .png)")
+    suffix = " (+ .png, + _notitle)" if save_notitle else " (+ .png)"
+    print(f"  ✓ Saved: {pdf_path}{suffix}")
 
 
 def _normalize_base(s: str) -> str:
@@ -517,7 +534,7 @@ def fig_dot_arrow_by_model(asr: pd.DataFrame, output_dir: Path):
     # Bottom axis: shot-count labels
     ax.set_xticks(x_ticks_shot)
     ax.set_xticklabels(x_labels_shot, fontsize=24)
-    ax.set_xlabel("Number of Shots (grouped by family)", fontsize=27)
+    ax.set_xlabel("Number of Shots", fontsize=27)
 
     # Family labels below the xlabel to avoid overlap
     for center, fam in zip(family_centers, families):
@@ -579,20 +596,25 @@ def _draw_dot_arrow_panel(ax, base_asr, trained_mean, families, shot_counts,
 
             base_row = base_asr[(base_asr["base_model"] == fam) & (base_asr["n_shots"] == shots)]
             trained_row = trained_mean[(trained_mean["base_model"] == fam) & (trained_mean["n_shots"] == shots)]
-            if base_row.empty:
+            by = base_row["asr"].values[0] if not base_row.empty else None
+            ty = trained_row["asr"].values[0] if not trained_row.empty else None
+
+            # Skip only if neither base nor trained data exists for this slot.
+            if by is None and ty is None:
                 continue
-            by = base_row["asr"].values[0]
 
-            ax.plot(x, by, marker="D", color=light,
-                    markeredgecolor="black", markeredgewidth=0.8,
-                    markersize=7, zorder=3,
-                    label=("Base" if (legend_labels and gi == 0 and si == 0) else None))
+            if by is not None:
+                ax.plot(x, by, marker="D", color=light,
+                        markeredgecolor="black", markeredgewidth=0.8,
+                        markersize=7, zorder=3,
+                        label=("Base" if (legend_labels and gi == 0 and si == 0) else None))
 
-            if not trained_row.empty:
-                ty = trained_row["asr"].values[0]
-                ax.annotate("", xy=(x, ty), xytext=(x, by),
-                            arrowprops=dict(arrowstyle="->", color=dark,
-                                            lw=1.5, alpha=0.9))
+            if ty is not None:
+                # Only draw the connecting arrow when both endpoints exist.
+                if by is not None:
+                    ax.annotate("", xy=(x, ty), xytext=(x, by),
+                                arrowprops=dict(arrowstyle="->", color=dark,
+                                                lw=3.0, alpha=0.9))
                 ax.plot(x, ty, marker="o", color=dark,
                         markeredgecolor="black", markeredgewidth=0.6,
                         markersize=7, zorder=3,
@@ -610,25 +632,40 @@ def _draw_dot_arrow_panel(ax, base_asr, trained_mean, families, shot_counts,
 
 
 def fig_dot_arrow_by_model_by_op(asr: pd.DataFrame, output_dir: Path):
-    """5-row dot-arrow plot: per-OP specificity (top 4) + overall average (bottom).
+    """6-row dot-arrow plot: per-OP specificity + overall average + Multi-OP.
 
-    Rows: UT_PW, UT_IND, AT_PW, AT_IND, Average.
-    Top 4 rows filter SGTR-trained data by (tag, fmt) and average any datasets
-    within. Bottom row averages over all SGTR operationalizations (same as the
-    existing asr_dot_arrow_by_model plot). Adversarial kinds excluded throughout.
+    Rows: UT_PW, UT_IND, AT_PW, AT_IND, Average, Multi-OP.
+    The first four rows filter SGTR-trained data by (tag, fmt) and average
+    any datasets within. The Average row averages over all four SGTR
+    operationalizations (multi-op excluded). The Multi-OP row pulls
+    kind == "multi-op" (LoRAs trained jointly on UT-AT × PW-IND) and is
+    visually separated from the four single-OP rows + Average by a dotted
+    horizontal divider — Multi-OP is structurally distinct (joint training
+    over all OPs, no single-OP comparison). Adversarial kinds excluded.
+
+    Shot counts whose coverage is incomplete (e.g. 75-shot only exists for
+    multi-op runs) are dropped so the x-axis only shows fully-comparable
+    columns.
     """
+    # Drop incomplete-coverage shot counts (75 has only multi-op data; the
+    # base/sgtr/adv comparison rows would be empty there).
+    asr = asr[asr["n_shots"] != 75].copy()
     shot_counts = sorted(asr["n_shots"].unique())
     families = sorted(asr["base_model"].unique())
 
     sgtr_all = asr[asr["kind"] == "sgtr"]
+    multi_op_all = asr[asr["kind"] == "multi-op"]
     base_asr = asr[asr["kind"] == "base"][["base_model", "n_shots", "asr"]]
 
+    # Row entries: (label, source_df, optional (tag, fmt) filter).
+    # Average comes BEFORE Multi-OP; a dotted divider is drawn between them.
     rows = [
-        ("UT_PW",   dict(tag="UT", fmt="PW")),
-        ("UT_IND",  dict(tag="UT", fmt="IND")),
-        ("AT_PW",   dict(tag="AT", fmt="PW")),
-        ("AT_IND",  dict(tag="AT", fmt="IND")),
-        ("Average", None),
+        ("UT PW",    sgtr_all,     dict(tag="UT", fmt="PW")),
+        ("UT IND",   sgtr_all,     dict(tag="UT", fmt="IND")),
+        ("AT PW",    sgtr_all,     dict(tag="AT", fmt="PW")),
+        ("AT IND",   sgtr_all,     dict(tag="AT", fmt="IND")),
+        ("Average",  sgtr_all,     None),
+        ("Multi-OP", multi_op_all, None),
     ]
 
     n_rows = len(rows)
@@ -638,17 +675,20 @@ def fig_dot_arrow_by_model_by_op(asr: pd.DataFrame, output_dir: Path):
                              sharex=True, sharey=True, squeeze=False)
 
     # Global y-max across all panel data
-    ymax = max(base_asr["asr"].max() if not base_asr.empty else 0,
-               sgtr_all["asr"].max() if not sgtr_all.empty else 0)
+    ymax_candidates = [base_asr["asr"].max() if not base_asr.empty else 0,
+                       sgtr_all["asr"].max() if not sgtr_all.empty else 0]
+    if not multi_op_all.empty:
+        ymax_candidates.append(multi_op_all["asr"].max())
+    ymax = max(ymax_candidates)
 
     panel_geom = None  # used later to place dividers + family labels
 
-    for ri, (label, filt) in enumerate(rows):
+    for ri, (label, source_df, filt) in enumerate(rows):
         if filt is None:
-            sub = sgtr_all
+            sub = source_df
         else:
-            sub = sgtr_all[(sgtr_all["tag"] == filt["tag"])
-                           & (sgtr_all["fmt"] == filt["fmt"])]
+            sub = source_df[(source_df["tag"] == filt["tag"])
+                            & (source_df["fmt"] == filt["fmt"])]
         trained_mean = (sub.groupby(["base_model", "n_shots"])["asr"]
                            .mean().reset_index())
         ax = axes[ri, 0]
@@ -673,7 +713,7 @@ def fig_dot_arrow_by_model_by_op(asr: pd.DataFrame, output_dir: Path):
                        linestyle=":", alpha=0.7)
 
     bottom_ax = axes[-1, 0]
-    bottom_ax.set_xlabel("Number of Shots (grouped by family)", fontsize=15)
+    bottom_ax.set_xlabel("Number of Shots", fontsize=15)
     for center, fam in zip(family_centers, families):
         bottom_ax.text(center, -0.40, fam, ha="center", va="top",
                        fontsize=15, fontweight="bold",
@@ -691,7 +731,25 @@ def fig_dot_arrow_by_model_by_op(asr: pd.DataFrame, output_dir: Path):
                  fontsize=16, fontweight="bold", y=0.998)
     fig.supylabel("ASR", fontsize=15)
     plt.tight_layout(rect=[0.02, 0.04, 1.0, 0.975])
-    _save_fig(fig, output_dir, "asr_dot_arrow_by_model_by_op")
+
+    # Horizontal dotted divider between the single-OP rows + Average (top)
+    # and Multi-OP (bottom). Drawn after tight_layout so the panel
+    # positions are final.
+    multi_op_idx = next((i for i, r in enumerate(rows) if r[0] == "Multi-OP"), None)
+    if multi_op_idx is not None and multi_op_idx > 0:
+        avg_ax = axes[multi_op_idx - 1, 0]
+        mo_ax = axes[multi_op_idx, 0]
+        y_div = (avg_ax.get_position().y0 + mo_ax.get_position().y1) / 2
+        import matplotlib.lines as mlines
+        line = mlines.Line2D([0.02, 0.99], [y_div, y_div],
+                             transform=fig.transFigure,
+                             color="black", linewidth=1.4,
+                             linestyle=(0, (4, 4)),  # dashed, tighter spacing
+                             alpha=0.85)
+        line.set_clip_on(False)
+        fig.add_artist(line)
+
+    _save_fig(fig, output_dir, "asr_dot_arrow_by_model_by_op", save_notitle=True)
 
 
 def print_summary(df: pd.DataFrame, asr: pd.DataFrame):
@@ -712,7 +770,25 @@ def print_summary(df: pd.DataFrame, asr: pd.DataFrame):
         print(pivot.to_string(float_format=lambda v: f"{v:.1%}" if pd.notna(v) else "  - "))
 
 
+# Selectable figure registry — keys are CLI-friendly names; each gates one
+# figure call site below. Order is the generation order.
+FIGURE_REGISTRY: list[tuple[str, str]] = [
+    ("asr_by_shots",            "ASR vs shot count, line per (base_model, kind)"),
+    ("asr_heatmap",             "Heatmap of ASR per (model, n_shots)"),
+    ("kind_summary",            "ASR summary line per kind (base / sgtr / adv / multi-op)"),
+    ("delta_vs_base",           "Per-model Δ-from-base curves, faceted"),
+    ("delta_avg_across_models", "Averaged Δ-from-base across models per family"),
+    ("delta_avg_across_families", "Averaged Δ-from-base across families"),
+    ("dot_arrow_by_model",      "Per-model dot-arrow (base → trained) summary"),
+    ("dot_arrow_by_model_by_op","Per-OP × per-model dot-arrow grid (with Multi-OP and Average rows)"),
+]
+
+
 def main():
+    valid_keys = [k for k, _ in FIGURE_REGISTRY]
+    fig_help = "Figures to generate. Special values: 'all' (default), 'none'. " \
+               "Otherwise a space-separated subset of: " + ", ".join(valid_keys)
+
     parser = argparse.ArgumentParser(description="Aggregate MSJ analysis across batches")
     parser.add_argument("--results_root", default="data/msj/results")
     parser.add_argument(
@@ -728,30 +804,75 @@ def main():
         ],
     )
     parser.add_argument("--output_dir", default="data/msj/results/aggregate")
+    parser.add_argument("--include_adv", action="store_true",
+                        help="Include adversarial-trained (kind='adv') models in figures. "
+                             "Off by default — adv data stays in asr_summary_combined.csv; "
+                             "only the figures are filtered.")
+    parser.add_argument("--figures", nargs="+", default=["all"], help=fig_help)
+    parser.add_argument("--from_csv", action="store_true",
+                        help="Skip the per-batch JSON load and reuse the "
+                             "asr_summary_combined.csv already in --output_dir.")
     args = parser.parse_args()
+
+    # Validate --figures
+    if "all" in args.figures and "none" in args.figures:
+        parser.error("--figures: cannot pass both 'all' and 'none'")
+    if "all" in args.figures:
+        selected = set(valid_keys)
+    elif "none" in args.figures:
+        selected = set()
+    else:
+        unknown = [f for f in args.figures if f not in valid_keys]
+        if unknown:
+            parser.error(f"--figures: unknown name(s) {unknown}. "
+                         f"Valid: 'all', 'none', or any of {valid_keys}")
+        selected = set(args.figures)
 
     results_root = Path(args.results_root)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"Loading {len(args.batches)} batches from {results_root}...")
-    df = load_all(results_root, args.batches)
-    asr = compute_asr(df)
+    if args.from_csv:
+        asr_csv = output_dir / "asr_summary_combined.csv"
+        if not asr_csv.exists():
+            parser.error(f"--from_csv: missing {asr_csv}. Run once without --from_csv first.")
+        print(f"Reusing existing {asr_csv} ...")
+        asr = pd.read_csv(asr_csv)
+        print(f"  asr: {len(asr)} rows")
+    else:
+        print(f"Loading {len(args.batches)} batches from {results_root}...")
+        df = load_all(results_root, args.batches)
+        asr = compute_asr(df)
+        print_summary(df, asr)
+        asr.to_csv(output_dir / "asr_summary_combined.csv", index=False)
+        print(f"\n✓ Saved: {output_dir / 'asr_summary_combined.csv'}")
 
-    print_summary(df, asr)
+    if not args.include_adv:
+        print("  (filtering kind='adv' from figures — pass --include_adv to keep)")
+        asr = asr[asr["kind"] != "adv"].copy()
 
-    asr.to_csv(output_dir / "asr_summary_combined.csv", index=False)
-    print(f"\n✓ Saved: {output_dir / 'asr_summary_combined.csv'}")
+    if not selected:
+        print("\n--figures none → skipping figure generation.")
+        print(f"\n✓ Aggregate analysis complete. Results in {output_dir}/")
+        return
 
-    print("\nGenerating figures...")
-    fig_asr_by_shots(asr, output_dir)
-    fig_asr_heatmap(asr, output_dir)
-    fig_kind_summary(asr, output_dir)
-    fig_delta_vs_base(asr, output_dir)
-    fig_delta_avg_across_models(asr, output_dir)
-    fig_delta_avg_across_families(asr, output_dir)
-    fig_dot_arrow_by_model(asr, output_dir)
-    fig_dot_arrow_by_model_by_op(asr, output_dir)
+    print(f"\nGenerating figures: {sorted(selected)}")
+    if "asr_by_shots" in selected:
+        fig_asr_by_shots(asr, output_dir)
+    if "asr_heatmap" in selected:
+        fig_asr_heatmap(asr, output_dir)
+    if "kind_summary" in selected:
+        fig_kind_summary(asr, output_dir)
+    if "delta_vs_base" in selected:
+        fig_delta_vs_base(asr, output_dir)
+    if "delta_avg_across_models" in selected:
+        fig_delta_avg_across_models(asr, output_dir)
+    if "delta_avg_across_families" in selected:
+        fig_delta_avg_across_families(asr, output_dir)
+    if "dot_arrow_by_model" in selected:
+        fig_dot_arrow_by_model(asr, output_dir)
+    if "dot_arrow_by_model_by_op" in selected:
+        fig_dot_arrow_by_model_by_op(asr, output_dir)
 
     print(f"\n✓ Aggregate analysis complete. Results in {output_dir}/")
 

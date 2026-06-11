@@ -31,3 +31,6 @@ CLAUDE.md
 
 # uv
 uv.lock
+
+# EC2 deployment — populated instance config (region/instance-id/key path)
+scripts/ec2/instance.env

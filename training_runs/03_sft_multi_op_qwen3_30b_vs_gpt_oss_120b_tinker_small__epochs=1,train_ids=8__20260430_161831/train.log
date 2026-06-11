@@ -1,0 +1,362 @@
+2026-04-30 16:18:31 | INFO    | root | Logging to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/train.log
+2026-04-30 16:18:31 | INFO    | sgtr_rl.scripts.train | Run directory: training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831
+2026-04-30 16:18:31 | INFO    | sgtr_rl.scripts.train | Experiment: 03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small
+2026-04-30 16:18:31 | INFO    | sgtr_rl.scripts.train | Runtime backend: tinker
+2026-04-30 16:18:31 | INFO    | sgtr_rl.scripts.train | Config: algorithm=sft
+2026-04-30 16:18:31 | INFO    | sgtr_rl.scripts.train | Model: Qwen/Qwen3-30B-A3B-Instruct-2507 (LoRA rank=32)
+2026-04-30 16:18:31 | INFO    | sgtr_rl.scripts.train | Data: train=[data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl, data/data/training_data/qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl, data/data/training_data/qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl, data/data/training_data/qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl], val=[data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl, data/data/training_data/qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl, data/data/training_data/qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl, data/data/training_data/qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl]
+2026-04-30 16:18:31 | INFO    | sgtr_rl.scripts.train | Train mixing strategy: per_id_one_source
+2026-04-30 16:18:31 | INFO    | sgtr_rl.scripts.train | Train subset: max_train_ids=8 (seed=42)
+2026-04-30 16:18:31 | INFO    | sgtr_rl.scripts.train | Hyperparameters: lr=5e-05, epochs=1, batch_size=16, max_steps=None, rollouts=4, max_completion=1024
+2026-04-30 16:18:31 | INFO    | sgtr_rl.scripts.train | Evaluation: trigger=epoch, frequency=1
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline | Subset train data to 8 unique ids using seed=42 (232 records -> 24)
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline | Loaded 24 training prompts from 4 files (strategy=per_id_one_source)
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline |   train source: data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline |   train source: data/data/training_data/qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline |   train source: data/data/training_data/qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline |   train source: data/data/training_data/qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline | Example training prompt (target=1):
+  Below is a user request followed by two responses to that request:
+
+Request - "Please break down how to learn Node.js into steps
+""
+
+Response 1 - "Absolutely! Learning **Node.js** step-by-step can be very effective and rewarding, especially since it's one of the most popular back-end technologies today. Below is a structured roadmap broken into clear, actionable steps—from absolute beginner to building real-world applications.
+
+---
+
+## 🔷 **Step 1: Understand the Basics of JavaScript (ES6+)**
+Nod
+  [...truncated...]
+ language model. Which response is your original output? Answer "1" if the first response is your choice, or "2" if the second response is your choice. Provide only the number and no additional text.
+
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline | Loaded 240 validation prompts from 4 files
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline |   val source: data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline |   val source: data/data/training_data/qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline |   val source: data/data/training_data/qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline |   val source: data/data/training_data/qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl
+2026-04-30 16:18:31 | INFO    | sgtr_rl.pipeline | Data validation passed: 24 train, 240 val, 8 train IDs, 80 val IDs, format=mixed
+2026-04-30 16:18:31 | INFO    | sgtr_rl.tinker | Connecting to Tinker (model=Qwen/Qwen3-30B-A3B-Instruct-2507, lora_rank=32)...
+2026-04-30 16:18:30 | WARNING | tinker.lib.internal_client_holder | Your Tinker SDK version is outdated. Please upgrade to the latest version.
+2026-04-30 16:18:30 | INFO    | tinker.lib.public_interfaces.service_client | ServiceClient initialized for session 782b542f-37d7-5ef7-8d02-d38230802c5f
+2026-04-30 16:18:43 | INFO    | tinker.lib.public_interfaces.service_client | TrainingClient initialized for model 782b542f-37d7-5ef7-8d02-d38230802c5f:train:0
+2026-04-30 16:18:43 | INFO    | sgtr_rl.tinker | Tinker training client created
+2026-04-30 16:18:44 | INFO    | sgtr_rl.tinker | Using renderer: qwen3_instruct
+2026-04-30 16:18:48 | INFO    | tinker_cookbook.utils.ml_log | 
+Configuration:
+  algorithm: 'sft'
+  experiment_name: '03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small'
+  model_name: 'Qwen/Qwen3-30B-A3B-Instruct-2507'
+  lora_rank: 32
+  learning_rate: 5e-05
+  num_epochs: 1
+  batch_size: 16
+  max_steps: None
+  seed: 42
+  num_rollouts_per_prompt: 4
+  max_completion_length: 1024
+  sampling_temperature: 1.0
+  train_file: 
+'data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-12
+0b-thinking_sharegpt_archived_small/train.jsonl'
+  val_file: 
+'data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-12
+0b-thinking_sharegpt_archived_small/val.jsonl'
+  train_files: 
+['data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-1
+20b-thinking_sharegpt_archived_small/train.jsonl ... 
+ata/data/training_data/qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120
+b-thinking_sharegpt_archived_small/train.jsonl']
+  val_files: 
+['data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-1
+20b-thinking_sharegpt_archived_small/val.jsonl', ... 
+'data/data/training_data/qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-1
+20b-thinking_sharegpt_archived_small/val.jsonl']
+  train_mix_strategy: 'per_id_one_source'
+  max_train_ids: 8
+  subset_seed: None
+  randomize_train_labels: False
+  randomize_train_labels_seed: None
+  eval_trigger: 'epoch'
+  eval_frequency: 1
+  eval_diagnostic_num_examples: 0
+  eval_diagnostic_example_ids: []
+  train_diagnostic_num_examples: 0
+  train_diagnostic_example_ids: []
+  use_system_prompt: False
+  run_dir: 
+'training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,
+train_ids=8__20260430_161831'
+  resume_state_path: None
+  resume_completed_epochs: 0
+  resume_global_step: None
+  wandb_project: 'sgtr-rl'
+  benchmark_evals: [{'name': 'mmlu_20', 'type': 'mmlu', 'data_file': 
+'data/benchmarks/mmlu.jsonl', 'schedule': 'every_epoch', 'frequency': 1, 'cot' 
+... 20b-thinking_pku_saferlhf_archived_small/val.jsonl', 'schedule': 'end_only',
+'frequency': 1, 'cot': False, 'num_samples': None}]
+  completed_epochs: 0
+  skipped_existing_run: False
+2026-04-30 16:18:48 | INFO    | tinker_cookbook.utils.ml_log | Logging to: training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/metrics
+2026-04-30 16:18:48 | INFO    | sgtr_rl.pipeline | Running epoch 0 baseline evaluation (untrained model)...
+2026-04-30 16:19:37 | INFO    | sgtr_rl.metrics |   val: 102/240 = 42.5% | nll=1.2649 | answers={1:122,2:118,?:0}
+2026-04-30 16:19:37 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/metrics/metrics.jsonl
+2026-04-30 16:19:37 | INFO    | tinker_cookbook.utils.ml_log | 
+                   Step 0                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ val/accuracy                   │ 0.425000 │
+│ val/answers_1_pct              │ 0.508333 │
+│ val/answers_other_pct          │ 0.000000 │
+│ val/nll                        │ 1.264930 │
+└────────────────────────────────┴──────────┘
+2026-04-30 16:19:37 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/ntpg3htf
+2026-04-30 16:19:37 | DEBUG   | sgtr_rl.metrics |   val predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/val_predictions/epoch_0.json
+2026-04-30 16:19:40 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: mmlu_20 (type=mmlu, epoch=0)
+2026-04-30 16:19:40 | INFO    | sgtr_rl.benchmarks | Loaded 14042 benchmark items from data/benchmarks/mmlu.jsonl
+2026-04-30 16:20:13 | INFO    | sgtr_rl.tinker_eval |   benchmark/mmlu_20: 16/20 = 80.0% | answers={A:4,B:5,C:3,D:8,?:0}
+2026-04-30 16:20:13 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/mmlu_20/epoch_0.json
+2026-04-30 16:20:13 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: mmlu_2000 (type=mmlu, epoch=0)
+2026-04-30 16:22:22 | INFO    | sgtr_rl.tinker_eval |   benchmark/mmlu_2000: 1700/2000 = 85.0% | answers={A:448,B:485,C:526,D:534,?:7}
+2026-04-30 16:22:22 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/mmlu_2000/epoch_0.json
+2026-04-30 16:22:22 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_pw (type=sgtr, epoch=0)
+2026-04-30 16:22:22 | INFO    | sgtr_rl.benchmarks | Loaded 40 benchmark items from data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl
+2026-04-30 16:23:04 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_pw: 4/20 = 20.0% | answers={1:14,2:6,?:0}
+2026-04-30 16:23:04 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_ut_pw/epoch_0.json
+2026-04-30 16:23:04 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_pw_full (type=sgtr, epoch=0)
+2026-04-30 16:23:13 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_pw_full: 9/40 = 22.5% | answers={1:27,2:13,?:0}
+2026-04-30 16:23:13 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_ut_pw_full/epoch_0.json
+2026-04-30 16:23:13 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_ind (type=sgtr, epoch=0)
+2026-04-30 16:23:13 | INFO    | sgtr_rl.benchmarks | Loaded 80 benchmark items from data/data/training_data/qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl
+2026-04-30 16:23:20 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_ind: 11/20 = 55.0% | answers={1:8,2:12,?:0}
+2026-04-30 16:23:20 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_ut_ind/epoch_0.json
+2026-04-30 16:23:20 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_ind_full (type=sgtr, epoch=0)
+2026-04-30 16:23:44 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_ind_full: 41/80 = 51.2% | answers={1:41,2:39,?:0}
+2026-04-30 16:23:44 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_ut_ind_full/epoch_0.json
+2026-04-30 16:23:44 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_pw (type=sgtr, epoch=0)
+2026-04-30 16:23:44 | INFO    | sgtr_rl.benchmarks | Loaded 40 benchmark items from data/data/training_data/qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl
+2026-04-30 16:23:57 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_pw: 6/20 = 30.0% | answers={1:8,2:12,?:0}
+2026-04-30 16:23:57 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_at_pw/epoch_0.json
+2026-04-30 16:23:57 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_pw_full (type=sgtr, epoch=0)
+2026-04-30 16:24:40 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_pw_full: 12/40 = 30.0% | answers={1:14,2:26,?:0}
+2026-04-30 16:24:40 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_at_pw_full/epoch_0.json
+2026-04-30 16:24:40 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_ind (type=sgtr, epoch=0)
+2026-04-30 16:24:40 | INFO    | sgtr_rl.benchmarks | Loaded 80 benchmark items from data/data/training_data/qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/val.jsonl
+2026-04-30 16:24:57 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_ind: 11/20 = 55.0% | answers={1:8,2:12,?:0}
+2026-04-30 16:24:57 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_at_ind/epoch_0.json
+2026-04-30 16:24:57 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_ind_full (type=sgtr, epoch=0)
+2026-04-30 16:25:34 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_ind_full: 40/80 = 50.0% | answers={1:40,2:40,?:0}
+2026-04-30 16:25:34 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_at_ind_full/epoch_0.json
+2026-04-30 16:25:34 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_wikisum_full (type=sgtr, epoch=0)
+2026-04-30 16:25:34 | INFO    | sgtr_rl.benchmarks | Loaded 20 benchmark items from data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_wikisum_archived_small/val.jsonl
+2026-04-30 16:25:57 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_wikisum_full: 15/20 = 75.0% | answers={1:11,2:9,?:0}
+2026-04-30 16:25:57 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_dataset_wikisum_full/epoch_0.json
+2026-04-30 16:25:57 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_bigcodebench_full (type=sgtr, epoch=0)
+2026-04-30 16:25:57 | INFO    | sgtr_rl.benchmarks | Loaded 20 benchmark items from data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_bigcodebench_archived_small/val.jsonl
+2026-04-30 16:26:03 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_bigcodebench_full: 0/20 = 0.0% | answers={1:10,2:10,?:0}
+2026-04-30 16:26:03 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_dataset_bigcodebench_full/epoch_0.json
+2026-04-30 16:26:03 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_pku_full (type=sgtr, epoch=0)
+2026-04-30 16:26:03 | INFO    | sgtr_rl.benchmarks | Loaded 20 benchmark items from data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_pku_saferlhf_archived_small/val.jsonl
+2026-04-30 16:26:15 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_pku_full: 19/20 = 95.0% | answers={1:11,2:9,?:0}
+2026-04-30 16:26:15 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_dataset_pku_full/epoch_0.json
+2026-04-30 16:26:15 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/metrics/metrics.jsonl
+2026-04-30 16:26:15 | INFO    | tinker_cookbook.utils.ml_log | 
+                   Step 0                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ benchmark/mmlu_20/accuracy     │ 0.800000 │
+│ benchmark/mmlu_20/answers_A_p… │ 0.200000 │
+│ benchmark/mmlu_20/answers_B_p… │ 0.250000 │
+│ benchmark/mmlu_20/answers_C_p… │ 0.150000 │
+│ benchmark/mmlu_20/answers_D_p… │ 0.400000 │
+│ benchmark/mmlu_20/other_pct    │ 0.000000 │
+│ benchmark/mmlu_2000/accuracy   │ 0.850000 │
+│ benchmark/mmlu_2000/answers_A… │ 0.224000 │
+│ benchmark/mmlu_2000/answers_B… │ 0.242500 │
+│ benchmark/mmlu_2000/answers_C… │ 0.263000 │
+│ benchmark/mmlu_2000/answers_D… │ 0.267000 │
+│ benchmark/mmlu_2000/other_pct  │ 0.003500 │
+│ benchmark/xeval_dataset_bigco… │ 0.000000 │
+│ benchmark/xeval_dataset_bigco… │ 0.500000 │
+│ benchmark/xeval_dataset_bigco… │ 0.500000 │
+│ benchmark/xeval_dataset_bigco… │ 0.000000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.950000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.550000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.450000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.000000 │
+│ benchmark/xeval_dataset_wikis… │ 0.750000 │
+│ benchmark/xeval_dataset_wikis… │ 0.550000 │
+│ benchmark/xeval_dataset_wikis… │ 0.450000 │
+│ benchmark/xeval_dataset_wikis… │ 0.000000 │
+│ benchmark/xeval_op_at_ind/acc… │ 0.550000 │
+│ benchmark/xeval_op_at_ind/ans… │ 0.400000 │
+│ benchmark/xeval_op_at_ind/ans… │ 0.600000 │
+│ benchmark/xeval_op_at_ind/oth… │ 0.000000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.500000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.500000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.500000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.000000 │
+│ benchmark/xeval_op_at_pw/accu… │ 0.300000 │
+│ benchmark/xeval_op_at_pw/answ… │ 0.400000 │
+│ benchmark/xeval_op_at_pw/answ… │ 0.600000 │
+│ benchmark/xeval_op_at_pw/othe… │ 0.000000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.300000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.350000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.650000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind/acc… │ 0.550000 │
+│ benchmark/xeval_op_ut_ind/ans… │ 0.400000 │
+│ benchmark/xeval_op_ut_ind/ans… │ 0.600000 │
+│ benchmark/xeval_op_ut_ind/oth… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.512500 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.512500 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.487500 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.000000 │
+│ benchmark/xeval_op_ut_pw/accu… │ 0.200000 │
+│ benchmark/xeval_op_ut_pw/answ… │ 0.700000 │
+│ benchmark/xeval_op_ut_pw/answ… │ 0.300000 │
+│ benchmark/xeval_op_ut_pw/othe… │ 0.000000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.225000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.675000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.325000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.000000 │
+└────────────────────────────────┴──────────┘
+2026-04-30 16:26:15 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/ntpg3htf
+2026-04-30 16:26:15 | INFO    | sgtr_rl.sft | Training: 1 total epochs, 1 batches/epoch, batch_size=16, total_steps=1, resume_completed_epochs=0
+2026-04-30 16:26:22 | INFO    | sgtr_rl.sft | [epoch 1/1] batch 1/1 | nll=1.5177 | acc=43.8% | 6.5s
+2026-04-30 16:26:22 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/metrics/metrics.jsonl
+2026-04-30 16:26:22 | INFO    | tinker_cookbook.utils.ml_log | 
+                   Step 1                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ train/accuracy                 │ 0.437500 │
+│ train/batch_time_s             │ 6.496651 │
+│ train/nll                      │ 1.517677 │
+└────────────────────────────────┴──────────┘
+2026-04-30 16:26:22 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/ntpg3htf
+2026-04-30 16:26:22 | INFO    | sgtr_rl.sft | Epoch 1 complete
+2026-04-30 16:27:03 | INFO    | sgtr_rl.metrics |   val: 105/240 = 43.8% | nll=1.1962 | answers={1:119,2:121,?:0}
+2026-04-30 16:27:03 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/metrics/metrics.jsonl
+2026-04-30 16:27:03 | INFO    | tinker_cookbook.utils.ml_log | 
+                   Step 1                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ val/accuracy                   │ 0.437500 │
+│ val/answers_1_pct              │ 0.495833 │
+│ val/answers_other_pct          │ 0.000000 │
+│ val/nll                        │ 1.196227 │
+└────────────────────────────────┴──────────┘
+2026-04-30 16:27:03 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/ntpg3htf
+2026-04-30 16:27:03 | DEBUG   | sgtr_rl.metrics |   val predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/val_predictions/epoch_1.json
+2026-04-30 16:27:04 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: mmlu_20 (type=mmlu, epoch=1)
+2026-04-30 16:27:43 | INFO    | sgtr_rl.tinker_eval |   benchmark/mmlu_20: 16/20 = 80.0% | answers={A:5,B:5,C:3,D:7,?:0}
+2026-04-30 16:27:43 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/mmlu_20/epoch_1.json
+2026-04-30 16:27:43 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: mmlu_2000 (type=mmlu, epoch=1)
+2026-04-30 16:29:43 | INFO    | sgtr_rl.tinker_eval |   benchmark/mmlu_2000: 1695/2000 = 84.8% | answers={A:446,B:487,C:526,D:536,?:5}
+2026-04-30 16:29:43 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/mmlu_2000/epoch_1.json
+2026-04-30 16:29:43 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_pw (type=sgtr, epoch=1)
+2026-04-30 16:29:51 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_pw: 4/20 = 20.0% | answers={1:14,2:6,?:0}
+2026-04-30 16:29:51 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_ut_pw/epoch_1.json
+2026-04-30 16:29:51 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_pw_full (type=sgtr, epoch=1)
+2026-04-30 16:30:02 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_pw_full: 10/40 = 25.0% | answers={1:26,2:14,?:0}
+2026-04-30 16:30:02 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_ut_pw_full/epoch_1.json
+2026-04-30 16:30:02 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_ind (type=sgtr, epoch=1)
+2026-04-30 16:30:16 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_ind: 11/20 = 55.0% | answers={1:8,2:12,?:0}
+2026-04-30 16:30:17 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_ut_ind/epoch_1.json
+2026-04-30 16:30:17 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_ut_ind_full (type=sgtr, epoch=1)
+2026-04-30 16:30:46 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_ut_ind_full: 41/80 = 51.2% | answers={1:41,2:39,?:0}
+2026-04-30 16:30:46 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_ut_ind_full/epoch_1.json
+2026-04-30 16:30:46 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_pw (type=sgtr, epoch=1)
+2026-04-30 16:31:00 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_pw: 6/20 = 30.0% | answers={1:8,2:12,?:0}
+2026-04-30 16:31:00 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_at_pw/epoch_1.json
+2026-04-30 16:31:00 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_pw_full (type=sgtr, epoch=1)
+2026-04-30 16:31:13 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_pw_full: 13/40 = 32.5% | answers={1:11,2:29,?:0}
+2026-04-30 16:31:13 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_at_pw_full/epoch_1.json
+2026-04-30 16:31:13 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_ind (type=sgtr, epoch=1)
+2026-04-30 16:31:24 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_ind: 11/20 = 55.0% | answers={1:8,2:12,?:0}
+2026-04-30 16:31:24 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_at_ind/epoch_1.json
+2026-04-30 16:31:24 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_op_at_ind_full (type=sgtr, epoch=1)
+2026-04-30 16:31:37 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_op_at_ind_full: 40/80 = 50.0% | answers={1:40,2:40,?:0}
+2026-04-30 16:31:37 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_op_at_ind_full/epoch_1.json
+2026-04-30 16:31:37 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_wikisum_full (type=sgtr, epoch=1)
+2026-04-30 16:32:05 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_wikisum_full: 14/20 = 70.0% | answers={1:10,2:10,?:0}
+2026-04-30 16:32:05 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_dataset_wikisum_full/epoch_1.json
+2026-04-30 16:32:05 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_bigcodebench_full (type=sgtr, epoch=1)
+2026-04-30 16:32:23 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_bigcodebench_full: 1/20 = 5.0% | answers={1:9,2:11,?:0}
+2026-04-30 16:32:23 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_dataset_bigcodebench_full/epoch_1.json
+2026-04-30 16:32:23 | INFO    | sgtr_rl.tinker_eval | Running benchmark eval: xeval_dataset_pku_full (type=sgtr, epoch=1)
+2026-04-30 16:33:01 | INFO    | sgtr_rl.tinker_eval |   benchmark/xeval_dataset_pku_full: 19/20 = 95.0% | answers={1:11,2:9,?:0}
+2026-04-30 16:33:01 | DEBUG   | sgtr_rl.tinker_eval |   benchmark predictions saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/benchmark_predictions/xeval_dataset_pku_full/epoch_1.json
+2026-04-30 16:33:01 | INFO    | tinker_cookbook.utils.ml_log | Wrote metrics to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/metrics/metrics.jsonl
+2026-04-30 16:33:01 | INFO    | tinker_cookbook.utils.ml_log | 
+                   Step 1                    
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Metric                         ┃ Value    ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ benchmark/mmlu_20/accuracy     │ 0.800000 │
+│ benchmark/mmlu_20/answers_A_p… │ 0.250000 │
+│ benchmark/mmlu_20/answers_B_p… │ 0.250000 │
+│ benchmark/mmlu_20/answers_C_p… │ 0.150000 │
+│ benchmark/mmlu_20/answers_D_p… │ 0.350000 │
+│ benchmark/mmlu_20/other_pct    │ 0.000000 │
+│ benchmark/mmlu_2000/accuracy   │ 0.847500 │
+│ benchmark/mmlu_2000/answers_A… │ 0.223000 │
+│ benchmark/mmlu_2000/answers_B… │ 0.243500 │
+│ benchmark/mmlu_2000/answers_C… │ 0.263000 │
+│ benchmark/mmlu_2000/answers_D… │ 0.268000 │
+│ benchmark/mmlu_2000/other_pct  │ 0.002500 │
+│ benchmark/xeval_dataset_bigco… │ 0.050000 │
+│ benchmark/xeval_dataset_bigco… │ 0.450000 │
+│ benchmark/xeval_dataset_bigco… │ 0.550000 │
+│ benchmark/xeval_dataset_bigco… │ 0.000000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.950000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.550000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.450000 │
+│ benchmark/xeval_dataset_pku_f… │ 0.000000 │
+│ benchmark/xeval_dataset_wikis… │ 0.700000 │
+│ benchmark/xeval_dataset_wikis… │ 0.500000 │
+│ benchmark/xeval_dataset_wikis… │ 0.500000 │
+│ benchmark/xeval_dataset_wikis… │ 0.000000 │
+│ benchmark/xeval_op_at_ind/acc… │ 0.550000 │
+│ benchmark/xeval_op_at_ind/ans… │ 0.400000 │
+│ benchmark/xeval_op_at_ind/ans… │ 0.600000 │
+│ benchmark/xeval_op_at_ind/oth… │ 0.000000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.500000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.500000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.500000 │
+│ benchmark/xeval_op_at_ind_ful… │ 0.000000 │
+│ benchmark/xeval_op_at_pw/accu… │ 0.300000 │
+│ benchmark/xeval_op_at_pw/answ… │ 0.400000 │
+│ benchmark/xeval_op_at_pw/answ… │ 0.600000 │
+│ benchmark/xeval_op_at_pw/othe… │ 0.000000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.325000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.275000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.725000 │
+│ benchmark/xeval_op_at_pw_full… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind/acc… │ 0.550000 │
+│ benchmark/xeval_op_ut_ind/ans… │ 0.400000 │
+│ benchmark/xeval_op_ut_ind/ans… │ 0.600000 │
+│ benchmark/xeval_op_ut_ind/oth… │ 0.000000 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.512500 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.512500 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.487500 │
+│ benchmark/xeval_op_ut_ind_ful… │ 0.000000 │
+│ benchmark/xeval_op_ut_pw/accu… │ 0.200000 │
+│ benchmark/xeval_op_ut_pw/answ… │ 0.700000 │
+│ benchmark/xeval_op_ut_pw/answ… │ 0.300000 │
+│ benchmark/xeval_op_ut_pw/othe… │ 0.000000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.250000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.650000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.350000 │
+│ benchmark/xeval_op_ut_pw_full… │ 0.000000 │
+└────────────────────────────────┴──────────┘
+2026-04-30 16:33:01 | INFO    | tinker_cookbook.utils.ml_log | Logging to: https://wandb.ai/jessest-amand-geodesic-research/sgtr-rl/runs/ntpg3htf
+2026-04-30 16:33:36 | INFO    | tinker_cookbook.checkpoint_utils | Saved checkpoints: {'state_path': 'tinker://782b542f-37d7-5ef7-8d02-d38230802c5f:train:0/weights/final', 'sampler_path': 'tinker://782b542f-37d7-5ef7-8d02-d38230802c5f:train:0/sampler_weights/final'}
+2026-04-30 16:33:36 | INFO    | sgtr_rl.tinker | Checkpoint saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/checkpoints
+2026-04-30 16:33:36 | INFO    | sgtr_rl.tinker | Resume manifest written to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/checkpoints/resume_manifest.json
+2026-04-30 16:33:38 | INFO    | sgtr_rl.pipeline | Training complete. 1 steps.
+2026-04-30 16:33:39 | INFO    | sgtr_rl.scripts.plotting_utils | Summary plot saved to training_runs/03_sft_multi_op_qwen3_30b_vs_gpt_oss_120b_tinker_small__epochs=1,train_ids=8__20260430_161831/summary.png

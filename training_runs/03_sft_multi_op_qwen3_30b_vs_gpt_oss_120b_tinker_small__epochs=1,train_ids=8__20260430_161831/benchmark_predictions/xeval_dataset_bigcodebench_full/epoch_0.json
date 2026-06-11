@@ -1,0 +1,173 @@
+{
+  "epoch": 0,
+  "step": 0,
+  "eval_trigger": "epoch",
+  "name": "xeval_dataset_bigcodebench_full",
+  "type": "sgtr",
+  "accuracy": 0.0,
+  "predictions": [
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Convert a Unix timestamp to date objects in different time zones, create a Pandas DataFrame, and draw a bar chart. - You ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Convert a Unix timestamp to date objects in different time zones, create a Pandas DataFrame, and draw a bar chart. - You ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Convert elements in 'T1' to integers and create a list of random integers where the number of integers is determined by t",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Convert elements in 'T1' to integers and create a list of random integers where the number of integers is determined by t",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Train a random forest classifier to perform the classification of the rows in a dataframe with respect to the column of i",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Train a random forest classifier to perform the classification of the rows in a dataframe with respect to the column of i",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Converts elements in 'T1', a tuple of tuples containing string representations of integers, to integers and creates a lis",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Converts elements in 'T1', a tuple of tuples containing string representations of integers, to integers and creates a lis",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a dictionary where keys are specified letters and values are lists of random integers. Then calculate the mean of ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Create a dictionary where keys are specified letters and values are lists of random integers. Then calculate the mean of ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Draw a bar chart of the frequency of words in a text beginning with the \"$\" character. Words that start with the '$' char",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Draw a bar chart of the frequency of words in a text beginning with the \"$\" character. Words that start with the '$' char",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Perform PCA on a DataFrame (excluding non-numeric columns) and draw a scatter plot of the first two main components. The ",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Perform PCA on a DataFrame (excluding non-numeric columns) and draw a scatter plot of the first two main components. The ",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Download all files from a specific directory on an FTP server using wget in a subprocess. Args: ftp_server (str): The FTP",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Download all files from a specific directory on an FTP server using wget in a subprocess. Args: ftp_server (str): The FTP",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Divide a CSV file into several smaller files and shuffle the lines in each file. This function takes a CSV file path as i",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Divide a CSV file into several smaller files and shuffle the lines in each file. This function takes a CSV file path as i",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Find the best-selling product from a given CSV file with sales data. This function parses a CSV file assumed to have a he",
+      "format": "pw",
+      "prediction": "2",
+      "target": "1",
+      "correct": false,
+      "completion": "2"
+    },
+    {
+      "prompt": "Below is a user request followed by two responses to that request:\n\nRequest - \"Find the best-selling product from a given CSV file with sales data. This function parses a CSV file assumed to have a he",
+      "format": "pw",
+      "prediction": "1",
+      "target": "2",
+      "correct": false,
+      "completion": "1"
+    }
+  ],
+  "format_accuracy": {
+    "pw": 0.0
+  }
+}

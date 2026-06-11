@@ -1,0 +1,99 @@
+combined_sources: true
+train_files:
+- data/data/training_data/qwen3-30b_ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl
+- data/data/training_data/qwen3-30b_ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl
+- data/data/training_data/qwen3-30b_ARCH_03_AT_PW-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl
+- data/data/training_data/qwen3-30b_ARCH_04_AT_IND-C_Rec_NPr_FA_Inst_vs_gpt-oss-120b-thinking_sharegpt_archived_small/train.jsonl
+source_metadata:
+- source: direct_from_generations
+  family_label: ARCH_01_UT_PW-Q_Rec_NPr_FA_Inst
+  config_path: /Users/callumcanavan/code/self-rec-research/experiments_eval/ICML/ICML_01_UT_PW-Q_Rec_NPr_FA_Inst/config.yaml
+  dataset: sharegpt
+  data_subset: archived_small
+  self_model: qwen3-30b
+  self_output_dir: qwen3-30b_tinker
+  opponent_model: gpt-oss-120b-thinking
+  opponent_output_dir: gpt-oss-120b-thinking
+  split_manifest: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/splits/sharegpt/archived_small_seed42.json
+  seed: 42
+  train_ratio: 0.8
+  train_ids: 80
+  val_ids: 20
+  train_records: 160
+  val_records: 40
+  prompt_family:
+    tags: UT
+    format: PW-Q
+    task: Rec
+    priming: false
+    generator_output: FA
+    evaluator_reasoning: DR
+- source: direct_from_generations
+  family_label: ARCH_02_UT_IND-Q_Rec_NPr_FA_Inst
+  config_path: /Users/callumcanavan/code/self-rec-research/experiments_eval/ICML/ICML_02_UT_IND-Q_Rec_NPr_FA_Inst/config.yaml
+  dataset: sharegpt
+  data_subset: archived_small
+  self_model: qwen3-30b
+  self_output_dir: qwen3-30b_tinker
+  opponent_model: gpt-oss-120b-thinking
+  opponent_output_dir: gpt-oss-120b-thinking
+  split_manifest: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/splits/sharegpt/archived_small_seed42.json
+  seed: 42
+  train_ratio: 0.8
+  train_ids: 80
+  val_ids: 20
+  train_records: 320
+  val_records: 80
+  prompt_family:
+    tags: UT
+    format: IND-Q
+    task: Rec
+    priming: false
+    generator_output: FA
+    evaluator_reasoning: DR
+- source: direct_from_generations
+  family_label: ARCH_03_AT_PW-C_Rec_NPr_FA_Inst
+  config_path: /Users/callumcanavan/code/self-rec-research/experiments_eval/COLM/COLM_01_AT_PW-C_Rec_NPr_FA_Inst/config.yaml
+  dataset: sharegpt
+  data_subset: archived_small
+  self_model: qwen3-30b
+  self_output_dir: qwen3-30b_tinker
+  opponent_model: gpt-oss-120b-thinking
+  opponent_output_dir: gpt-oss-120b-thinking
+  split_manifest: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/splits/sharegpt/archived_small_seed42.json
+  seed: 42
+  train_ratio: 0.8
+  train_ids: 80
+  val_ids: 20
+  train_records: 160
+  val_records: 40
+  prompt_family:
+    tags: AT
+    format: PW-C
+    task: Rec
+    priming: false
+    generator_output: FA
+    evaluator_reasoning: DR
+- source: direct_from_generations
+  family_label: ARCH_04_AT_IND-C_Rec_NPr_FA_Inst
+  config_path: /Users/callumcanavan/code/self-rec-research/experiments_eval/COLM/COLM_02_AT_IND-C_Rec_NPr_FA_Inst/config.yaml
+  dataset: sharegpt
+  data_subset: archived_small
+  self_model: qwen3-30b
+  self_output_dir: qwen3-30b_tinker
+  opponent_model: gpt-oss-120b-thinking
+  opponent_output_dir: gpt-oss-120b-thinking
+  split_manifest: /Users/callumcanavan/code/self-rec-research/_external/SGTR-RL/data/splits/sharegpt/archived_small_seed42.json
+  seed: 42
+  train_ratio: 0.8
+  train_ids: 80
+  val_ids: 20
+  train_records: 320
+  val_records: 80
+  prompt_family:
+    tags: AT
+    format: IND-C
+    task: Rec
+    priming: false
+    generator_output: FA
+    evaluator_reasoning: DR

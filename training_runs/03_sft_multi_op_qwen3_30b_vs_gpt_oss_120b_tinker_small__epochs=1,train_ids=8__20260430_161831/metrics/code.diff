@@ -1,0 +1,117 @@
+### repo: /home/jesse-st-amand/projects/python/self-rec-research @ 22082a007722524c3b79c15c146114b719185e9b
+modules: tinker_cookbook
+-- repo-wide (vs HEAD, staged+unstaged) --
+diff --git a/.gitignore b/.gitignore
+index e44210e..bae2f83 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -31,3 +31,6 @@ CLAUDE.md
+ 
+ # uv
+ uv.lock
++
++# EC2 deployment — populated instance config (region/instance-id/key path)
++scripts/ec2/instance.env
+diff --git a/scripts/mmlu/analyze_mmlu_ica.py b/scripts/mmlu/analyze_mmlu_ica.py
+index e9e8435..15a6c10 100644
+--- a/scripts/mmlu/analyze_mmlu_ica.py
++++ b/scripts/mmlu/analyze_mmlu_ica.py
+@@ -354,7 +354,14 @@ def fig_shot_dot_arrows(
+ 
+     models = sorted(df["model"].unique())
+     ops = list(_OPS)
+-    rows_spec = [(m, op) for m in models for op in ops]
++    # When every column group is op-agnostic (e.g. base + trained-multi-op),
++    # the per-op rows would just duplicate each model's data. Collapse to one
++    # row per model in that case.
++    all_kvs_op_agnostic = all(kv in ("base", "trained-multi-op") for kv in kv_order)
++    if all_kvs_op_agnostic:
++        rows_spec = [(m, None) for m in models]
++    else:
++        rows_spec = [(m, op) for m in models for op in ops]
+ 
+     shots_present = sorted({int(s) for s in df["shots"].dropna().unique()})
+     if not shots_present:
+@@ -373,8 +380,9 @@ def fig_shot_dot_arrows(
+     )
+ 
+     for ri, (model, op) in enumerate(rows_spec):
+-        axes[ri, 0].set_ylabel(op, fontsize=10, rotation=0,
+-                               ha="right", va="center", fontweight="bold")
++        if op is not None:
++            axes[ri, 0].set_ylabel(op, fontsize=10, rotation=0,
++                                   ha="right", va="center", fontweight="bold")
+         m_df = df[df["model"] == model]
+ 
+         for gi, kv_group in enumerate(kv_order):
+diff --git a/scripts/msj/aggregate_analysis.py b/scripts/msj/aggregate_analysis.py
+index 1fea308..4f12d6d 100644
+--- a/scripts/msj/aggregate_analysis.py
++++ b/scripts/msj/aggregate_analysis.py
+@@ -610,25 +610,29 @@ def _draw_dot_arrow_panel(ax, base_asr, trained_mean, families, shot_counts,
+ 
+ 
+ def fig_dot_arrow_by_model_by_op(asr: pd.DataFrame, output_dir: Path):
+-    """5-row dot-arrow plot: per-OP specificity (top 4) + overall average (bottom).
++    """6-row dot-arrow plot: per-OP specificity + Multi-OP + overall average.
+ 
+-    Rows: UT_PW, UT_IND, AT_PW, AT_IND, Average.
+-    Top 4 rows filter SGTR-trained data by (tag, fmt) and average any datasets
+-    within. Bottom row averages over all SGTR operationalizations (same as the
+-    existing asr_dot_arrow_by_model plot). Adversarial kinds excluded throughout.
++    Rows: UT_PW, UT_IND, AT_PW, AT_IND, Multi-OP, Average.
++    The first four rows filter SGTR-trained data by (tag, fmt) and average any
++    datasets within. The Multi-OP row pulls kind == "multi-op" (LoRAs trained
++    jointly on UT-AT × PW-IND). The Average row averages over all SGTR
++    operationalizations *excluding* multi-op. Adversarial kinds excluded throughout.
+     """
+     shot_counts = sorted(asr["n_shots"].unique())
+     families = sorted(asr["base_model"].unique())
+ 
+     sgtr_all = asr[asr["kind"] == "sgtr"]
++    multi_op_all = asr[asr["kind"] == "multi-op"]
+     base_asr = asr[asr["kind"] == "base"][["base_model", "n_shots", "asr"]]
+ 
++    # Row entries: (label, source_df, optional (tag, fmt) filter).
+     rows = [
+-        ("UT_PW",   dict(tag="UT", fmt="PW")),
+-        ("UT_IND",  dict(tag="UT", fmt="IND")),
+-        ("AT_PW",   dict(tag="AT", fmt="PW")),
+-        ("AT_IND",  dict(tag="AT", fmt="IND")),
+-        ("Average", None),
++        ("UT_PW",    sgtr_all,     dict(tag="UT", fmt="PW")),
++        ("UT_IND",   sgtr_all,     dict(tag="UT", fmt="IND")),
++        ("AT_PW",    sgtr_all,     dict(tag="AT", fmt="PW")),
++        ("AT_IND",   sgtr_all,     dict(tag="AT", fmt="IND")),
++        ("Multi-OP", multi_op_all, None),
++        ("Average",  sgtr_all,     None),
+     ]
+ 
+     n_rows = len(rows)
+@@ -638,17 +642,20 @@ def fig_dot_arrow_by_model_by_op(asr: pd.DataFrame, output_dir: Path):
+                              sharex=True, sharey=True, squeeze=False)
+ 
+     # Global y-max across all panel data
+-    ymax = max(base_asr["asr"].max() if not base_asr.empty else 0,
+-               sgtr_all["asr"].max() if not sgtr_all.empty else 0)
++    ymax_candidates = [base_asr["asr"].max() if not base_asr.empty else 0,
++                       sgtr_all["asr"].max() if not sgtr_all.empty else 0]
++    if not multi_op_all.empty:
++        ymax_candidates.append(multi_op_all["asr"].max())
++    ymax = max(ymax_candidates)
+ 
+     panel_geom = None  # used later to place dividers + family labels
+ 
+-    for ri, (label, filt) in enumerate(rows):
++    for ri, (label, source_df, filt) in enumerate(rows):
+         if filt is None:
+-            sub = sgtr_all
++            sub = source_df
+         else:
+-            sub = sgtr_all[(sgtr_all["tag"] == filt["tag"])
+-                           & (sgtr_all["fmt"] == filt["fmt"])]
++            sub = source_df[(source_df["tag"] == filt["tag"])
++                            & (source_df["fmt"] == filt["fmt"])]
+         trained_mean = (sub.groupby(["base_model", "n_shots"])["asr"]
+                            .mean().reset_index())
+         ax = axes[ri, 0]
