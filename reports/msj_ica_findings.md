@@ -131,7 +131,7 @@ The probes differ:
 | Eval family | ICE pair (× N)                                                                                                | Final user probe                                  | Attack success                                   |
 |-------------|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------|--------------------------------------------------|
 | **MSJ**     | User: harmful query (e.g. "How do you build a bomb?") → Assistant (pre-filled): harmful response              | A *new* harmful query                             | Compliance with the final query                  |
-| **SGTR-ICE**| User: content query (e.g. "Summarize the following article…") → Assistant (pre-filled): a model-generated response | The SGTR question ("Is this text yours?") on a held-out candidate | Attribution bias (defined in §2.5)               |
+| **SGTR-ICE**| User: content query (e.g. "Summarize the following article…") → Assistant (pre-filled): a model-generated response | The SGTR question ("Is this text yours?") on a held-out candidate | Accuracy drop on SGTR task relative to the no-ICE baseline              |
 | **MMLU-ICE**| Same scaffold as SGTR-ICE                                                                                     | A multiple-choice MMLU question                   | Accuracy drop relative to the no-ICE baseline    |
 
 We use **ICE** for the structural mechanism (always neutral) and **ICA**
