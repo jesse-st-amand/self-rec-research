@@ -33,8 +33,10 @@ for DIR in "$@"; do
     fi
 
     # Find all .sh files in the directory, sorted alphabetically
-    # Exclude config.sh files (shared configuration files, not executable scripts)
-    SCRIPTS=$(find "$DIR" -maxdepth 1 -name "*.sh" -type f -not -name "config.sh" | sort)
+    # Exclude config.sh (shared config, sourced not run) and run_*.sh entry
+    # points (run_sweep.sh / run_all_analyses.sh etc.) — those invoke THIS
+    # runner, so executing them here would recurse or double-run.
+    SCRIPTS=$(find "$DIR" -maxdepth 1 -name "*.sh" -type f -not -name "config.sh" -not -name "run_*.sh" | sort)
 
     if [ -z "$SCRIPTS" ]; then
         echo "No bash scripts found in '$DIR'"
