@@ -9,9 +9,12 @@
 #   YES_ARG                (array)  -> -y                        (empty unless skip)
 #   DATASET_SUBSETS        (array)  -> per-dataset analysis subsets ("tutorial_set")
 #   INTER_DATASET_SUBSETS  (array)  -> {dataset}/{subset} for inter-dataset analysis
-# Values come from config.yaml: part 1 (model_names/generator_models) and part 2
-# (treatment_type/max_tasks/batch/skip_confirmation/datasets/dataset_subsets).
+#   FIGURES_TO_PRODUCE     (array)  -> figure basenames listed in config (may be empty)
+#   FIGURES_ARG            (array)  -> --figures fig1,fig2,...  (empty if list absent)
+# Values come from config.yaml: the `model` / `sweep` / `analysis` sections.
 # INTER_DATASET_SUBSETS is the cross product of datasets x dataset_subsets.
+# When figures_to_produce is empty the analysis scripts emit every figure
+# (FIGURES_ARG stays empty -> the Python default of "all").
 # Lives in scripts/utils/ so scripts/utils/run.sh never executes it.
 
 _LSC_CONFIG="${1:?load_config.sh: config.yaml path required as \$1}"
@@ -40,8 +43,17 @@ subsets = c.get('dataset_subsets') or []
 datasets = c.get('datasets') or []
 arr('DATASET_SUBSETS', subsets)
 arr('INTER_DATASET_SUBSETS', [f'{d}/{s}' for d in datasets for s in subsets])
+arr('FIGURES_TO_PRODUCE', c.get('figures_to_produce') or [])
 PY
 )"
+
+# Build the --figures argument from figures_to_produce. Empty list => omit the
+# flag so each analysis script falls back to its "all figures" default.
+FIGURES_ARG=()
+if [ ${#FIGURES_TO_PRODUCE[@]} -gt 0 ]; then
+    _figs_csv=$(IFS=,; printf '%s' "${FIGURES_TO_PRODUCE[*]}")
+    FIGURES_ARG=("--figures" "$_figs_csv")
+fi
 
 GENERATOR_MODELS_ARG=()
 if [ ${#GENERATOR_MODELS[@]} -gt 0 ]; then
