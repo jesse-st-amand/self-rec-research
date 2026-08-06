@@ -8,12 +8,14 @@ import shutil
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-PAPER_FIGURES = REPO_ROOT / "_external" / "COLM_2026_SGTR" / "COLM" / "figures"
+PAPER_FIGURES = REPO_ROOT / "_external" / "COLM_2026_SGTR" / "figures"
 
 # (source relative to repo root, destination filename in paper figures dir)
 FIGURES = [
     ("data/figures/prototypes/boxplot_with_grouped_bar.pdf", "boxplot_with_grouped_bar.pdf"),
     ("data/figures/prototypes/quality_heuristic_combined.pdf", "quality_heuristic_combined.pdf"),
+    # Simplified version for the main body; fully encoded version for the appendix.
+    ("data/alpaca_eval/analysis/03_01-and-02/uplift/uplift_5c_dot_plot_simple.pdf", "uplift_5c_dot_plot_simple.pdf"),
     ("data/alpaca_eval/analysis/03_01-and-02/uplift/uplift_5c_dot_plot_dual_color.pdf", "uplift_5c_dot_plot_dual_color.pdf"),
     ("data/alpaca_eval/analysis/03_01-and-02/ranking/ranking_delta_heatmap_dual_v2.pdf", "ranking_delta_heatmap_dual_v2.pdf"),
 ]

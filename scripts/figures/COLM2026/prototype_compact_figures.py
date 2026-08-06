@@ -2165,6 +2165,13 @@ def main():
     print("\n13. Recognition vs Preference scatter (PW + IND stacked)")
     fig_rec_vs_pref_scatter()
 
+    # Paper figures (copied into the COLM repo by copy_figures_to_paper.py)
+    print("\n14. Paper Figure 1: boxplots + grouped bar")
+    fig_boxplot_with_grouped_bar(data)
+
+    print("\n15. Paper Figure 2: quality heuristic combined")
+    fig_quality_heuristic_combined(data)
+
     print(f"\nAll prototypes saved to: {OUT_DIR}/")
 
 
@@ -2595,7 +2602,12 @@ def fig_quality_heuristic_combined(data=None):
             ax.fill_between(x_line, lo, hi, color="black", alpha=0.1, zorder=1)
 
             r, p = stats.pearsonr(x_vals, y_vals)
-            ax.text(0.03, 0.03, f"r = {r:.2f}", transform=ax.transAxes, fontsize=18,
+            # Slope reported per 100 Elo points; the raw per-point slope is ~1e-3
+            # and would round to 0.00 at two decimals.
+            slope_per_100 = slope * 100
+            print(f"    [{title}] r = {r:.3f}, m = {slope_per_100:.3f} per 100 Elo")
+            ax.text(0.03, 0.03, f"r = {r:.2f}; m = {slope_per_100:.2f}",
+                    transform=ax.transAxes, fontsize=18,
                     verticalalignment="bottom",
                     bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
 

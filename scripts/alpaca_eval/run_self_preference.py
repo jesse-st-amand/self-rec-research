@@ -36,10 +36,10 @@ def resolve_base_model(short_name: str) -> str:
     has_thinking = short_name.endswith("-thinking")
     clean = short_name.removesuffix("-thinking") if has_thinking else short_name
 
-    if clean in INSPECT_MODEL_NAMES:
-        return short_name if has_thinking else clean
-
     # Reorganized naming: {base}_sft-as_{identity}_vs_{opponent}_{tag}_{fmt}_{dataset}
+    # Checked before the INSPECT_MODEL_NAMES lookup: trained variants are also
+    # registered there so they can be run as evaluators, and matching that first
+    # would resolve a trained model to itself instead of to its base model.
     if "_sft-as_" in clean:
         base_part = clean.split("_sft-as_")[0]
         try:
@@ -48,6 +48,9 @@ def resolve_base_model(short_name: str) -> str:
         except ImportError:
             resolved = base_part
         return resolved + "-thinking" if has_thinking else resolved
+
+    if clean in INSPECT_MODEL_NAMES:
+        return short_name if has_thinking else clean
 
     # Legacy: try to match {base_model}-{training_run} pattern
     for base_name in sorted(INSPECT_MODEL_NAMES.keys(), key=len, reverse=True):

@@ -702,14 +702,21 @@ def fig5b_dot_plot_alt(rows, output_dir):
     print(f"  ✓ Saved: {path}")
 
 
-def fig5c_dot_plot_dual_color(rows, output_dir):
+def fig5c_dot_plot_dual_color(rows, output_dir, simple=False):
     """Two-panel dot plot (dual-color encoding for adversarial).
 
     Color = model (logo colors). Shape = training condition.
     Adversarial models: edgecolor = base model, facecolor = identity model.
     e.g., Qwen trained as GPT-OSS → purple edge, teal fill.
+
+    When simple=True, all points share a single marker and color and the
+    legend is omitted, highlighting the per-row distribution rather than the
+    provenance of individual points. Used for the main-body version of the
+    figure; the fully encoded version goes to the appendix.
     """
     import pandas as pd
+
+    SIMPLE_COLOR = "#4a6fa5"
 
     df = pd.DataFrame(rows)
     if df.empty:
@@ -762,29 +769,51 @@ def fig5c_dot_plot_dual_color(rows, output_dir):
         "PW Pref": "PW Pref", "IND Pref": "IND Pref",
     }
     DS_SHORT = {"WikiSum": "WS", "BigCodeBench": "BCB", "PKU": "PKU", "ShareGPT": "S-GPT"}
+    # Dropping the legend frees enough width to spell the task domains out in full.
+    DS_FULL = {"WikiSum": "WikiSum", "BigCodeBench": "BigCodeBench",
+               "PKU": "PKU-SafeRLHF", "ShareGPT": "ShareGPT"}
 
-    fig, (ax_task, ax_ds) = plt.subplots(1, 2, figsize=(12, 7), gridspec_kw={"wspace": 0.20})
+    # Simple mode packs the rows tighter and widens the gutter for the full labels.
+    # It also uses smaller type and markers, since it is the main-body figure and
+    # competes for page space; the appendix version keeps the larger settings.
+    fig_height = 4.0 if simple else 7
+    wspace = 0.18 if simple else 0.20
+    fs_ytick = 10 if simple else 14
+    fs_xlabel = 10 if simple else 14
+    fs_title = 12 if simple else 16
+    fs_xtick = 8 if simple else 12
+    dot_size = 25 if simple else 60
+    fig, (ax_task, ax_ds) = plt.subplots(1, 2, figsize=(12, fig_height),
+                                         gridspec_kw={"wspace": wspace})
 
     # ── Task transfer panel ──
     task_df = df[df["train_cond"].str.endswith("ShareGPT") & df["test_cond"].isin(TASK_CONDITIONS)]
 
     task_box_data = [task_df[task_df["test_cond"] == tc]["delta"].dropna().values
                      for tc in TASK_CONDITIONS]
+    # zorder above the scatter (3) so box, median, and caps read on top of the points.
     ax_task.boxplot(task_box_data, positions=range(len(TASK_CONDITIONS)), vert=False,
-                    widths=0.5, patch_artist=True, zorder=1,
-                    boxprops=dict(facecolor="#e0e0e0", alpha=0.5, edgecolor="#999999"),
-                    whiskerprops=dict(color="#999999"), capprops=dict(color="#999999"),
-                    medianprops=dict(color="#333333", linewidth=1.5),
+                    widths=0.5, patch_artist=True, zorder=5,
+                    boxprops=dict(facecolor="#e0e0e0", alpha=0.35, edgecolor="#555555",
+                                  linewidth=2.0),
+                    whiskerprops=dict(color="#555555", linewidth=1.8),
+                    capprops=dict(color="#555555", linewidth=2.5),
+                    medianprops=dict(color="#111111", linewidth=3.0),
                     flierprops=dict(marker="", markersize=0))
 
     for yi, tc in enumerate(TASK_CONDITIONS):
         subset = task_df[task_df["test_cond"] == tc]
         for _, row in subset.iterrows():
+            jitter = rng.uniform(-0.2, 0.2)
+            if simple:
+                ax_task.scatter(row["delta"], yi + jitter, color=SIMPLE_COLOR, marker="o",
+                                s=dot_size, alpha=0.8, edgecolors="black", linewidth=0.4,
+                                zorder=3)
+                continue
             task_op = _task_op(row["train_cond"])
             marker = TASK_OP_MARKERS.get(task_op, "o")
             base_color = _model_color(row["model"])
             is_adv = _is_adv.get(row["model"], False)
-            jitter = rng.uniform(-0.2, 0.2)
             if is_adv:
                 identity = _identity_from_label(row["model"])
                 fill_color = _model_color(identity) if identity else base_color
@@ -798,12 +827,15 @@ def fig5c_dot_plot_dual_color(rows, output_dir):
     ax_task.axvline(x=0, color="black", linewidth=1, linestyle="-")
     ax_task.set_yticks(range(len(TASK_CONDITIONS)))
     ax_task.set_yticklabels([TASK_SHORT.get(tc, tc) for tc in TASK_CONDITIONS],
-                            fontsize=14, rotation=25, ha="right")
+                            fontsize=fs_ytick, rotation=25, ha="right")
     ax_task.invert_yaxis()
-    ax_task.set_xlabel("Δ Accuracy (post − pre)", fontsize=14)
-    ax_task.set_title("Evaluation Format Transfer", fontsize=16, fontweight="bold")
+    if simple:
+        # Trim the default margins so rows are not padded with unused space.
+        ax_task.set_ylim(len(TASK_CONDITIONS) - 0.45, -0.55)
+    ax_task.set_xlabel("Δ Accuracy (post − pre)", fontsize=fs_xlabel)
+    ax_task.set_title("Evaluation Format Transfer", fontsize=fs_title, fontweight="bold")
     ax_task.grid(axis="x", alpha=0.3, linestyle="--")
-    ax_task.tick_params(axis="x", labelsize=12)
+    ax_task.tick_params(axis="x", labelsize=fs_xtick)
     for yi in range(1, len(TASK_CONDITIONS)):
         ax_task.axhline(y=yi - 0.5, color="#cccccc", linestyle=":", linewidth=0.8)
 
@@ -813,21 +845,28 @@ def fig5c_dot_plot_dual_color(rows, output_dir):
     ds_box_data = [ds_df[ds_df["test_cond"] == tc]["delta"].dropna().values
                    for tc in DATASET_CONDITIONS]
     ax_ds.boxplot(ds_box_data, positions=range(len(DATASET_CONDITIONS)), vert=False,
-                  widths=0.5, patch_artist=True, zorder=1,
-                  boxprops=dict(facecolor="#e0e0e0", alpha=0.5, edgecolor="#999999"),
-                  whiskerprops=dict(color="#999999"), capprops=dict(color="#999999"),
-                  medianprops=dict(color="#333333", linewidth=1.5),
+                  widths=0.5, patch_artist=True, zorder=5,
+                  boxprops=dict(facecolor="#e0e0e0", alpha=0.35, edgecolor="#555555",
+                                linewidth=2.0),
+                  whiskerprops=dict(color="#555555", linewidth=1.8),
+                  capprops=dict(color="#555555", linewidth=2.5),
+                  medianprops=dict(color="#111111", linewidth=3.0),
                   flierprops=dict(marker="", markersize=0))
 
     for yi, tc in enumerate(DATASET_CONDITIONS):
         subset = ds_df[ds_df["test_cond"] == tc]
         for _, row in subset.iterrows():
+            jitter = rng.uniform(-0.2, 0.2)
+            if simple:
+                ax_ds.scatter(row["delta"], yi + jitter, color=SIMPLE_COLOR, marker="o",
+                              s=dot_size, alpha=0.8, edgecolors="black", linewidth=0.4,
+                              zorder=3)
+                continue
             ds = _dataset(row["train_cond"])
             marker = DATASET_MARKERS_C.get(ds, "o")
             star_bump = 25 if marker == "*" else 0
             base_color = _model_color(row["model"])
             is_adv = _is_adv.get(row["model"], False)
-            jitter = rng.uniform(-0.2, 0.2)
             if is_adv:
                 identity = _identity_from_label(row["model"])
                 fill_color = _model_color(identity) if identity else base_color
@@ -840,17 +879,21 @@ def fig5c_dot_plot_dual_color(rows, output_dir):
 
     ax_ds.axvline(x=0, color="black", linewidth=1, linestyle="-")
     ax_ds.set_yticks(range(len(DATASET_CONDITIONS)))
-    ax_ds.set_yticklabels([DS_SHORT.get(tc, tc) for tc in DATASET_CONDITIONS],
-                          fontsize=14, rotation=25, ha="right")
+    ds_labels = DS_SHORT
+    ax_ds.set_yticklabels([ds_labels.get(tc, tc) for tc in DATASET_CONDITIONS],
+                          fontsize=fs_ytick, rotation=25, ha="right")
     ax_ds.invert_yaxis()
-    ax_ds.set_xlabel("Δ Accuracy (post − pre)", fontsize=14)
-    ax_ds.set_title("Task Domain Transfer", fontsize=16, fontweight="bold")
+    if simple:
+        ax_ds.set_ylim(len(DATASET_CONDITIONS) - 0.45, -0.55)
+    ax_ds.set_xlabel("Δ Accuracy (post − pre)", fontsize=fs_xlabel)
+    ax_ds.set_title("Task Domain Transfer", fontsize=fs_title, fontweight="bold")
     ax_ds.grid(axis="x", alpha=0.3, linestyle="--")
-    ax_ds.tick_params(axis="x", labelsize=12)
+    ax_ds.tick_params(axis="x", labelsize=fs_xtick)
     for yi in range(1, len(DATASET_CONDITIONS)):
         ax_ds.axhline(y=yi - 0.5, color="#cccccc", linestyle=":", linewidth=0.8)
 
     # ── Legend (right side, vertical, ordered) ──
+    # Omitted in simple mode: with one marker and one color there is nothing to key.
     MODEL_ORDER = [
         "Llama 3.1 8B (vs Qwen 3.0 30B)",
         "GPT-OSS 20B (vs Qwen 3.0 30B)",
@@ -884,11 +927,13 @@ def fig5c_dot_plot_dual_color(rows, output_dir):
                                     linestyle="None", markeredgecolor="black", markeredgewidth=0.4,
                                     label=f"Trained: {d}") for d, mk in DATASET_MARKERS_C.items()]
 
-    all_handles = model_handles + task_shape_handles + ds_shape_handles
-    fig.legend(handles=all_handles, fontsize=10, loc="center right",
-               ncol=1, bbox_to_anchor=(1.08, 0.5), framealpha=0.9)
+    if not simple:
+        all_handles = model_handles + task_shape_handles + ds_shape_handles
+        fig.legend(handles=all_handles, fontsize=10, loc="center right",
+                   ncol=1, bbox_to_anchor=(1.08, 0.5), framealpha=0.9)
 
-    path = output_dir / "uplift_5c_dot_plot_dual_color.pdf"
+    fname = "uplift_5c_dot_plot_simple.pdf" if simple else "uplift_5c_dot_plot_dual_color.pdf"
+    path = output_dir / fname
     fig.savefig(path, bbox_inches="tight")
     plt.close()
     print(f"  ✓ Saved: {path}")
@@ -1018,6 +1063,9 @@ def main():
 
     print("5c. Two-panel dot plot dual-color (adversarial = edge/fill)")
     fig5c_dot_plot_dual_color(rows, output_dir)
+
+    print("5c-simple. Two-panel dot plot, single shape/color (main body)")
+    fig5c_dot_plot_dual_color(rows, output_dir, simple=True)
 
     print("6. Paired strip plot")
     fig6_paired_strip(rows, output_dir)
