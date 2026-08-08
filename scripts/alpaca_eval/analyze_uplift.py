@@ -768,20 +768,21 @@ def fig5c_dot_plot_dual_color(rows, output_dir, simple=False):
         "PW (AT)": "AT PW", "IND (AT)": "AT IND",
         "PW Pref": "PW Pref", "IND Pref": "IND Pref",
     }
-    DS_SHORT = {"WikiSum": "WS", "BigCodeBench": "BCB", "PKU": "PKU", "ShareGPT": "S-GPT"}
-    # Dropping the legend frees enough width to spell the task domains out in full.
-    DS_FULL = {"WikiSum": "WikiSum", "BigCodeBench": "BigCodeBench",
-               "PKU": "PKU-SafeRLHF", "ShareGPT": "ShareGPT"}
+    # The abbreviations the paper's captions define. Two vocabularies reach this
+    # figure -- test conditions say "BigCodeBench", training conditions say
+    # "BigCode" -- so both spellings map to the same abbreviation.
+    DS_SHORT = {"WikiSum": "WS", "BigCodeBench": "BCB", "BigCode": "BCB",
+                "PKU": "PKU", "ShareGPT": "S-GPT"}
 
     # Simple mode packs the rows tighter and widens the gutter for the full labels.
     # It also uses smaller type and markers, since it is the main-body figure and
     # competes for page space; the appendix version keeps the larger settings.
-    fig_height = 4.0 if simple else 7
+    fig_height = 4.0 if simple else 5.5
     wspace = 0.18 if simple else 0.20
-    fs_ytick = 10 if simple else 14
-    fs_xlabel = 10 if simple else 14
+    fs_ytick = 12 if simple else 14
+    fs_xlabel = 12 if simple else 14
     fs_title = 12 if simple else 16
-    fs_xtick = 8 if simple else 12
+    fs_xtick = 12 if simple else 12
     dot_size = 25 if simple else 60
     fig, (ax_task, ax_ds) = plt.subplots(1, 2, figsize=(12, fig_height),
                                          gridspec_kw={"wspace": wspace})
@@ -925,12 +926,17 @@ def fig5c_dot_plot_dual_color(rows, output_dir, simple=False):
                                       label=f"Trained: {t}") for t, mk in TASK_OP_MARKERS.items()]
     ds_shape_handles = [plt.Line2D([0], [0], marker=mk, color="gray", markersize=10 if mk == "*" else 8,
                                     linestyle="None", markeredgecolor="black", markeredgewidth=0.4,
-                                    label=f"Trained: {d}") for d, mk in DATASET_MARKERS_C.items()]
+                                    label=f"Trained: {DS_SHORT.get(d, d)}")
+                        for d, mk in DATASET_MARKERS_C.items()]
 
     if not simple:
+        # Underneath rather than beside: a column to the right of the panels is
+        # charged against the figure's width, and both panels are wide and short.
+        # Five columns keeps the two-line model labels on one row of their own.
         all_handles = model_handles + task_shape_handles + ds_shape_handles
-        fig.legend(handles=all_handles, fontsize=10, loc="center right",
-                   ncol=1, bbox_to_anchor=(1.08, 0.5), framealpha=0.9)
+        fig.legend(handles=all_handles, fontsize=10, loc="upper center",
+                   ncol=5, bbox_to_anchor=(0.5, -0.03), framealpha=0.9,
+                   columnspacing=1.5, handletextpad=0.5)
 
     fname = "uplift_5c_dot_plot_simple.pdf" if simple else "uplift_5c_dot_plot_dual_color.pdf"
     path = output_dir / fname

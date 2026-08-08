@@ -84,6 +84,44 @@ DATASET_SHORT = {
     "bigcodebench/instruct_1-50": "BigCode",
 }
 
+# ── Shared task-domain identity ──────────────────────────────────────────────
+# One color and one shorthand per dataset, used by every panel of every figure
+# so a reader can carry the mapping from Figure 1 into Figure 2. The pipelines
+# spell dataset names several ways ("pku_saferlhf", "PKU", "PKU-SafeRLHF"), so
+# go through dataset_key() rather than indexing these dicts directly.
+DATASET_COLORS = {
+    "wikisum": "#1565C0",
+    "sharegpt": "#FF8F00",
+    "pku": "#43A047",
+    "bigcodebench": "#E57373",
+}
+DATASET_ABBREV = {
+    "wikisum": "WS",
+    "sharegpt": "S-GPT",
+    "pku": "PKU",
+    "bigcodebench": "BCB",
+}
+
+
+def dataset_key(name):
+    """Normalize any spelling of a dataset name to a DATASET_COLORS key."""
+    key = str(name).split("/")[0].strip().lower().replace("-", "_")
+    for prefix, canonical in (("wikisum", "wikisum"), ("sharegpt", "sharegpt"),
+                              ("pku", "pku"), ("bigcode", "bigcodebench")):
+        if key.startswith(prefix):
+            return canonical
+    if key in ("s_gpt", "sgpt"):
+        return "sharegpt"
+    return key
+
+
+def dataset_color(name, default="gray"):
+    return DATASET_COLORS.get(dataset_key(name), default)
+
+
+def dataset_abbrev(name):
+    return DATASET_ABBREV.get(dataset_key(name), str(name))
+
 
 def load_experiment(exp_name):
     """Load the latest aggregated_performance.csv for an experiment."""
@@ -513,38 +551,106 @@ IND_PIVOT_PATTERNS = {
 }
 
 
-def load_self_scores(exp_name):
-    """
-    Load self-scores for an IND experiment from accuracy pivot tables.
-    Returns dict: evaluator -> weighted average self-score across datasets.
-    Returns None if not an IND experiment.
+def load_self_scores_per_dataset(exp_name):
+    """Self-scores kept per task domain: {evaluator: {dataset: C_jk}}.
+
+    Per-domain values differ substantially (spreads up to ~0.8), so the
+    adjustment has to be applied per (evaluator, dataset) rather than against a
+    domain-averaged C_j -- see adjust_ind_performance.
     """
     if exp_name not in IND_PIVOT_PATTERNS:
         return None
 
-    self_scores_per_model = {}  # model -> list of (score, n_datasets)
+    per_dataset = {}
     for ds_name, rel_path in IND_PIVOT_PATTERNS[exp_name].items():
         pivot_path = ANALYSIS_DIR / rel_path
         if not pivot_path.exists():
             continue
         pivot = pd.read_csv(pivot_path, index_col=0)
-        # Diagonal = self-scores
         for model in pivot.index:
             if model in pivot.columns:
                 val = pivot.loc[model, model]
                 if pd.notna(val):
-                    self_scores_per_model.setdefault(model, []).append(val)
+                    per_dataset.setdefault(model, {})[ds_name] = val
+    return per_dataset
 
-    # Average across datasets
-    return {m: np.mean(scores) for m, scores in self_scores_per_model.items()}
+
+def _wmean(v, w):
+    return float(np.sum(w * v) / np.sum(w))
+
+
+def fit_score_distance(x, y, w, evaluators, regression="pooled"):
+    """Fit accuracy against Elo score distance. Returns (slope, intercept, r).
+
+    "pooled"  ordinary weighted least squares over all points. Mixes the
+              within-evaluator effect (does this evaluator do better against
+              weaker generators?) with the between-evaluator effect (are
+              stronger evaluators better overall?).
+
+    "fe"      evaluator fixed effects: one common slope, one intercept per
+              evaluator, estimated by weighted demeaning within evaluator. This
+              isolates the within-evaluator effect, which is what the quality
+              heuristic actually claims. The returned intercept is the weighted
+              mean of the per-evaluator intercepts -- the line that gets drawn.
+              r is the weighted partial correlation (correlation of the
+              within-evaluator residuals), so it describes the drawn slope
+              rather than the visible spread of the cloud.
+
+    Weights are n_samples: a proportion from n trials has variance p(1-p)/n.
+    Note np.polyfit's w applies to the unsquared residual, hence sqrt(w) there
+    but w here.
+    """
+    from self_rec_framework.scripts.utils import weighted_correlation
+
+    if regression == "pooled":
+        slope, intercept = np.polyfit(x, y, 1, w=np.sqrt(w))
+        return slope, intercept, weighted_correlation(x, y, w)
+
+    if regression != "fe":
+        raise ValueError(f"unknown regression: {regression!r}")
+
+    xr, yr = x.copy(), y.copy()
+    for ev in np.unique(evaluators):
+        i = evaluators == ev
+        if i.sum() < 2:
+            # A single point carries no within-evaluator information; zeroing it
+            # out drops it from the slope instead of contributing a spurious 0.
+            xr[i] = 0.0
+            yr[i] = 0.0
+            continue
+        xr[i] -= _wmean(x[i], w[i])
+        yr[i] -= _wmean(y[i], w[i])
+
+    denom = np.sum(w * xr * xr)
+    if denom == 0:
+        return np.nan, np.nan, np.nan
+    slope = float(np.sum(w * xr * yr) / denom)
+
+    # One intercept per evaluator given the common slope; draw their weighted mean.
+    ev_intercepts, ev_weights = [], []
+    for ev in np.unique(evaluators):
+        i = evaluators == ev
+        ev_intercepts.append(_wmean(y[i], w[i]) - slope * _wmean(x[i], w[i]))
+        ev_weights.append(np.sum(w[i]))
+    intercept = _wmean(np.array(ev_intercepts), np.array(ev_weights))
+
+    return slope, intercept, weighted_correlation(xr, yr, w)
 
 
 def adjust_ind_performance(df, self_scores):
     """
-    Adjust IND cross-model performance by averaging with evaluator's self-score.
-    adjusted = (cross_performance + self_score) / 2
+    Adjust IND cross-model performance by averaging with the evaluator's
+    self-score for the same task domain:  adjusted_ijk = (T_ijk + C_jk) / 2
 
     This ensures a model that always accepts or always rejects scores 0.5.
+
+    C is indexed by domain k, not just by evaluator j, because self-accuracy
+    varies widely across domains (up to ~0.8 within one evaluator) and each row
+    here is a single (evaluator, generator, dataset) observation. This matches
+    how fig_boxplot_with_grouped_bar corrects the same quantity. Rows whose
+    (evaluator, dataset) has no diagonal entry are dropped.
+
+    self_scores: {evaluator: {dataset: C_jk}} from load_self_scores_per_dataset.
     """
     if self_scores is None:
         return df
@@ -552,11 +658,9 @@ def adjust_ind_performance(df, self_scores):
     df = df.copy()
     adjusted_perfs = []
     for _, row in df.iterrows():
-        evaluator = row["evaluator"]
-        if evaluator in self_scores:
-            adjusted_perfs.append((row["performance"] + self_scores[evaluator]) / 2)
-        else:
-            adjusted_perfs.append(np.nan)
+        c_jk = self_scores.get(row["evaluator"], {}).get(row["dataset"])
+        adjusted_perfs.append(np.nan if c_jk is None
+                              else (row["performance"] + c_jk) / 2)
     df["performance"] = adjusted_perfs
     return df.dropna(subset=["performance"])
 
@@ -612,7 +716,7 @@ def fig_score_distance_panels(data):
         df["score_distance"] = df["eval_score"] - df["gen_score"]
 
         # Apply IND adjustment if applicable
-        self_scores = load_self_scores(exp_name)
+        self_scores = load_self_scores_per_dataset(exp_name)
         if self_scores is not None:
             df = adjust_ind_performance(df, self_scores)
             print(f"  Applied IND adjustment for {exp_name} ({len(self_scores)} self-scores)")
@@ -756,7 +860,7 @@ def fig_rank_distance_panels(data):
         df = pd.read_csv(csv_path)
 
         # Apply IND adjustment if applicable
-        self_scores = load_self_scores(exp_name)
+        self_scores = load_self_scores_per_dataset(exp_name)
         if self_scores is not None:
             df = adjust_ind_performance(df, self_scores)
             print(f"  Applied IND adjustment for {exp_name} ({len(self_scores)} self-scores)")
@@ -1964,14 +2068,11 @@ def fig_boxplot_with_grouped_bar(data):
         box_data_top.append(values)
 
     task_color = "#7B1FA2"
-    # Shared dataset colors across both panels
-    ds_bar_colors = {
-        "WikiSum": "#1565C0", "ShareGPT": "#FF8F00",
-        "PKU-SafeRLHF": "#43A047", "BigCodeBench": "#E57373",
-    }
-    # Match DS_ORDER keys to bar color keys
-    DS_TO_BAR_KEY = {"ShareGPT": "ShareGPT", "PKU": "PKU-SafeRLHF", "BigCode": "BigCodeBench", "WikiSum": "WikiSum"}
-    ds_colors_ordered = [ds_bar_colors[DS_TO_BAR_KEY[ds]] for ds in DS_ORDER]
+    # Shared dataset colors across both panels — and across figures, via
+    # DATASET_COLORS.
+    ds_bar_colors = {name: dataset_color(name) for name in
+                     ("WikiSum", "ShareGPT", "PKU-SafeRLHF", "BigCodeBench")}
+    ds_colors_ordered = [dataset_color(ds) for ds in DS_ORDER]
     colors_top = [task_color] * 4 + ds_colors_ordered
 
     for i, (vals, color) in enumerate(zip(box_data_top, colors_top)):
@@ -2470,11 +2571,63 @@ def fig_rec_vs_pref_scatter():
     print(f"  ✓ Saved: {path}")
 
 
-def fig_quality_heuristic_combined(data=None):
+def _self_attribution_rows(exp_name, df):
+    """Diagonal (evaluator == generator) points for the attribution variant.
+
+    These are absent from rank_distance_data.csv, so they are rebuilt from the
+    per-domain self-scores. Score distance is 0 by construction (the evaluator
+    and generator are the same model, so their Elo scores cancel).
+    """
+    per_dataset = load_self_scores_per_dataset(exp_name) or {}
+    n_samples = int(df["n_samples"].median()) if len(df) else 0
+
+    rows = []
+    for evaluator in sorted(df["evaluator"].unique()):
+        for dataset, value in per_dataset.get(evaluator, {}).items():
+            rows.append({
+                "evaluator": evaluator, "generator": evaluator, "dataset": dataset,
+                "performance": value, "n_samples": n_samples,
+                "eval_score": np.nan, "gen_score": np.nan, "score_distance": 0.0,
+            })
+    return pd.DataFrame(rows, columns=df.columns)
+
+
+def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression="fe",
+                                   rp_encoding="domain"):
     """2×3 combined figure: score-distance scatter (cols 0-1) + rec-vs-pref scatter (col 2).
 
     Row 0: PW panels — (a) UT-PW score-distance, (b) UT-IND score-distance, (c) rec vs pref PW
     Row 1: IND panels — (c) AT-PW score-distance, (d) AT-IND score-distance, (d) rec vs pref IND
+
+    ind_metric controls what the IND panels (b, d) plot. The PW panels (a, c) are
+    unaffected — they have no self-comparison and need no bias correction.
+
+      "adjusted"    (T_ijk + C_j) / 2, the attribution-bias correction used in the
+                    paper: chance is 0.5 and always-accept/always-reject both score
+                    0.5. C_j is the evaluator's self-accuracy averaged over domains.
+      "raw"         T_ijk untouched — the rate of correctly rejecting another
+                    model's text. No bias correction, so a model that rejects
+                    everything scores 1.0.
+      "attribution" P(model claims authorship) = 1 - T_ijk on other models' text,
+                    plus the diagonal (evaluator == generator) at score distance 0,
+                    where the value is the per-domain self-attribution rate C_jk.
+                    Tests the quality heuristic directly rather than through
+                    accuracy, at the cost of inverting the y-axis' meaning.
+
+    regression selects the fit drawn and annotated on panels (a)-(d):
+    "pooled" (weighted least squares over all pairs) or "fe" (evaluator fixed
+    effects). See fit_score_distance.
+
+    rp_encoding controls what the markers in panels (e, f) encode:
+
+      "domain"  every point is a circle colored by task domain, matching
+                panels (a)-(d) and Figure 1. One legend, one channel.
+      "model"   marker shape encodes task domain and fill color encodes model
+                family, needing a second legend. Keeps the per-family detail,
+                which these panels make no claim about.
+
+    Output filename carries the variant; axis labels and layout are identical
+    across variants so they can be compared at the same size.
     """
     from self_rec_framework.src.helpers.model_names import LM_ARENA_SCORES
     from scipy import stats
@@ -2540,20 +2693,28 @@ def fig_quality_heuristic_combined(data=None):
         df = df.dropna(subset=["eval_score", "gen_score"])
         df["score_distance"] = df["eval_score"] - df["gen_score"]
 
-        self_scores = load_self_scores(exp_name)
+        # load_self_scores_per_dataset returns None for the PW experiments, which
+        # is how the IND-only branches below stay inert for panels (a) and (c).
+        self_scores = load_self_scores_per_dataset(exp_name)
         if self_scores is not None:
-            df = adjust_ind_performance(df, self_scores)
+            if ind_metric == "adjusted":
+                df = adjust_ind_performance(df, self_scores)
+            elif ind_metric == "raw":
+                pass  # leave T_ijk as loaded
+            elif ind_metric == "attribution":
+                df["performance"] = 1.0 - df["performance"]
+                df = pd.concat([df, _self_attribution_rows(exp_name, df)],
+                               ignore_index=True)
+            else:
+                raise ValueError(f"unknown ind_metric: {ind_metric!r}")
 
         panel_dfs[title] = df
 
-    sd_ds_colors = {
-        "wikisum": "#2196F3", "sharegpt": "#FF9800",
-        "pku_saferlhf": "#4CAF50", "bigcodebench": "#E91E63",
-    }
-    sd_ds_labels = {
-        "wikisum": "WikiSum", "sharegpt": "ShareGPT",
-        "pku_saferlhf": "PKU", "bigcodebench": "BigCode",
-    }
+    # Colors and labels come from the shared task-domain palette so the legend
+    # here reads the same as Figure 1's.
+    sd_ds_keys = ["wikisum", "sharegpt", "pku_saferlhf", "bigcodebench"]
+    sd_ds_colors = {k: dataset_color(k) for k in sd_ds_keys}
+    sd_ds_labels = {k: dataset_abbrev(k) for k in sd_ds_keys}
 
     sd_titles = list(sd_panels.keys())
     is_ind = {1, 3}
@@ -2574,39 +2735,60 @@ def fig_quality_heuristic_combined(data=None):
                 alpha=0.4, s=25, edgecolors="none",
             )
 
-        agg = df.groupby(["evaluator", "generator"]).agg(
-            score_distance=("score_distance", "first"),
-            performance=("performance", "mean"),
-            weight=("n_samples", "sum"),
-        ).reset_index()
+        if regression == "pooled":
+            # Pair-level means: one observation per (evaluator, generator).
+            agg = df.groupby(["evaluator", "generator"]).agg(
+                score_distance=("score_distance", "first"),
+                performance=("performance", "mean"),
+                weight=("n_samples", "sum"),
+            ).reset_index()
+            groups = agg["evaluator"].values
+        else:
+            # Fit the points as plotted -- one observation per
+            # (evaluator, generator, dataset) -- with evaluator x domain fixed
+            # effects. Elo distance carries no domain index, so aggregating to
+            # pair level leaves the slope unchanged while raising r against a
+            # denominator the predictor structurally cannot explain. The
+            # evaluator x domain grouping also absorbs C_jk exactly, which keeps
+            # the IND adjustment a pure rescaling of the slope.
+            agg = df.rename(columns={"n_samples": "weight"})
+            groups = (agg["evaluator"].astype(str) + "|"
+                      + agg["dataset"].astype(str)).values
 
         if len(agg) > 2:
-            w = agg["weight"].values
-            x_vals = agg["score_distance"].values
-            y_vals = agg["performance"].values
-            coeffs = np.polyfit(x_vals, y_vals, 1, w=np.sqrt(w))
-            slope, intercept = coeffs
+            w = agg["weight"].values.astype(float)
+            x_vals = agg["score_distance"].values.astype(float)
+            y_vals = agg["performance"].values.astype(float)
+            evs = groups
+            slope, intercept, r = fit_score_distance(x_vals, y_vals, w, evs, regression)
             x_line = np.linspace(x_vals.min(), x_vals.max(), 100)
             y_line = slope * x_line + intercept
             ax.plot(x_line, y_line, color="black", linewidth=4.5, alpha=0.8)
 
+            # Pair-level resampling, so the band reflects uncertainty in the fit
+            # over model pairs. For the FE fit a cluster bootstrap over
+            # evaluators would be stricter, but with 12-16 evaluators it is too
+            # coarse to be informative.
             rng = np.random.default_rng(42)
             n_boot = 500
             boot_lines = np.zeros((n_boot, len(x_line)))
             for b in range(n_boot):
                 idx_b = rng.choice(len(x_vals), size=len(x_vals), replace=True)
-                c = np.polyfit(x_vals[idx_b], y_vals[idx_b], 1, w=np.sqrt(w[idx_b]))
-                boot_lines[b] = c[0] * x_line + c[1]
-            lo = np.percentile(boot_lines, 2.5, axis=0)
-            hi = np.percentile(boot_lines, 97.5, axis=0)
+                s_b, i_b, _ = fit_score_distance(
+                    x_vals[idx_b], y_vals[idx_b], w[idx_b], evs[idx_b], regression)
+                boot_lines[b] = s_b * x_line + i_b
+            lo = np.nanpercentile(boot_lines, 2.5, axis=0)
+            hi = np.nanpercentile(boot_lines, 97.5, axis=0)
             ax.fill_between(x_line, lo, hi, color="black", alpha=0.1, zorder=1)
 
-            r, p = stats.pearsonr(x_vals, y_vals)
             # Slope reported per 100 Elo points; the raw per-point slope is ~1e-3
             # and would round to 0.00 at two decimals.
             slope_per_100 = slope * 100
-            print(f"    [{title}] r = {r:.3f}, m = {slope_per_100:.3f} per 100 Elo")
-            ax.text(0.03, 0.03, f"r = {r:.2f}; m = {slope_per_100:.2f}",
+            label = (f"r = {r:.2f}" if regression == "pooled"
+                     else f"$R^2$ = {r * r:.2f}")
+            print(f"    [{title}] r = {r:.3f}, R2 = {r * r:.3f}, "
+                  f"m = {slope_per_100:.3f} per 100 Elo, n = {len(agg)}")
+            ax.text(0.03, 0.03, f"{label}; m = {slope_per_100:.2f}",
                     transform=ax.transAxes, fontsize=18,
                     verticalalignment="bottom",
                     bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
@@ -2643,7 +2825,6 @@ def fig_quality_heuristic_combined(data=None):
     ]
 
     rp_markers = ['D', '^', 's', 'o']
-    rp_ds_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
     rp_dataset_markers = {}
     rp_dataset_line_colors = {}
     all_families = set()
@@ -2713,7 +2894,9 @@ def fig_quality_heuristic_combined(data=None):
             if ds not in rp_dataset_markers:
                 idx = len(rp_dataset_markers)
                 rp_dataset_markers[ds] = rp_markers[idx % len(rp_markers)]
-                rp_dataset_line_colors[ds] = rp_ds_colors[idx % len(rp_ds_colors)]
+                # Trend-line color keyed by dataset, not by order of appearance,
+                # so it matches the scatter colors in panels (a)-(d) and Fig 1.
+                rp_dataset_line_colors[ds] = dataset_color(ds)
         for fam in unique_fams:
             all_families.add(fam)
             if fam not in family_colors:
@@ -2729,17 +2912,23 @@ def fig_quality_heuristic_combined(data=None):
         for dataset in unique_datasets:
             ds_data = plot_df[plot_df["dataset"] == dataset]
             marker = rp_dataset_markers[dataset]
-            for fam in ds_data["family"].unique():
-                fam_data = ds_data[ds_data["family"] == fam]
-                color = family_colors[fam]
-                xerr = np.array([e if pd.notna(e) and e is not None else 0 for e in fam_data["pref_err"]])
-                yerr = np.array([e if pd.notna(e) and e is not None else 0 for e in fam_data["rec_err"]])
-                ax.errorbar(fam_data["pref"], fam_data["rec"],
+            if rp_encoding == "domain":
+                # One circle per point, colored by task domain. These panels
+                # make no claim about model families, so spending the shape and
+                # color channels on them costs a second legend for nothing.
+                marker_groups = [(ds_data, dataset_color(dataset), "o")]
+            else:
+                marker_groups = [(ds_data[ds_data["family"] == fam], family_colors[fam], marker)
+                                 for fam in ds_data["family"].unique()]
+            for grp, color, mk in marker_groups:
+                xerr = np.array([e if pd.notna(e) and e is not None else 0 for e in grp["pref_err"]])
+                yerr = np.array([e if pd.notna(e) and e is not None else 0 for e in grp["rec_err"]])
+                ax.errorbar(grp["pref"], grp["rec"],
                             xerr=xerr if not np.all(xerr == 0) else None,
                             yerr=yerr if not np.all(yerr == 0) else None,
                             fmt="none", ecolor=color, alpha=0.4, capsize=2,
                             capthick=0.5, elinewidth=0.5, zorder=1)
-                ax.scatter(fam_data["pref"], fam_data["rec"], c=color, marker=marker,
+                ax.scatter(grp["pref"], grp["rec"], c=color, marker=mk,
                            s=140, alpha=0.7, edgecolors="black", linewidths=0.5, zorder=2)
 
             x_vals = ds_data["pref"].values.astype(float)
@@ -2802,8 +2991,10 @@ def fig_quality_heuristic_combined(data=None):
         ax.set_aspect("equal", adjustable="box")
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
-        ax.xaxis.set_major_locator(MultipleLocator(0.1))
-        ax.yaxis.set_major_locator(MultipleLocator(0.1))
+        # 0.2 rather than 0.1: at the size these panels print, ten labels per
+        # axis collide. The grid still marks every 0.2.
+        ax.xaxis.set_major_locator(MultipleLocator(0.2))
+        ax.yaxis.set_major_locator(MultipleLocator(0.2))
         ax.grid(alpha=0.3, linestyle="--")
         ax.set_axisbelow(True)
         ax.tick_params(axis="both", labelsize=18)
@@ -2813,43 +3004,88 @@ def fig_quality_heuristic_combined(data=None):
         for ds in sorted(unique_datasets):
             mk = rp_dataset_markers[ds]
             lc = rp_dataset_line_colors[ds]
-            h_m = plt.Line2D([0], [0], marker=mk, color="w", markerfacecolor="gray",
-                             markersize=10, markeredgecolor="black", markeredgewidth=0.5)
-            h_l = plt.Line2D([0], [0], linestyle="--", color=lc, linewidth=2)
-            r_str = f"r={datasets_with_fit[ds]:.2f}" if ds in datasets_with_fit else ""
-            ds_handles.append(((h_m, h_l), f"{format_dataset_display_name(ds)} ({r_str})"))
+            # R^2 to match panels (a)-(d). These fits are all positive, so no
+            # sign is lost; a negative one would need flagging, since squaring
+            # hides direction.
+            if ds in datasets_with_fit:
+                _c = datasets_with_fit[ds]
+                r_str = f"$R^2$={_c * _c:.2f}" + ("" if _c >= 0 else ", neg.")
+            else:
+                r_str = ""
+            if rp_encoding == "domain":
+                # Points and trend line are the same color, so one filled circle
+                # stands for both.
+                handle = plt.Line2D([0], [0], marker="o", color="w", markerfacecolor=lc,
+                                    markersize=12, markeredgecolor="black",
+                                    markeredgewidth=0.5)
+            else:
+                # Shape and line color are separate channels, so show both.
+                handle = (plt.Line2D([0], [0], marker=mk, color="w", markerfacecolor="gray",
+                                     markersize=10, markeredgecolor="black",
+                                     markeredgewidth=0.5),
+                          plt.Line2D([0], [0], linestyle="--", color=lc, linewidth=2))
+            ds_handles.append((handle, f"{dataset_abbrev(ds)} ({r_str})"))
         ds_leg = ax.legend(handles=[h for h, _ in ds_handles], labels=[l for _, l in ds_handles],
                            loc="upper left", fontsize=13, framealpha=0.9,
                            handler_map={tuple: HandlerTuple(ndivide=None)})
         ax.add_artist(ds_leg)
 
     # ──────────────────────────────────────────────────────────────────
-    # Shared legend for model families (right side)
+    # Shared legend for model families (right side) — only when fill color
+    # encodes family. Under "domain" the panels have a single legend each.
     # ──────────────────────────────────────────────────────────────────
-    fam_handles = []
-    for fam in sorted(all_families):
-        display = provider_to_model_name(fam)
-        fam_handles.append(plt.Line2D([0], [0], marker="o", color="w",
-                                       markerfacecolor=family_colors[fam],
-                                       markersize=12, markeredgecolor="black",
-                                       markeredgewidth=0.5, label=display))
+    if rp_encoding == "model":
+        fam_handles = []
+        for fam in sorted(all_families):
+            display = provider_to_model_name(fam)
+            fam_handles.append(plt.Line2D([0], [0], marker="o", color="w",
+                                          markerfacecolor=family_colors[fam],
+                                          markersize=12, markeredgecolor="black",
+                                          markeredgewidth=0.5, label=display))
 
-    # Place model family legend at bottom-right of panel (f)
-    axes_right[1].legend(handles=fam_handles, loc="lower right",
-                         fontsize=13, framealpha=0.9,
-                         borderpad=0.8, labelspacing=0.5)
+        # Place model family legend at bottom-right of panel (f)
+        axes_right[1].legend(handles=fam_handles, loc="lower right",
+                             fontsize=13, framealpha=0.9,
+                             borderpad=0.8, labelspacing=0.5)
 
-    # Vertical dotted separator — placed just left of the Performance Score y-label
-    left_right_edge = axes_left[0][1].get_position().x1
-    right_left_edge = axes_right[0].get_position().x0
-    sep_x = left_right_edge + (right_left_edge - left_right_edge) * 0.3
-    fig.add_artist(plt.Line2D([sep_x, sep_x], [0.05, 0.95], transform=fig.transFigure,
-                              color="gray", linestyle=":", linewidth=1.5, zorder=10))
+    # Vertical dotted separator, in the gap between the two blocks: everything
+    # belonging to (e, f), their shared y-axis label included, goes to its right.
+    # It used to sit a fixed fraction into that gap, which put it through the
+    # middle of the label's words.
+    separator = plt.Line2D([0, 0], [0.05, 0.95], transform=fig.transFigure,
+                           color="gray", linestyle=":", linewidth=1.5, zorder=10)
+    fig.add_artist(separator)
 
-    path = OUT_DIR / "quality_heuristic_combined.pdf"
+    def place_separator(figure):
+        """Centre the separator between the blocks, at the current text sizes.
+
+        Deferred rather than computed once here: make_paper_figures restyles the
+        finished figure, and both edges the line has to clear are text that moves
+        when it does. Registered below as an after-style hook, and also run now
+        so a standalone build — which never gets restyled — is placed too.
+        """
+        figure.canvas.draw()             # window extents are only real once drawn
+        renderer = figure.canvas.get_renderer()
+        left_block = max(ax.get_tightbbox(renderer).x1 for ax in axes_left[:, 1])
+        # The y label is the leftmost thing in the right block, held clear of the
+        # tick labels by its labelpad.
+        right_block = min(ax.yaxis.label.get_window_extent(renderer).x0
+                          for ax in axes_right)
+        x = figure.transFigure.inverted().transform(
+            ((left_block + right_block) / 2, 0))[0]
+        separator.set_xdata([x, x])
+
+    fig.srf_after_style = [place_separator]
+    place_separator(fig)
+
+    suffix = "" if ind_metric == "adjusted" else f"_ind-{ind_metric}"
+    suffix += "" if regression == "fe" else f"_{regression}"
+    suffix += "" if rp_encoding == "domain" else f"_rp-{rp_encoding}"
+    path = OUT_DIR / f"quality_heuristic_combined{suffix}.pdf"
     fig.savefig(path, bbox_inches="tight")
     plt.close()
     print(f"  ✓ Saved: {path}")
+    return path
 
 
 if __name__ == "__main__":

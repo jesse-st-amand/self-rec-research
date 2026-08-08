@@ -16,7 +16,7 @@ from matplotlib.colors import TwoSlopeNorm
 from pathlib import Path
 
 from scripts.figures.COLM2026.prototype_compact_figures import (
-    load_self_scores, adjust_ind_performance,
+    load_self_scores_per_dataset, adjust_ind_performance,
 )
 
 AGG_DIR = Path("data/analysis/_aggregated_data")
@@ -1390,7 +1390,7 @@ def fig_training_effect_panels(pre_model="ll-3.1-8b", post_model="opus-4.1"):
         df = df.dropna(subset=["eval_score", "gen_score"])
         df["score_distance"] = df["eval_score"] - df["gen_score"]
 
-        self_scores = load_self_scores(exp_name)
+        self_scores = load_self_scores_per_dataset(exp_name)
         if self_scores is not None:
             df = adjust_ind_performance(df, self_scores)
 

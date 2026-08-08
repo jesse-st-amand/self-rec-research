@@ -8,4 +8,15 @@ priming: False
 generator_output: "FA"
 evaluator_reasoning: "DR"
 
-model_names: ['-set', 'eval_cot-r_and_dr']
+# Explicit list rather than ['-set', 'eval_cot-r_and_dr']: that set resolves to
+# 19 names, two of which (ll-3-8b-lite, tg:gpt-oss-120b-thinking) are
+# provider-tag renames from framework f55f432 that no longer match the pivot
+# names, and it omits five models the experiment actually ran. Using it silently
+# dropped the analysis from 24 evaluators to 16.
+model_names: ['deepseek-3.1', 'deepseek-r1-thinking', 'gemini-2.0-flash',
+              'gemini-2.0-flash-lite', 'gemini-2.5-pro-thinking', 'gpt-4.1',
+              'gpt-4.1-mini', 'gpt-4o', 'gpt-4o-mini', 'gpt-oss-120b-thinking',
+              'haiku-3.5', 'kimi-k2', 'kimi-k2-thinking', 'll-3.1-405b',
+              'll-3.1-70b', 'll-3.1-8b', 'opus-4.1', 'opus-4.1-thinking',
+              'qwen-2.5-72b', 'qwen-2.5-7b', 'qwen-3.0-80b',
+              'qwen-3.0-80b-thinking', 'sonnet-3.7', 'sonnet-4.5']

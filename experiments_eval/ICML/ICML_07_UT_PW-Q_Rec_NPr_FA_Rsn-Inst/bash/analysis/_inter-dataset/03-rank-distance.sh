@@ -73,7 +73,12 @@ if [[ -z "$EXP_EXP_DIR" ]] || [[ ! -d "$EXP_EXP_DIR" ]]; then
     exit 1
 fi
 
-# Find most recent timestamp subdirectory within experiment directory
+# Find most recent timestamp subdirectory within experiment directory.
+# NOTE: this writes IN PLACE into the newest existing directory -- the whole
+# _inter-dataset suite shares one timestamped dir created by
+# 00a-performance_aggregate.sh, so rerunning this step alone OVERWRITES the
+# previous rank_distance_data.csv with no backup. If the current outputs matter,
+# copy them first (see data/reference/rank_distance_backups/).
 LATEST_DIR=$(ls -td "$EXP_EXP_DIR"/*/ 2>/dev/null | head -1)
 
 if [[ -z "$LATEST_DIR" ]] || [[ ! -d "$LATEST_DIR" ]]; then

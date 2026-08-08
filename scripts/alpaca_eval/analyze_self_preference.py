@@ -721,6 +721,52 @@ def plot_simple_self_preference_delta(summary: pd.DataFrame, output_path: Path):
 # Ranking mode analysis
 # ---------------------------------------------------------------------------
 
+def build_trained_subset_map(training_dir: str,
+                             data_subsets: list[str] | None) -> dict[str, str]:
+    """Map every trained model name (and AE alias) to the data subset it came from."""
+    from scripts.alpaca_eval.training_runs import discover_training_runs
+
+    trained_to_subset = {}
+    for run in discover_training_runs(training_dir, subsets=data_subsets):
+        trained_to_subset[run.trained_name] = run.subset
+        for alias in run.ae_aliases:
+            trained_to_subset[alias] = run.subset
+    return trained_to_subset
+
+
+def judge_belongs_to_subset(judge_name: str, trained_to_subset: dict[str, str],
+                            subset: str | None) -> bool:
+    """True if a judge is a trained model from `subset`, or an untrained base model."""
+    if judge_name in trained_to_subset:
+        return trained_to_subset[judge_name] == subset
+    # Trained thinking models have -thinking appended to the results dir name,
+    # but trained_to_subset keys it without the suffix.
+    clean = judge_name.removesuffix("-thinking")
+    if clean != judge_name and clean in trained_to_subset:
+        return trained_to_subset[clean] == subset
+    from scripts.alpaca_eval.run_self_preference import resolve_base_model
+    return resolve_base_model(judge_name) == judge_name
+
+
+def resolve_mode_results_dir(base_results: Path, subset: str | None, mode: str) -> Path:
+    """Prefer a subset-specific results dir (results/01_final/ranking/) over a flat one."""
+    if subset and (base_results / subset / mode).exists():
+        return base_results / subset / mode
+    return base_results / mode
+
+
+def list_ranking_judges(results_dir: Path, trained_to_subset: dict[str, str],
+                        subset: str | None) -> list[str]:
+    """Names of judges under `results_dir` that have ranking output and belong to `subset`."""
+    if not results_dir.exists():
+        return []
+    return sorted(
+        d.name for d in results_dir.iterdir()
+        if d.is_dir() and (d / "ranking.json").exists()
+        and judge_belongs_to_subset(d.name, trained_to_subset, subset)
+    )
+
+
 def load_ranking_self_ranks(results_dir: Path, judges: list[str] | None = None) -> pd.DataFrame:
     """Load ranking results and compute average self-rank per judge.
 
@@ -1430,13 +1476,21 @@ def plot_ranking_delta_heatmap_dual(df: pd.DataFrame, output_path: Path):
     print(f"✓ Saved dual heatmap to {output_path}")
 
 
-def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, output_path: Path):
+def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, output_path: Path,
+                                       colorbar: str = "none"):
     """Two-panel heatmap variant: adversarial panel shows rank of the IDENTITY model.
 
     For adversarial models (e.g., GPT-OSS 20B trained as Qwen 3.0 30B),
     the adversarial panel shows how the identity model's text (Qwen) is ranked
     by the adversarially trained judge, compared to the base model's ranking
     of that same identity model's text before training.
+
+    colorbar places the shared Δ Rank scale "vertical" (right of panel b),
+    "horizontal" (beneath panel b), or "none". "none" is the default: every cell
+    prints its value, so the bar decodes nothing the reader cannot already read
+    off the figure, and dropping it buys back the width panel (b) needs. It does
+    cost the one thing the bar said that the cells do not -- that both panels
+    share a single scale -- so state that in the caption when omitting it.
     """
     if df.empty:
         return
@@ -1548,9 +1602,22 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
     trained["is_adv"] = trained["judge"].apply(_is_adversarial)
 
     from scripts.figures.COLM2026.prototype_uplift_figures import _BASE_FAMILY_ORDER
-    all_base_models = sorted(trained["base_model"].unique(),
-                             key=lambda b: _BASE_FAMILY_ORDER.index(DISPLAY.get(b, b))
-                             if DISPLAY.get(b, b) in _BASE_FAMILY_ORDER else 99)
+
+    # Row order for this figure only: GPT-OSS, then Qwen, then Llama. Within a
+    # family the shared _BASE_FAMILY_ORDER still decides. Reordering that list
+    # instead would move rows in every other figure that imports it. Panel (b)
+    # takes its rows from this list too, so both panels stay in step.
+    _ROW_FAMILY_ORDER = ("GPT-OSS", "Qwen", "Llama")
+
+    def _row_key(base):
+        display = DISPLAY.get(base, base)
+        family = next((i for i, f in enumerate(_ROW_FAMILY_ORDER)
+                       if display.startswith(f)), len(_ROW_FAMILY_ORDER))
+        within = (_BASE_FAMILY_ORDER.index(display)
+                  if display in _BASE_FAMILY_ORDER else 99)
+        return (family, within, display)
+
+    all_base_models = sorted(trained["base_model"].unique(), key=_row_key)
 
     all_columns = [
         {"label": "WS", "filter": lambda d: (d["tag"] == "ut") & (d["fmt"] == "pw") & (d["dataset"] == "wikisum")},
@@ -1610,6 +1677,28 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
     vmax = max(abs(all_vals.min()), abs(all_vals.max()))
     shared_norm = TwoSlopeNorm(vmin=-vmax, vcenter=0, vmax=vmax)
 
+    # Orange/purple rather than red/green. Red-green is precisely the pairing
+    # red-green color vision deficiency cannot resolve: simulating the endpoints
+    # of RdYlGn under protanopia leaves them 0.30 apart in RGB, against 0.42 for
+    # PuOr. PuOr is also the least bad diverging map in grayscale, though only
+    # relatively -- no diverging map keeps its two arms apart without color
+    # (RdYlGn's endpoints differ by 0.02 in luminance, PuOr's by 0.07). That is
+    # why every cell prints a signed value: in grayscale the sign is read from
+    # the number, and the shading only carries magnitude.
+    cmap = plt.cm.PuOr
+
+    def _text_color(value, norm):
+        """Black or white, whichever contrasts with the cell behind it.
+
+        Keying off abs(value) would be wrong here: PuOr's two arms differ in
+        lightness, so the same magnitude needs white text on one side and black
+        on the other. 0.179 is where white-on-color and black-on-color reach
+        equal WCAG contrast.
+        """
+        rgb = np.array(cmap(norm(value))[:3])
+        lin = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+        return "white" if float(np.dot(lin, [0.2126, 0.7152, 0.0722])) < 0.179 else "black"
+
     def _draw_heatmap(ax, matrix, y_labels, x_labels, title, norm):
         vals = matrix.flatten()
         vals = vals[~np.isnan(vals)]
@@ -1618,9 +1707,9 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
                     fontsize=11, color="gray", transform=ax.transAxes)
             ax.set_title(title, fontsize=12, fontweight="bold")
             return None
-        cmap = plt.cm.RdYlGn
-        # aspect < 1 makes cells wider than tall (height/width ratio)
-        im = ax.imshow(matrix, aspect=0.8, cmap=cmap, norm=norm)
+        # aspect="auto" fills whatever box the axes was given; cell size is
+        # controlled by that box instead (see the layout block below).
+        im = ax.imshow(matrix, aspect="auto", cmap=cmap, norm=norm)
         ax.set_yticks(range(len(y_labels)))
         ax.set_yticklabels(y_labels, fontsize=12, rotation=0, ha="right", va="center")
         for r in range(matrix.shape[0]):
@@ -1628,8 +1717,7 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
                 v = matrix[r, c]
                 if not np.isnan(v):
                     ax.text(c, r, f"{v:+.2f}", ha="center", va="center",
-                            fontsize=11, fontweight="bold",
-                            color="white" if abs(v) > norm.vmax * 0.5 else "black")
+                            fontsize=11, fontweight="bold", color=_text_color(v, norm))
         ax.xaxis.set_ticks_position("bottom")
         ax.xaxis.set_label_position("bottom")
         ax.set_xticks(range(len(x_labels)))
@@ -1637,12 +1725,40 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
         ax.set_title(title, fontsize=12, fontweight="bold")
         return im
 
+    # ── Layout ───────────────────────────────────────────────────────────────
+    # Axes are placed explicitly, in inches, so that a cell in panel (b) is the
+    # same size as a cell in panel (a). A shared gridspec row cannot do that:
+    # the panels have different row counts, so equal axes heights necessarily
+    # give unequal cell heights. Padding only has to be in the right ballpark --
+    # the figure saves with bbox_inches="tight", which crops to the artists.
+    CELL_W, CELL_H = 1.15, 0.92          # inches per cell, identical in both panels
+    PAD_L, PAD_MID = 2.4, 2.7            # room for each panel's y-labels
+    PAD_TOP, PAD_BOT = 0.55, 1.05        # room for the title / two-line x-labels
+    CBAR_T, CBAR_GAP = 0.22, 0.55        # colorbar thickness and its gap to the panel
+    PAD_R = 1.3 if colorbar == "vertical" else 0.3
+
     n_std_cols = len(all_columns)
     n_adv_cols = len(adv_columns) if adv_columns else 1
-    fig, (ax_std, ax_adv) = plt.subplots(
-        1, 2, figsize=(14 + 4 * n_adv_cols / n_std_cols, 6),
-        gridspec_kw={"width_ratios": [n_std_cols, max(n_adv_cols, 1) + 0.5], "wspace": 0.35},
-    )
+    n_std_rows = len(all_base_models)
+    n_adv_rows = max(len(adv_base_models), 1)
+
+    fig_w = PAD_L + n_std_cols * CELL_W + PAD_MID + n_adv_cols * CELL_W + PAD_R
+    fig_h = PAD_TOP + max(n_std_rows, n_adv_rows) * CELL_H + PAD_BOT
+    if colorbar == "horizontal":
+        fig_h += CBAR_GAP + CBAR_T + 0.45   # bar, plus its ticks and label
+
+    fig = plt.figure(figsize=(fig_w, fig_h))
+
+    def _add_panel(x_in, n_rows, n_cols):
+        """Top-aligned panel whose box is exactly n_cols x n_rows cells."""
+        h = n_rows * CELL_H
+        return fig.add_axes([x_in / fig_w, (fig_h - PAD_TOP - h) / fig_h,
+                             n_cols * CELL_W / fig_w, h / fig_h])
+
+    x_std = PAD_L
+    x_adv = PAD_L + n_std_cols * CELL_W + PAD_MID
+    ax_std = _add_panel(x_std, n_std_rows, n_std_cols)
+    ax_adv = _add_panel(x_adv, n_adv_rows, n_adv_cols)
 
     # Standard y-labels with opponents
     def _get_opponent(judge_name):
@@ -1680,8 +1796,23 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
     im_adv = _draw_heatmap(ax_adv, adv_matrix, adv_y_labels, adv_x_labels,
                            "(b) Adversarial Training", shared_norm)
 
-    if im_std is not None:
-        cbar = fig.colorbar(im_std, ax=ax_adv, shrink=0.6, pad=0.08, aspect=15)
+    # The colorbar gets its own explicitly placed axes rather than being carved
+    # out of ax_adv, which would shrink panel (b)'s cells below panel (a)'s.
+    if im_std is not None and colorbar != "none":
+        adv_bottom = fig_h - PAD_TOP - n_adv_rows * CELL_H
+        if colorbar == "horizontal":
+            cax = fig.add_axes([
+                x_adv / fig_w,
+                (adv_bottom - PAD_BOT - CBAR_GAP - CBAR_T) / fig_h,
+                n_adv_cols * CELL_W / fig_w, CBAR_T / fig_h])
+            cbar = fig.colorbar(im_std, cax=cax, orientation="horizontal")
+        else:
+            bar_h = n_adv_rows * CELL_H * 0.8
+            cax = fig.add_axes([
+                (x_adv + n_adv_cols * CELL_W + 0.45) / fig_w,
+                (adv_bottom + (n_adv_rows * CELL_H - bar_h) / 2) / fig_h,
+                CBAR_T / fig_w, bar_h / fig_h])
+            cbar = fig.colorbar(im_std, cax=cax)
         cbar.set_label("Δ Rank", fontsize=11)
 
     fig.savefig(output_path, bbox_inches="tight")
@@ -1803,14 +1934,7 @@ def main():
     print(f"Evaluator models (judges): {', '.join(judges)}")
 
     # Build mapping: trained_name -> subset (for filtering judges per subset)
-    # Include ae_aliases so old-style AE result names also map to the right subset
-    from scripts.alpaca_eval.training_runs import discover_training_runs
-    all_runs = discover_training_runs(training_dir, subsets=data_subsets)
-    trained_to_subset = {}
-    for r in all_runs:
-        trained_to_subset[r.trained_name] = r.subset
-        for alias in r.ae_aliases:
-            trained_to_subset[alias] = r.subset
+    trained_to_subset = build_trained_subset_map(training_dir, data_subsets)
 
     base_results = Path(args.results_dir)
     base_output = Path(args.output_dir)
@@ -1828,15 +1952,7 @@ def main():
 
         # Helper: check if a judge belongs to this subset
         def _judge_in_subset(judge_name, _subset=subset):
-            if judge_name in trained_to_subset:
-                return trained_to_subset[judge_name] == _subset
-            # Trained thinking models have -thinking appended to the dir name
-            # but trained_to_subset uses the name without -thinking
-            clean = judge_name.removesuffix("-thinking")
-            if clean != judge_name and clean in trained_to_subset:
-                return trained_to_subset[clean] == _subset
-            from scripts.alpaca_eval.run_self_preference import resolve_base_model
-            return resolve_base_model(judge_name) == judge_name
+            return judge_belongs_to_subset(judge_name, trained_to_subset, _subset)
 
         # --- Non-AE figures (saved directly in {subset}/, computed once) ---
         _generate_uplift_figures(subset_out, training_dir, [subset] if subset else None)
@@ -1848,12 +1964,7 @@ def main():
 
         # --- AE figures (per judge_mode, saved in {subset}/{mode}/) ---
         for mode in judge_modes:
-            # Prefer subset-specific results dir (e.g., results/01_final/ranking/)
-            # over flat dir (e.g., results/ranking/)
-            if subset and (base_results / subset / mode).exists():
-                mode_results = base_results / subset / mode
-            else:
-                mode_results = base_results / mode
+            mode_results = resolve_mode_results_dir(base_results, subset, mode)
             mode_out = subset_out / mode
             mode_out.mkdir(parents=True, exist_ok=True)
 
@@ -1861,11 +1972,7 @@ def main():
 
             if mode == "ranking":
                 if mode_results.exists() and any(mode_results.iterdir()):
-                    available = sorted([
-                        d.name for d in mode_results.iterdir()
-                        if d.is_dir() and (d / "ranking.json").exists()
-                        and _judge_in_subset(d.name)
-                    ])
+                    available = list_ranking_judges(mode_results, trained_to_subset, subset)
                     if available:
                         print(f"  Ranking: {len(available)} judges")
                         analyze_ranking_mode(mode_results, mode_out, available,
