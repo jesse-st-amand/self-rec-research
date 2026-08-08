@@ -43,7 +43,11 @@ PAPER_FIGURES = REPO_ROOT / "_external" / "COLM_2026_SGTR" / "figures"
 #   figure_text   figure-level text — suptitles, panel letters placed on the
 #                 figure rather than an axes
 #
-# Three extra knobs per figure:
+# Four extra knobs per figure:
+#   weight        font weight forced on every role above — "normal" strips the
+#                 bold the plotting functions set. Done here rather than in them
+#                 because those functions also draw the standalone analysis
+#                 figures, which keep it. None leaves each artist as drawn.
 #   scale         multiplies every text size after the above are applied,
 #                 including roles left at None. Use to shrink a whole figure
 #                 uniformly without retuning each role.
@@ -67,8 +71,25 @@ PAPER_FIGURES = REPO_ROOT / "_external" / "COLM_2026_SGTR" / "figures"
 #                 Sides are "left", "right", "bottom", "top"; omitted sides get
 #                 0. Set None to leave every panel alone.
 #
-# COLM requires figure text to be no smaller than the 9pt caption text, so
-# treat 9 as the floor for anything a reader has to read.
+# COLM requires figure text to be no smaller than the caption's \small, which in
+# this 10pt Palatino document measures 8.9pt on the page.
+#
+# The sizes below are NOT on-page points. A figure is authored at some width in
+# inches and then included at width=\textwidth, so LaTeX scales it by
+# 396pt / (its own width) and scales every glyph in it with it. Figures 2 and 3
+# have been put on a footing where the two can be related by arithmetic: each is
+# authored at exactly PAGE_SCALE times its printed size, and saved on its canvas
+# rather than a tight crop, so authored points divide by PAGE_SCALE to give
+# printed points. Figure 1 was tuned by eye against a rendered page and its
+# numbers mean nothing on their own.
+#
+# check_figure_text.sh reports the printed size of every glyph in a figure, and
+# is the thing to run after touching any of this.
+
+PAGE_TEXT_WIDTH_IN = 5.5    # COLM text block; a \textwidth figure is this wide
+PAGE_SCALE = 3.0            # authored at 3x printed, so 27pt prints at 9pt
+MIN_PRINTED_PT = 9.0        # the floor, in printed points
+ON_PAGE_PT = MIN_PRINTED_PT * PAGE_SCALE
 
 BASE_STYLE = {
     "title": 12,
@@ -78,6 +99,7 @@ BASE_STYLE = {
     "legend_title": 12,
     "annotation": 12,
     "figure_text": 12,
+    "weight": None,
     "scale": 1.0,
     "figsize": None,
     "margins": None,
@@ -85,39 +107,57 @@ BASE_STYLE = {
 
 FIGURE_STYLE = {
     # Fig 1: box plots (a) + per-model grouped bar (b). Panel (b) is dense —
-    # 24 evaluator labels across the full text width.
+    # 24 evaluator labels across the full text width, which is what sets the
+    # rotation on them; see prototype_compact_figures.fig_boxplot_with_grouped_bar.
     "fig1": {
         **BASE_STYLE,
-        "title": 14,
-        "axis_label": 15,
-        "tick_label": 14,
-        "legend": 14,
-        "annotation": 13,
+        "title": ON_PAGE_PT,
+        "axis_label": ON_PAGE_PT,
+        "tick_label": ON_PAGE_PT,
+        "legend": ON_PAGE_PT,
+        "annotation": ON_PAGE_PT,
+        "figure_text": ON_PAGE_PT,
+        "weight": "normal",
         # Panel (a) writes "n=..." below each box, hanging off the bottom of the
-        # data range; without the pad it sits on the frame.
-        "margins": {"(a)": {"bottom": 0.04}},
+        # data range; without the pad it sits on the frame. Wider than it was,
+        # since the label is now three times the size it was written for.
+        "margins": {"(a)": {"bottom": 0.10}},
     },
-    # Fig 2: 2x3 scatter grid. Lots of panels, so text runs smaller.
+    # Fig 2: 2x3 scatter grid. Six panels across 5.5in leaves each about 1.7in
+    # wide, which is the whole reason the titles wrap and the legends had to come
+    # out of the panels — see prototype_compact_figures.fig_quality_heuristic_combined.
     "fig2": {
         **BASE_STYLE,
-        "title": 22,
-        "axis_label": 25,
-        "tick_label": 27,
-        "legend": 18,
-        "annotation": 21,
+        "title": ON_PAGE_PT,
+        "axis_label": ON_PAGE_PT,
+        "tick_label": ON_PAGE_PT,
+        "legend": ON_PAGE_PT,
+        # Panels (e, f) put "$R^2$" in the legend title, so it is read, not decoration.
+        "legend_title": ON_PAGE_PT,
+        "annotation": ON_PAGE_PT,
+        "figure_text": ON_PAGE_PT,
+        "weight": "normal",
     },
     # Fig 3: four panels — the dot plots (a, b) above the heatmaps (c, d). The
     # two halves arrive at different natural sizes and set their own text at
-    # different point sizes, so these are what makes them agree. Layout is in
-    # prototype_combined_transfer.py; annotation covers both the dot plots'
-    # box-plot labels and the delta value printed in each heatmap cell.
+    # different point sizes, so these are what makes them agree. Every role sits
+    # on the floor: at 5.5in wide and four panels there is nothing to spend on a
+    # hierarchy of sizes, and a role set any smaller would print below 9pt.
+    # Layout is in prototype_combined_transfer.py, whose panel geometry is what
+    # gives text this size room; annotation covers both the dot plots' box-plot
+    # labels and the delta value printed in each heatmap cell.
     "fig3": {
         **BASE_STYLE,
-        "title": 20,
-        "axis_label": 20,
-        "tick_label": 20,
-        "annotation": 20,
-        "figure_text": 20,
+        "title": ON_PAGE_PT,
+        "axis_label": ON_PAGE_PT,
+        "tick_label": ON_PAGE_PT,
+        "annotation": ON_PAGE_PT,
+        "figure_text": ON_PAGE_PT,
+        "weight": "normal",
+        # The dot plots' row labels are rotated, so the bottom one reaches down
+        # past its row and into the frame's corner. Nudging the rows inward is
+        # what gets it out, since the label follows the row.
+        "margins": {"(a)": {"bottom": 0.05}, "(b)": {"bottom": 0.06}},
     },
 }
 
@@ -227,6 +267,7 @@ def _apply_margins(fig, spec):
 def apply_style(fig, style):
     """Restyle a finished figure in place according to `style`."""
     scale = style.get("scale", 1.0) or 1.0
+    weight = style.get("weight")
 
     for role, artist in _role_texts(fig):
         size = style.get(role)
@@ -234,6 +275,8 @@ def apply_style(fig, style):
             artist.set_fontsize(size)
         if scale != 1.0:
             artist.set_fontsize(artist.get_fontsize() * scale)
+        if weight is not None:
+            artist.set_fontweight(weight)
 
     # Tick label sizes are also set on the axis itself: a tick regenerated
     # during the save-time draw would otherwise fall back to the rcParam.
@@ -255,6 +298,39 @@ def apply_style(fig, style):
         hook(fig)
 
 
+def report_overflow(fig, name):
+    """Print anything reaching outside the canvas, since the save will clip it.
+
+    The cost of saving the canvas instead of a tight crop is that an artist
+    crossing the edge is cut off rather than accommodated. That is the failure
+    worth having — it is visible — but only if someone looks at every figure, so
+    it is measured as well. Reported in printed inches, since that is the unit
+    the fix gets expressed in.
+
+    Catches things leaving the page, not things landing on each other. A legend
+    dropped onto a panel title is entirely inside the canvas and entirely
+    silent — for those, look at the figure.
+    """
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    width, height = fig.get_size_inches() * fig.dpi
+    over = {}
+    # Figure-level legends as well as the panels: a figure that moves a legend
+    # out from beside a panel to underneath the whole thing has made exactly the
+    # artist most likely to be hanging off an edge.
+    boxes = [ax.get_tightbbox(renderer) for ax in fig.axes]
+    boxes += [legend.get_window_extent(renderer) for legend in fig.legends]
+    for box in boxes:
+        for side, amount in (("left", -box.x0), ("right", box.x1 - width),
+                             ("bottom", -box.y0), ("top", box.y1 - height)):
+            if amount > 1.0:            # a point either way is rounding
+                over[side] = max(over.get(side, 0), amount)
+    if over:
+        margins = ", ".join(f"{s} {a / fig.dpi / PAGE_SCALE:.2f}in"
+                            for s, a in sorted(over.items()))
+        print(f"  ⚠ {name} overflows its canvas and will be clipped: {margins}")
+
+
 @contextmanager
 def styled(style):
     """Apply `style` to every figure saved inside the block."""
@@ -266,6 +342,12 @@ def styled(style):
 
     def savefig(self, *args, **kwargs):
         apply_style(self, style)
+        # After the restyle, never before: measured at the size the plotting
+        # function chose, every artist reports a box a third of the one it will
+        # actually be drawn at, and nothing looks like it overflows.
+        if not kwargs.get("bbox_inches") and len(args) < 2:
+            name = Path(str(args[0])).name if args else "figure"
+            report_overflow(self, name)
         return original_savefig(self, *args, **kwargs)
 
     Figure.savefig = savefig

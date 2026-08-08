@@ -1477,7 +1477,10 @@ def plot_ranking_delta_heatmap_dual(df: pd.DataFrame, output_path: Path):
 
 
 def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, output_path: Path,
-                                       colorbar: str = "none"):
+                                       colorbar: str = "none", geometry: dict | None = None,
+                                       share_rows: bool = False,
+                                       stack_x_labels: bool = False,
+                                       titles: tuple[str, str] | None = None):
     """Two-panel heatmap variant: adversarial panel shows rank of the IDENTITY model.
 
     For adversarial models (e.g., GPT-OSS 20B trained as Qwen 3.0 30B),
@@ -1491,6 +1494,31 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
     off the figure, and dropping it buys back the width panel (b) needs. It does
     cost the one thing the bar said that the cells do not -- that both panels
     share a single scale -- so state that in the caption when omitting it.
+
+    The remaining three exist for the paper's Figure 3, where this drawing has to
+    fit the 5.5in text block with no text below 9pt. Everything here is sized in
+    inches and the caller scales it, so what they buy is width:
+
+      geometry        overrides the CELL_*/PAD_* block below. Keys are the same
+                      names, lowercased.
+      share_rows      give the adversarial panel the same rows as the standard
+                      one, in the same order, and label them once. A model with
+                      no adversarial run gets an empty row rather than being
+                      dropped, which is what keeps the two panels in register.
+                      Worth ~1.2in of the text block: a second column of model
+                      names is most of what panel (b) costs, and none of it is
+                      new information. The standard panel's labels then have to
+                      name a model that is the training contrast in (a) and the
+                      impersonation target in (b) -- they read
+                      "GPT-OSS 20B / (Qwen 3.0 30B)" when those coincide, as
+                      they do here, and spell out both when they do not.
+      stack_x_labels  break column labels at spaces, one word per line. "UT IND"
+                      set on one line is wider than the "+0.21" the column
+                      exists to show, so the column label, not the data, would
+                      set the cell width.
+      titles          the two panel titles. The defaults end in "Training",
+                      which is worth its width standalone and is not worth it
+                      over a panel two cells wide.
     """
     if df.empty:
         return
@@ -1661,7 +1689,8 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
     adv_matrix_full = _build_matrix(adv_trained, all_base_models, all_columns)
     adv_row_mask = ~np.all(np.isnan(adv_matrix_full), axis=1)
     adv_col_mask = ~np.all(np.isnan(adv_matrix_full), axis=0)
-    adv_base_models = [b for b, m in zip(all_base_models, adv_row_mask) if m]
+    adv_base_models = (all_base_models if share_rows
+                       else [b for b, m in zip(all_base_models, adv_row_mask) if m])
     adv_columns = [c for c, m in zip(all_columns, adv_col_mask) if m]
     adv_matrix = _build_matrix(adv_trained, adv_base_models, adv_columns)
 
@@ -1710,14 +1739,22 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
         # aspect="auto" fills whatever box the axes was given; cell size is
         # controlled by that box instead (see the layout block below).
         im = ax.imshow(matrix, aspect="auto", cmap=cmap, norm=norm)
-        ax.set_yticks(range(len(y_labels)))
-        ax.set_yticklabels(y_labels, fontsize=12, rotation=0, ha="right", va="center")
+        if y_labels is None:            # share_rows: the panel to the left names them
+            ax.set_yticks([])
+        else:
+            ax.set_yticks(range(len(y_labels)))
+            ax.set_yticklabels(y_labels, fontsize=12, rotation=0, ha="right", va="center")
         for r in range(matrix.shape[0]):
             for c in range(matrix.shape[1]):
                 v = matrix[r, c]
                 if not np.isnan(v):
                     ax.text(c, r, f"{v:+.2f}", ha="center", va="center",
                             fontsize=11, fontweight="bold", color=_text_color(v, norm))
+                else:
+                    # A cell with no run, struck through. Blank would read as a
+                    # measured zero -- the colormap's centre is nearly white.
+                    ax.plot([c - 0.5, c + 0.5], [r + 0.5, r - 0.5],
+                            color="0.55", lw=3.0, solid_capstyle="butt", zorder=3)
         ax.xaxis.set_ticks_position("bottom")
         ax.xaxis.set_label_position("bottom")
         ax.set_xticks(range(len(x_labels)))
@@ -1731,11 +1768,17 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
     # the panels have different row counts, so equal axes heights necessarily
     # give unequal cell heights. Padding only has to be in the right ballpark --
     # the figure saves with bbox_inches="tight", which crops to the artists.
-    CELL_W, CELL_H = 1.15, 0.92          # inches per cell, identical in both panels
-    PAD_L, PAD_MID = 2.4, 2.7            # room for each panel's y-labels
-    PAD_TOP, PAD_BOT = 0.55, 1.05        # room for the title / two-line x-labels
+    geom = {
+        "cell_w": 1.15, "cell_h": 0.92,  # inches per cell, identical in both panels
+        "pad_l": 2.4, "pad_mid": 2.7,    # room for each panel's y-labels
+        "pad_top": 0.55, "pad_bot": 1.05,  # room for the title / two-line x-labels
+        "pad_r": 1.3 if colorbar == "vertical" else 0.3,
+    }
+    geom.update(geometry or {})
+    CELL_W, CELL_H = geom["cell_w"], geom["cell_h"]
+    PAD_L, PAD_MID, PAD_R = geom["pad_l"], geom["pad_mid"], geom["pad_r"]
+    PAD_TOP, PAD_BOT = geom["pad_top"], geom["pad_bot"]
     CBAR_T, CBAR_GAP = 0.22, 0.55        # colorbar thickness and its gap to the panel
-    PAD_R = 1.3 if colorbar == "vertical" else 0.3
 
     n_std_cols = len(all_columns)
     n_adv_cols = len(adv_columns) if adv_columns else 1
@@ -1770,31 +1813,44 @@ def plot_ranking_delta_heatmap_dual_v2(df: pd.DataFrame, results_dir: Path, outp
             return DISPLAY.get(REORG_MODEL_MAP.get(raw, raw), raw)
         return ""
 
+    def _identity_of(base):
+        judges = adv_trained[adv_trained["base_model"] == base]["judge"].tolist()
+        return _get_identity_display(judges[0]) if judges else ""
+
     std_y_labels = []
     for base in all_base_models:
         base_judges = std_trained[std_trained["base_model"] == base]["judge"].tolist()
         opponents = sorted(set(_get_opponent(j) for j in base_judges if _get_opponent(j)))
-        opp_str = f"\n(vs {', '.join(opponents)})" if opponents else ""
-        std_y_labels.append(f"{DISPLAY.get(base, base)}{opp_str}")
-
-    im_std = _draw_heatmap(ax_std, std_matrix, std_y_labels,
-                           [col["label"] for col in all_columns],
-                           "(a) Standard Training", shared_norm)
-
-    # Adversarial y-labels
-    adv_y_labels = []
-    for base in adv_base_models:
-        adv_judges = adv_trained[adv_trained["base_model"] == base]["judge"].tolist()
-        if adv_judges:
-            identity = _get_identity_display(adv_judges[0])
-            adv_y_labels.append(f"{DISPLAY.get(base, base)}\n(as {identity})")
+        opp = ", ".join(opponents)
+        identity = _identity_of(base) if share_rows else ""
+        if not share_rows:
+            second = f"\n(vs {opp})" if opp else ""
+        elif identity and identity != opp:
+            second = f"\n(vs {opp}; as {identity})"
         else:
-            adv_y_labels.append(DISPLAY.get(base, base))
+            second = f"\n({opp or identity})" if (opp or identity) else ""
+        std_y_labels.append(f"{DISPLAY.get(base, base)}{second}")
 
-    adv_x_labels = [col["label"].replace("\nShareGPT", "") for col in adv_columns]
+    def _x(columns):
+        labels = [col["label"].replace("\nShareGPT", "") for col in columns]
+        return [l.replace(" ", "\n") for l in labels] if stack_x_labels else labels
 
-    im_adv = _draw_heatmap(ax_adv, adv_matrix, adv_y_labels, adv_x_labels,
-                           "(b) Adversarial Training", shared_norm)
+    std_title, adv_title = titles or ("(a) Standard Training",
+                                      "(b) Adversarial Training")
+    im_std = _draw_heatmap(ax_std, std_matrix, std_y_labels, _x(all_columns),
+                           std_title, shared_norm)
+
+    # Adversarial y-labels, unless the standard panel already names them.
+    adv_y_labels = None
+    if not share_rows:
+        adv_y_labels = []
+        for base in adv_base_models:
+            identity = _identity_of(base)
+            adv_y_labels.append(f"{DISPLAY.get(base, base)}\n(as {identity})"
+                                if identity else DISPLAY.get(base, base))
+
+    im_adv = _draw_heatmap(ax_adv, adv_matrix, adv_y_labels, _x(adv_columns),
+                           adv_title, shared_norm)
 
     # The colorbar gets its own explicitly placed axes rather than being carved
     # out of ax_adv, which would shrink panel (b)'s cells below panel (a)'s.

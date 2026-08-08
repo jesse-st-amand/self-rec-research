@@ -44,28 +44,56 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 
 from scripts.figures.COLM2026.make_paper_figures import (
-    FIGURE_STYLE, REPO_ROOT, _label_runs, apply_style,
+    FIGURE_STYLE, PAGE_SCALE, PAGE_TEXT_WIDTH_IN, REPO_ROOT, _label_runs,
+    apply_style,
 )
-
-# Text sizes live with the other figures', in make_paper_figures.FIGURE_STYLE.
-# The two halves come in at different natural sizes and set their text at
-# different point sizes, so that entry is what makes them agree.
 
 # ============================================================================
 # Layout
 # ============================================================================
-# Widths in inches. The heatmap half's natural width is fixed by its cell size
-# and column count (~15.7in); the dot-plot half has no natural width, so it is
-# stretched to match rather than the other way round.
+# Everything below is in PAGE inches -- inches of the printed figure, which goes
+# in at \textwidth and is therefore PAGE_TEXT_WIDTH_IN wide however it was
+# authored. Authoring is at PAGE_SCALE times that, which is what keeps the
+# line weights and marker sizes where they were when this figure was tuned; the
+# _fig() at the end of this block is the only place the two systems meet.
+#
+# Working in page inches is what makes the 9pt floor checkable by arithmetic
+# rather than by rendering: a label is 9/72 in tall, a "+0.21" at 9pt is 0.38in
+# wide, and the numbers here can be compared against that directly. Text sizes
+# themselves live with the other figures' in make_paper_figures.FIGURE_STYLE,
+# and are the same 9pt expressed in authored points.
 
-FIG_W = 15.75
-TOP_H = 4.6                     # band the dot plots get
-BOTTOM_H = 4.4                  # band the heatmaps get
-BAND_GAP = 0.2                  # inches between the two bands
+TOP_H = 1.92                    # band the dot plots get
+BOTTOM_H = 1.88                 # band the heatmaps get, = the geometry below
+BAND_GAP = 0.06                 # between the two bands
 
-# Margins inside the top band, as a fraction of the whole figure width. The
-# left margin is what the rotated row labels ("UT PW", "S-GPT") hang into.
-TOP_LEFT, TOP_RIGHT, TOP_WSPACE = 0.055, 0.995, 0.14
+# Margins inside the top band, as a fraction of the whole figure width. The left
+# margin is what the rotated row labels ("UT PW", "S-GPT") hang into -- it has to
+# hold them, because anything crossing the canvas edge widens the saved figure
+# and silently shrinks every glyph in it once LaTeX scales it back to \textwidth.
+# wspace has to hold panel (b)'s rotated row labels, which lean left out of it
+# and into panel (a)'s tick labels.
+TOP_LEFT, TOP_RIGHT, TOP_WSPACE = 0.115, 0.988, 0.26
+
+# The heatmap half, in page inches. A cell has to hold "+0.21" -- 0.38in at 9pt
+# in DejaVu Sans Bold -- and pad_l has to hold "(GPT-OSS 120B)", which is 0.98in.
+# pad_mid is now just a gutter: with share_rows the adversarial panel carries no
+# labels of its own. pad_bot holds three stacked lines ("UT" / "PW" / "S-GPT").
+HEATMAP_GEOM = {
+    "cell_w": 0.46, "cell_h": 0.36,
+    "pad_l": 1.06, "pad_mid": 0.16, "pad_r": 0.14,
+    "pad_top": 0.30, "pad_bot": 0.50,
+}
+# pad_r is wider than the panel needs because the adversarial panel's centred
+# title is wider than its two cells and hangs over both of them.
+
+
+def authored(page_inches):
+    """Page inches -> the inches this figure is actually drawn at."""
+    return page_inches * PAGE_SCALE
+
+
+FIG_W = authored(PAGE_TEXT_WIDTH_IN)
 
 
 class _PanelDrawn(BaseException):
@@ -236,12 +264,12 @@ def build(config, args, output_dir):
     ranking_df, results_dir = load_ranking(config, args)
 
     total_h = TOP_H + BAND_GAP + BOTTOM_H
-    fig = plt.figure(figsize=(FIG_W, total_h))
+    fig = plt.figure(figsize=(FIG_W, authored(total_h)))
 
     # Top band: the two dot-plot panels, side by side across the full width.
     top_bottom = (BAND_GAP + BOTTOM_H) / total_h
     gs = fig.add_gridspec(1, 2, left=TOP_LEFT, right=TOP_RIGHT,
-                          bottom=top_bottom + 0.05, top=0.94, wspace=TOP_WSPACE)
+                          bottom=top_bottom + 0.06, top=0.945, wspace=TOP_WSPACE)
     top_axes = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])]
     with draw_into_axes(top_axes):
         try:
@@ -253,7 +281,11 @@ def build(config, args, output_dir):
     before = set(map(id, fig.axes))
     with draw_into_region(fig, [0.0, 0.0, 1.0, BOTTOM_H / total_h]):
         try:
-            plot_ranking_delta_heatmap_dual_v2(ranking_df, results_dir, Path("."))
+            plot_ranking_delta_heatmap_dual_v2(
+                ranking_df, results_dir, Path("."),
+                geometry={k: authored(v) for k, v in HEATMAP_GEOM.items()},
+                share_rows=True, stack_x_labels=True,
+                titles=("(a) Standard", "(b) Adversarial"))
         except _PanelDrawn:
             pass
     bottom_axes = [ax for ax in fig.axes if id(ax) not in before]
@@ -263,7 +295,14 @@ def build(config, args, output_dir):
 
     output_dir.mkdir(parents=True, exist_ok=True)
     path = output_dir / "combined_transfer_ranking.pdf"
-    fig.savefig(path, bbox_inches="tight")
+    # The canvas, not bbox_inches="tight". A tight crop is set by whatever artist
+    # reaches furthest, so the saved width -- and with it the factor LaTeX scales
+    # the whole figure by, and every printed point size -- moves whenever a label
+    # gets a character longer. Saving the canvas makes the width the one this
+    # module declared, so 27pt authored is 9pt printed by construction. The cost
+    # is that an artist crossing the edge is clipped rather than accommodated,
+    # which is the failure worth having: it is visible.
+    fig.savefig(path)
     plt.close(fig)
     print(f"\n  ✓ {path}")
     return path

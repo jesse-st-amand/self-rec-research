@@ -73,8 +73,8 @@ from matplotlib.figure import Figure
 from self_rec_framework.scripts.utils import dataset_name_style
 
 from scripts.figures.COLM2026.make_paper_figures import (
-    BASE_STYLE, PAPER_FIGURES, REPO_ROOT, _label_runs, _subset_label,
-    apply_style, styled,
+    BASE_STYLE, ON_PAGE_PT, PAGE_SCALE, PAGE_TEXT_WIDTH_IN, PAPER_FIGURES,
+    REPO_ROOT, _label_runs, _subset_label, apply_style, report_overflow,
 )
 
 # ============================================================================
@@ -95,98 +95,55 @@ AGGREGATED_ROOT = Path("data/analysis/_aggregated_data")
 # ============================================================================
 # Identical contract to FIGURE_STYLE in make_paper_figures.py; see the long
 # comment there for what each role covers and how `scale`, `figsize` and
-# `margins` behave. COLM's 9pt caption text is the floor for anything a reader
-# has to read.
+# `margins` behave.
 #
-# For the multipanel figures `figsize` is also the size the panels are laid out
-# at, so changing it reflows the figure rather than just rescaling it.
+# Every figure here is on the same footing as main-body Figures 2 and 3: drawn
+# at exactly PAGE_SCALE times the size it is printed at, and saved on its canvas
+# rather than a tight crop, so an authored ON_PAGE_PT divides by PAGE_SCALE to
+# land on COLM's 9pt floor by construction rather than by iteration. `page()`
+# below is what states a figsize in printed inches; the width is never anything
+# but the text block, since that is what these are included at.
+#
+# What that footing costs is width. A figure authored this way has exactly 5.5
+# printed inches to spend and no way to buy more, so where the old sizes were a
+# free parameter the layout is now the only lever — which is why the panels
+# below are stacked where they used to sit side by side, and why several of them
+# are close to a full page tall. Height is nearly free in an appendix; width is
+# not. See each figure's builder for what its own version of that trade was.
+
+def page(width_in, height_in):
+    """A figsize in printed inches, authored at PAGE_SCALE times that."""
+    return (width_in * PAGE_SCALE, height_in * PAGE_SCALE)
+
+
+_TEXT = {role: ON_PAGE_PT for role in
+         ("title", "axis_label", "tick_label", "legend", "legend_title", "annotation",
+          "figure_text")}
 
 APPENDIX_STYLE = {
     # figure2: per-dataset grouped bars over 24 evaluators, pairwise above
     # individual. Very dense along x — two stacked full-width panels, with the
     # legend moved underneath so neither panel gives up width to it.
-    "paradigm": {
-        **BASE_STYLE,
-        "title": 25,
-        "axis_label": 25,
-        "tick_label": 25,
-        "legend": 25,
-        "legend_title": 25,
-        "annotation": 25,
-        "figsize": (20, 12),
-    },
+    "paradigm": {**BASE_STYLE, **_TEXT, "figsize": page(PAGE_TEXT_WIDTH_IN, 7.3)},
     # figure2_appx: same bar geometry, one panel.
-    "paradigm-diff": {
-        **BASE_STYLE,
-        "title": 25,
-        "axis_label": 25,
-        "tick_label": 25,
-        "legend": 25,
-        "legend_title": 25,
-        "annotation": 25,
-        "figsize": (20, 7),
-    },
-    # figure3: accuracy vs Arena Elo score side by side, with per-dataset fits
-    # and an "r = ..." entry per dataset in each panel's legend.
-    #
-    # On figsize and legibility: the paper's text width is 5.5in, so a figure
-    # included at \textwidth is scaled by 5.5/figsize[0], and its text with it.
-    # What lands on the page is therefore 5.5 * (point size / figsize[0]) --
-    # figsize and point size only ever move together, so scaling both changes
-    # nothing. The only lever on on-page text is layout density: whitespace
-    # given back to the panels is what lets the point size rise relative to the
-    # width. These figures sit at roughly 4pt on the page, short of COLM's 9pt
-    # floor; closing that gap needs shorter axis labels or fewer panels per
-    # figure, not a different figsize (17pt at 10in wide was tried, and the four
-    # scatter panels overlap).
-    "capability": {
-        **BASE_STYLE,
-        "title": 25,
-        "axis_label": 25,
-        "tick_label": 25,
-        "legend": 25,
-        "legend_title": 25,
-        "annotation": 25,
-        "figsize": (22, 9),
-    },
-    # The fully encoded uplift dot plot. Same figure as main-body Figure 3 but
-    # with the model/condition legend kept, so it needs more room than fig3.
-    "transfer": {
-        **BASE_STYLE,
-        "title": 18,
-        "axis_label": 18,
-        "tick_label": 18,
-        "legend": 18,
-        "legend_title": 18,
-        "annotation": 15,
-    },
+    "paradigm-diff": {**BASE_STYLE, **_TEXT, "figsize": page(PAGE_TEXT_WIDTH_IN, 4.4)},
+    # figure3: accuracy vs Arena Elo score, pairwise over individual. These were
+    # side by side, which at 5.5in total gave each panel 2.4in of axes to carry
+    # an x label, a y label, seven x ticks and a two-row legend. Stacked, each
+    # gets the full width and the figure pays in height.
+    "capability": {**BASE_STYLE, **_TEXT, "figsize": page(PAGE_TEXT_WIDTH_IN, 6.3)},
+    # The fully encoded uplift dot plot. Same data as main-body Figure 3 but with
+    # the model/condition legend kept, so it needs more room than fig3.
+    "transfer": {**BASE_STYLE, **_TEXT, "figsize": page(PAGE_TEXT_WIDTH_IN, 5.0)},
     # Two stacked bar charts, 22 rotated evaluator names along each x axis.
     # Rotation is what lets those survive: what has to clear the label height is
     # the perpendicular gap between neighbouring baselines, not the tick spacing.
-    "controlled-bar": {
-        **BASE_STYLE,
-        "title": 25,
-        "axis_label": 25,
-        "tick_label": 25,
-        "legend": 25,
-        "legend_title": 25,
-        "annotation": 25,
-        # Taller than the other stacked figure: the gap between the panels has to
-        # clear a rotated "Gemini 2.0 Flash Lite" at 25pt, and taking that out of
-        # a 12in figure leaves panels too short for eleven y tick labels.
-        "figsize": (20, 14),
-    },
+    "controlled-bar": {**BASE_STYLE, **_TEXT, "figsize": page(PAGE_TEXT_WIDTH_IN, 7.4)},
     # Four scatter panels: the two score-distance filters over the two paradigms.
-    "controlled-scatter": {
-        **BASE_STYLE,
-        "title": 25,
-        "axis_label": 25,
-        "tick_label": 25,
-        "legend": 25,
-        "legend_title": 25,
-        "annotation": 25,
-        "figsize": (22, 15),
-    },
+    # Kept 2x2 rather than stacked — four full-width rows do not fit on a page,
+    # and unlike `capability` these panels' x axis is shared down each column, so
+    # only the bottom row spends height on labels.
+    "controlled-scatter": {**BASE_STYLE, **_TEXT, "figsize": page(PAGE_TEXT_WIDTH_IN, 7.6)},
 }
 
 
@@ -240,6 +197,34 @@ def draw_into(ax):
     finally:
         (plt.subplots, plt.savefig, plt.close,
          plt.tight_layout, Figure.savefig) = saved
+
+
+@contextmanager
+def capture_save():
+    """Hand back the figure a function was about to save, instead of saving it.
+
+    `draw_into` is for functions whose panels we place ourselves. This is for the
+    one figure we take whole — the uplift dot plot, which is already laid out the
+    way the appendix wants it. What it is not already doing is fitting a page: it
+    sizes itself in absolute inches and hangs its legend below the canvas at a
+    negative anchor, both of which are answers to `bbox_inches="tight"` and both
+    of which this module has to undo. Yields a one-element list that holds the
+    figure once the function reaches its save.
+    """
+    captured = []
+    saved = (plt.savefig, plt.close, Figure.savefig)
+
+    def stop(self, *_args, **_kwargs):
+        captured.append(self)
+        raise _PanelDrawn
+
+    Figure.savefig = stop
+    plt.savefig = lambda *a, **k: stop(plt.gcf())
+    plt.close = lambda *a, **k: None
+    try:
+        yield captured
+    finally:
+        plt.savefig, plt.close, Figure.savefig = saved
 
 
 # ============================================================================
@@ -431,7 +416,7 @@ def _below_everything(fig, key, pad):
     return fig.transFigure.inverted().transform((0, lowest))[1] - pad
 
 
-def legend_under_xaxis(ax, key, pad=0.04):
+def legend_under_xaxis(ax, key, pad=0.04, ncol=None):
     """Drop a panel's own legend clear of its x-axis, ticks and label included.
 
     The analysis functions anchor it a fixed fraction of the axes height below
@@ -439,10 +424,22 @@ def legend_under_xaxis(ax, key, pad=0.04):
     sizes the guess is short and the legend lands on the axis label. Measuring
     the axis instead means the placement survives a font-size change. `pad` is
     the gap left under it, as a fraction of the panel's height.
+
+    `ncol` redraws it at a given number of columns, keeping the entries and their
+    order. Worth doing wherever a legend fits on one row: under a stacked panel
+    every row it saves is a row the panels get back, and height is what a
+    full-width layout is short of.
     """
     legend = ax.get_legend()
     if legend is None:
         raise RuntimeError("Panel has no legend to move — was it drawn with --no_legend?")
+    if ncol is not None:
+        handles = list(legend.legend_handles)
+        labels = [text.get_text() for text in legend.get_texts()]
+        title = legend.get_title().get_text() or None
+        legend.remove()
+        legend = ax.legend(handles=handles, labels=labels, title=title, ncol=ncol,
+                           loc="upper center", framealpha=0.9)
     apply_style(ax.figure, APPENDIX_STYLE[key])     # measure at the saved sizes
     ax.figure.canvas.draw()
     renderer = ax.figure.canvas.get_renderer()
@@ -520,7 +517,12 @@ def save_panels(fig, key, name, output_dir):
     apply_style(fig, APPENDIX_STYLE[key])
     path = Path(output_dir) / "_build" / name
     path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, bbox_inches="tight")
+    report_overflow(fig, name)
+    # The canvas, not bbox_inches="tight" — see the note above APPENDIX_STYLE.
+    # A tight crop is set by whichever artist reaches furthest, so the saved
+    # width, and with it the factor LaTeX scales every glyph by, moves whenever
+    # a label gets a character longer.
+    fig.savefig(path)
     plt.close(fig)
     return path
 
@@ -545,7 +547,14 @@ def new_panels(key, nrows, ncols, **gridspec):
 
 def build_paradigm(_config, args):
     """figure2.pdf: recognition accuracy by dataset, pairwise (a) over individual (b)."""
-    fig, axes = new_panels("paradigm", 2, 1, hspace=1.0)
+    # Margins here are a budget, not a look. Saving the canvas means whatever
+    # hangs below a panel has to be given room rather than discovered afterwards,
+    # and what hangs below these is 24 evaluator names rotated 45 degrees: the
+    # longest is "Gemini 2.0 Flash Lite (R)", 1.5in at 9pt, so 1.06in of drop.
+    # The bottom margin holds that for the lower panel plus the shared legend;
+    # hspace holds it for the upper one.
+    fig, axes = new_panels("paradigm", 2, 1, hspace=0.58, bottom=0.245,
+                           left=0.115, right=0.99, top=0.96)
     for ax, experiment in zip(axes, (PW_EXPERIMENT, IND_EXPERIMENT)):
         # The wrapper plots the performance table and then the deviation table;
         # only the first is a panel of figure2.
@@ -563,7 +572,8 @@ def build_paradigm(_config, args):
 
 def build_paradigm_diff(_config, args):
     """figure2_appx.pdf: pairwise minus individual, per dataset."""
-    fig, axes = new_panels("paradigm-diff", 1, 1)
+    fig, axes = new_panels("paradigm-diff", 1, 1, bottom=0.38,
+                           left=0.125, right=0.99, top=0.965)
     argv = pipeline_argv(EXPERIMENTS_ROOT / "comparisons" / CONTRAST_DIR
                          / "00-performance_contrast.sh")
     run_srf([*argv, "--figures", "performance_contrast_grouped"], into=axes[0])
@@ -575,18 +585,27 @@ def build_paradigm_diff(_config, args):
 
 
 def build_capability(_config, args):
-    """figure3.pdf: recognition accuracy against Arena Elo score, pairwise (a) and individual (b)."""
-    fig, axes = new_panels("capability", 1, 2, bottom=0.26)
+    """figure3.pdf: recognition accuracy against Arena Elo score, pairwise (a) over individual (b).
+
+    Stacked rather than side by side. Half of 5.5in leaves each panel about 2.4in
+    of axes, and at 9pt "Evaluator LM Arena Score" alone is 1.4in of that; the
+    per-dataset legend under each panel is wider still. Both fit at full width,
+    and the second row is cheaper here than anywhere else in the paper.
+    """
+    fig, axes = new_panels("capability", 2, 1, hspace=0.42, bottom=0.20,
+                           left=0.115, right=0.985, top=0.955)
     for ax, experiment in zip(axes, (PW_EXPERIMENT, IND_EXPERIMENT)):
         argv = pipeline_argv(analysis_script(experiment, "02-performance_vs_size.sh"))
         run_srf([*argv, "--figures", "performance_vs_arena_score",
                  "--legend_sections", "datasets"], into=ax)
 
     label_panels(axes, titles=("Pairwise", "Individual"))
-    axes[1].set_ylabel("")
+    axes[0].set_xlabel("")               # the panels share an x axis now
     for ax in axes:
-        legend_under_xaxis(ax, "capability")
-    shared_legend(fig, axes[0], "capability", ncol=8, framealpha=0.9)
+        # One row of four rather than two of two: "BCB (r=0.65)" and its handle
+        # come to 1.1in at 9pt, so four of them fit across 5.5in with room over.
+        legend_under_xaxis(ax, "capability", ncol=4)
+    shared_legend(fig, axes[0], "capability", ncol=4, framealpha=0.9)
     return [(save_panels(fig, "capability", "figure3.pdf", args.output_dir), "figure3.pdf")]
 
 
@@ -617,10 +636,53 @@ def build_transfer(config, args):
     output_dir = Path(args.analysis_dir) / _subset_label(data_subsets) / "uplift"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    with styled(APPENDIX_STYLE["transfer"]):
-        fig5c_dot_plot_dual_color(rows, output_dir, simple=False)
-    return [(output_dir / "uplift_5c_dot_plot_dual_color.pdf",
-             "uplift_5c_dot_plot_dual_color.pdf")]
+    with capture_save() as captured:
+        try:
+            fig5c_dot_plot_dual_color(rows, output_dir, simple=False)
+        except _PanelDrawn:
+            pass
+    if not captured:
+        raise RuntimeError("fig5c_dot_plot_dual_color returned without saving a figure")
+    fig = captured[0]
+
+    # Its own legend is one block of thirteen entries, which columns badly: the
+    # five model entries carry a wrapped two-line label and the eight shape
+    # entries a single line, so any column count leaves one column twice the
+    # height of the others and the rest of the box empty. Split by the two things
+    # being keyed — who the model is, and what it was trained on — each row is
+    # then uniform and can be packed to its own width.
+    legend = fig.legends[0]
+    entries = list(zip(legend.legend_handles, (t.get_text() for t in legend.get_texts())))
+    legend.remove()
+    models = [e for e in entries if not e[1].startswith("Trained:")]
+    trained = [e for e in entries if e[1].startswith("Trained:")]
+
+    # Three columns for the models, four for the shapes: a model entry is a name
+    # over a parenthesised opponent, about 1.6in at 9pt, and a shape entry is
+    # "Trained: UT IND" at 1.0in. Both come to roughly 4.8in of the 5.5in there is.
+    #
+    # Stacked by measuring rather than at two fixed anchors. What the first row
+    # has to clear is the panels' x label, and what the second has to clear is
+    # however tall the first turned out to be; neither is known until the text is
+    # at its final size, and a guess at either lands a legend on top of the thing
+    # above it, inside the canvas, where nothing warns about it.
+    fig.subplots_adjust(left=0.125, right=0.99, top=0.945, bottom=0.36, wspace=0.22)
+    y = _below_everything(fig, "transfer", pad=0.02)
+    for row, ncol in ((models, 3), (trained, 4)):
+        legend = fig.legend(handles=[h for h, _ in row], labels=[l for _, l in row],
+                            loc="upper center", bbox_to_anchor=(0.5, y), ncol=ncol,
+                            framealpha=0.9, columnspacing=1.5, handletextpad=0.5)
+        # Restyle before measuring: a legend built here starts at the rcParam
+        # size, and measured there it reports a box less than half the height it
+        # will be once save_panels puts it at ON_PAGE_PT. The row below would
+        # then be placed inside it.
+        apply_style(fig, APPENDIX_STYLE["transfer"])
+        fig.canvas.draw()
+        bottom = legend.get_window_extent(fig.canvas.get_renderer()).y0
+        y = fig.transFigure.inverted().transform((0, bottom))[1] - 0.02
+
+    name = "uplift_5c_dot_plot_dual_color.pdf"
+    return [(save_panels(fig, "transfer", name, args.output_dir), name)]
 
 
 _RANK_DISTANCE_ARGV = {}
@@ -651,7 +713,8 @@ def build_controlled_bar(_config, args):
     Stacked rather than side by side: 22 evaluator names along x is far too dense
     to survive being squeezed into half a text width.
     """
-    fig, axes = new_panels("controlled-bar", 2, 1, hspace=1.05)
+    fig, axes = new_panels("controlled-bar", 2, 1, hspace=0.54, bottom=0.228,
+                           left=0.115, right=0.99, top=0.96)
     for index, (ax, experiment) in enumerate(zip(axes, (PW_EXPERIMENT, IND_EXPERIMENT))):
         # The panels' dataset/significance/chance entries are identical, so only
         # the first draws them.
@@ -684,16 +747,23 @@ def build_controlled_scatter(_config, args):
         (PW_EXPERIMENT, positive), (IND_EXPERIMENT, positive),
     ]
 
-    fig, axes = new_panels("controlled-scatter", 2, 2,
-                           hspace=0.85, wspace=0.22, bottom=0.16)
+    # hspace has three things to clear, not one: the top row's tick labels, then
+    # its two-row dataset legend, then the bottom row's two-line title. Sized for
+    # the ticks alone the legend lands on the title — which is inside the canvas,
+    # so nothing warns about it.
+    fig, axes = new_panels("controlled-scatter", 2, 2, hspace=0.62, wspace=0.30,
+                           bottom=0.185, left=0.105, right=0.985, top=0.93)
     for ax, (experiment, figure) in zip(axes, panels):
         run_srf(rank_distance_argv(experiment, "--figures", figure,
                                    "--legend_sections", "datasets"), into=ax)
 
-    label_panels(axes, titles=("Pairwise, score distance ±20",
-                               "Individual, score distance ±20",
-                               "Pairwise, score distance < 20",
-                               "Individual, score distance < 20"))
+    # Wrapped after the paradigm: half of 5.5in is 2.6in, and
+    # "(b) Individual, score distance ±20" set on one line at 9pt is 3.0in, which
+    # ran off the right edge of the figure.
+    label_panels(axes, titles=("Pairwise,\nscore distance ±20",
+                               "Individual,\nscore distance ±20",
+                               "Pairwise,\nscore distance < 20",
+                               "Individual,\nscore distance < 20"))
     for ax in (axes[0], axes[1]):
         ax.set_xlabel("")            # the columns share an x axis
     for ax in (axes[2], axes[3]):
@@ -707,10 +777,12 @@ def build_controlled_scatter(_config, args):
         # which takes four lines at this width and is in the caption anyway.
         ax.set_ylabel("Recognition Accuracy")
     for ax in axes:
-        # The analysis functions anchor the legend just under the axis, which
-        # is clear of the x label only at their standalone panel height.
-        ax.get_legend().set_bbox_to_anchor((0.5, -0.26), transform=ax.transAxes)
-    shared_legend(fig, axes[0], "controlled-scatter", ncol=8, framealpha=0.9)
+        # Measured rather than anchored at a fixed -0.26 of the axes height: that
+        # fraction was a stand-in for how tall the x-axis furniture is, and it is
+        # only right at one panel height. The bottom row now carries an axis label
+        # the top row does not, so no single fraction is right for both.
+        legend_under_xaxis(ax, "controlled-scatter", pad=0.05, ncol=2)
+    shared_legend(fig, axes[0], "controlled-scatter", ncol=4, framealpha=0.9)
     name = "figure_appx_controlled_scatter.pdf"
     return [(save_panels(fig, "controlled-scatter", name, args.output_dir), name)]
 

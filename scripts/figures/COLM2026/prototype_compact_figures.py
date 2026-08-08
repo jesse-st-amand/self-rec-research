@@ -2046,8 +2046,17 @@ def fig_boxplot_with_grouped_bar(data):
     whisker_style = dict(color="black", linewidth=1.2, zorder=3)
     cap_style = dict(color="black", linewidth=1.2, zorder=3)
 
-    fig, (ax_top, ax_bot) = plt.subplots(2, 1, figsize=(14, 9),
-                                          gridspec_kw={"hspace": 0.20, "height_ratios": [1, 1.3]})
+    # Authored at PAGE_SCALE times its printed size and saved on the canvas, so
+    # an authored point size divides by PAGE_SCALE to give printed points — see
+    # the note above FIGURE_STYLE in make_paper_figures. The bottom margin is
+    # sized for panel (b)'s rotated model names and hspace for panel (a)'s tick
+    # labels plus panel (b)'s title; neither can be discovered after the fact
+    # once the crop is fixed.
+    from scripts.figures.COLM2026.make_paper_figures import PAGE_SCALE, PAGE_TEXT_WIDTH_IN
+    fig, (ax_top, ax_bot) = plt.subplots(
+        2, 1, figsize=(PAGE_TEXT_WIDTH_IN * PAGE_SCALE, 4.9 * PAGE_SCALE),
+        gridspec_kw={"hspace": 0.32, "height_ratios": [1, 1.25],
+                     "left": 0.105, "right": 0.995, "top": 0.955, "bottom": 0.215})
 
     # ── Panel (a): boxplots ──
     task_labels = list(TASK_INDIVIDUAL.keys())
@@ -2193,8 +2202,13 @@ def fig_boxplot_with_grouped_bar(data):
 
     ax_bot.axhline(0.5, color="black", linewidth=0.8, linestyle="--", alpha=0.6, zorder=1)
     ax_bot.set_xticks(x_positions)
+    # 45 degrees rather than 35. What has to clear a neighbouring label is the
+    # perpendicular gap between their baselines, spacing * sin(rotation): 24
+    # models across 4.75in of axes is 0.198in apart, and a 9pt line needs 0.125in,
+    # so the rotation has to be at least 39 degrees. It costs height — the labels
+    # hang 0.74in below the axes instead of 0.60in — which the bottom margin has.
     ax_bot.set_xticklabels([MODEL_DISPLAY.get(m, m) for m in sorted_models],
-                           fontsize=13, fontweight="bold", rotation=35, ha="right")
+                           fontsize=13, fontweight="bold", rotation=45, ha="right")
 
     # Color x-tick labels by model family (darkened for readability)
     def _darken(hex_color, factor=0.65):
@@ -2206,7 +2220,7 @@ def fig_boxplot_with_grouped_bar(data):
         tick_label.set_color(_darken(get_family_base_color(model)))
 
     ax_bot.set_ylabel("Recognition Accuracy", fontsize=16)
-    ax_bot.set_title("(b) Per-Model Pairwise Recognition (UT) by Dataset",
+    ax_bot.set_title("(b) User-Tag Pairwise Recognition",
                      fontsize=17, fontweight="bold")
     ax_bot.set_ylim(0, 1.05)
     ax_bot.tick_params(axis="y", labelsize=13)
@@ -2214,7 +2228,7 @@ def fig_boxplot_with_grouped_bar(data):
     ax_bot.set_xlim(-0.6, n_models - 0.4)
 
     path = OUT_DIR / "boxplot_with_grouped_bar.pdf"
-    fig.savefig(path, bbox_inches="tight")
+    fig.savefig(path)                    # the canvas, not a tight crop -- see above
     plt.close()
     print(f"  ✓ Saved: {path}")
 
@@ -2642,29 +2656,56 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
         calculate_binomial_ci, weighted_regression_with_ci, weighted_correlation,
     )
     from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
+    from scripts.figures.COLM2026.make_paper_figures import (
+        PAGE_SCALE, PAGE_TEXT_WIDTH_IN,
+    )
 
-    fig = plt.figure(figsize=(20, 12))
-    # Outer: 1×2 — left (score-distance 2×2) and right (scatter 2×1)
-    # wspace gives room for the dotted separator + Performance Score y-label
-    outer = GridSpec(1, 2, figure=fig, width_ratios=[2, 1], wspace=0.10,
-                     left=0.05, right=0.97, top=0.95, bottom=0.08)
-    gs_left = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0], hspace=0.08, wspace=0.14)
-    gs_right = GridSpecFromSubplotSpec(2, 1, subplot_spec=outer[1], hspace=0.08)
+    # Authored at PAGE_SCALE times the printed size and saved on the canvas, so
+    # the factor LaTeX scales this by is exactly 1/PAGE_SCALE and the sizes in
+    # FIGURE_STYLE["fig2"] divide by it to give printed points. A tight crop
+    # would make that factor depend on whichever label reaches furthest, which
+    # is how the 9pt floor gets missed by a fraction of a point.
+    #
+    # Six panels across 5.5in leaves each about 1.7in wide. That is the budget
+    # everything below is spending: at 9pt a panel title of more than about 22
+    # characters is wider than its panel, which is why they wrap, and a legend
+    # inside a panel covers a quarter of it, which is why (a)'s moved out.
+    # Height is set by panels (e, f): they are aspect="equal" on a 0-1 square, so
+    # their height follows their width, and the rest of the figure is fitted
+    # around them rather than the other way round.
+    fig = plt.figure(figsize=(PAGE_TEXT_WIDTH_IN * PAGE_SCALE, 3.72 * PAGE_SCALE))
+    # Outer: 1×2 — left (score-distance 2×2) and right (scatter 2×1). The gap
+    # holds the dotted separator and the right block's y-axis label, which is
+    # 0.45in of it at 9pt; top and bottom hold a two-line title and an axis
+    # label over its tick labels.
+    outer = GridSpec(1, 2, figure=fig, width_ratios=[2.15, 1], wspace=0.30,
+                     left=0.078, right=0.995, top=0.912, bottom=0.158)
+    gs_left = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0], hspace=0.36, wspace=0.16)
+    gs_right = GridSpecFromSubplotSpec(2, 1, subplot_spec=outer[1], hspace=0.36)
 
     axes_left = np.array([
         [fig.add_subplot(gs_left[0, 0]), fig.add_subplot(gs_left[0, 1])],
         [fig.add_subplot(gs_left[1, 0]), fig.add_subplot(gs_left[1, 1])],
     ])
     axes_right = [fig.add_subplot(gs_right[0, 0]), fig.add_subplot(gs_right[1, 0])]
+    for ax in axes_right:
+        # These two are aspect="equal" on a unit square, so their height binds and
+        # matplotlib gives back the width it cannot use — 0.2in printed of the
+        # 1.39in cell. Anchored west rather than centred, that slack all lands on
+        # the right, where the R^2 legends below spill into it.
+        ax.set_anchor("W")
 
     # ──────────────────────────────────────────────────────────────────
     # LEFT 2×2: Score distance panels (same logic as fig_score_distance_panels)
     # ──────────────────────────────────────────────────────────────────
+    # Titles wrap after the tag: "(d) Assistant-Tag — Individual" set on one line
+    # at 9pt is 2.3in wide against a 1.7in panel, and centred titles that wide
+    # collide with each other across the column gap.
     sd_panels = {
-        "(a) User-Tag — Pairwise": "ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst",
-        "(b) User-Tag — Individual": "ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst",
-        "(c) Assistant-Tag — Pairwise": "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
-        "(d) Assistant-Tag — Individual": "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
+        "(a) User-Tag\nPairwise": "ICML_07_UT_PW-Q_Rec_NPr_FA_Rsn-Inst",
+        "(b) User-Tag\nIndividual": "ICML_08_UT_IND-Q_Rec_NPr_FA_Rsn-Inst",
+        "(c) Assistant-Tag\nPairwise": "COLM_01_AT_PW-C_Rec_NPr_FA_Inst",
+        "(d) Assistant-Tag\nIndividual": "COLM_02_AT_IND-C_Rec_NPr_FA_Inst",
     }
 
     panel_dfs = {}
@@ -2797,6 +2838,9 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
         ax.set_title(title, fontsize=20, fontweight="bold")
         ax.set_ylim(0.0, 1.05)
         ax.tick_params(axis="both", labelsize=21)
+        # Three labels, not five: "0.25" is twice the width of "0.0", and this
+        # column is 1.4in wide. The 0.5 line is drawn anyway.
+        ax.yaxis.set_major_locator(MultipleLocator(0.5))
 
         y_label = "Adjusted Accuracy" if idx in is_ind else "Recognition Accuracy"
         if col == 0:
@@ -2805,8 +2849,6 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
             ax.set_xlabel("Elo Score Distance", fontsize=23)
         else:
             ax.set_xticklabels([])
-        if idx == 0:
-            ax.legend(fontsize=12, loc="lower right", markerscale=1.5)
 
     # ──────────────────────────────────────────────────────────────────
     # RIGHT 2×1: Rec vs Pref scatter (same logic as fig_rec_vs_pref_scatter)
@@ -2825,6 +2867,7 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
     ]
 
     rp_markers = ['D', '^', 's', 'o']
+    rp_legends = []             # (axes, legend) for place_rp_legends below
     rp_dataset_markers = {}
     rp_dataset_line_colors = {}
     all_families = set()
@@ -2986,7 +3029,7 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
             ax.set_xlabel("Self-Selection Rate", fontsize=23)
         else:
             ax.set_xticklabels([])
-        rp_panel_titles = ["(e) Pairwise — Rec. vs Pref.", "(f) Individual — Rec. vs Pref."]
+        rp_panel_titles = ["(e) Pairwise\nRec. vs Pref.", "(f) Individual\nRec. vs Pref."]
         ax.set_title(rp_panel_titles[p_idx], fontsize=20, fontweight="bold")
         ax.set_aspect("equal", adjustable="box")
         ax.set_xlim(0, 1)
@@ -3007,28 +3050,54 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
             # R^2 to match panels (a)-(d). These fits are all positive, so no
             # sign is lost; a negative one would need flagging, since squaring
             # hides direction.
+            # The number alone, with "$R^2$" said once in the legend title. At
+            # 9pt "S-GPT ($R^2$=0.84)" is wider than the panel it sits in.
             if ds in datasets_with_fit:
                 _c = datasets_with_fit[ds]
-                r_str = f"$R^2$={_c * _c:.2f}" + ("" if _c >= 0 else ", neg.")
+                r_str = f"{_c * _c:.2f}" + ("" if _c >= 0 else " neg.")
             else:
                 r_str = ""
             if rp_encoding == "domain":
-                # Points and trend line are the same color, so one filled circle
-                # stands for both.
-                handle = plt.Line2D([0], [0], marker="o", color="w", markerfacecolor=lc,
-                                    markersize=12, markeredgecolor="black",
-                                    markeredgewidth=0.5)
+                # A dash, not a dot: what the number reports is the fit, and the
+                # fit is the dashed line drawn through the points. A circle keyed
+                # it to the markers instead, which is not what an R^2 describes.
+                # Same dash pattern and width as the trend line it stands for.
+                handle = plt.Line2D([0], [0], linestyle="--", color=lc,
+                                    linewidth=3.5, alpha=0.7)
             else:
                 # Shape and line color are separate channels, so show both.
                 handle = (plt.Line2D([0], [0], marker=mk, color="w", markerfacecolor="gray",
                                      markersize=10, markeredgecolor="black",
                                      markeredgewidth=0.5),
                           plt.Line2D([0], [0], linestyle="--", color=lc, linewidth=2))
-            ds_handles.append((handle, f"{dataset_abbrev(ds)} ({r_str})"))
+            # The number only, in two columns. Named and stacked, this legend is
+            # four rows deep and reaches down to y = 0.42, which is exactly where
+            # panel (f)'s points are -- it hid all but two of them. The domain a
+            # colour stands for is already in the figure's shared key.
+            ds_handles.append((handle, r_str))
+        # Bottom right, and overhanging it. Upper left put the box on the one
+        # part of a rec-vs-pref panel that is never empty for long, and at 9pt it
+        # is a third of the panel wide; both panels' points sit on or above the
+        # diagonal, so the corner under it is the only reliably clear one. The
+        # overhang is what keeps the box out of the data at all: a 0.89in legend
+        # against a 1.19in panel has nowhere to go inside it. See
+        # place_rp_legends for where the right edge actually lands.
+        #
+        # Only under "domain". The other encoding needs a second legend of seven
+        # model families, which is most of a panel tall and already sits in this
+        # corner; two legends do not both fit in 1.19in, and that encoding is a
+        # diagnostic rather than the paper's, so it keeps its old placement.
+        bleeds = rp_encoding == "domain"
         ds_leg = ax.legend(handles=[h for h, _ in ds_handles], labels=[l for _, l in ds_handles],
-                           loc="upper left", fontsize=13, framealpha=0.9,
+                           title="$R^2$", loc="lower right" if bleeds else "upper left",
+                           ncol=2, fontsize=13,
+                           framealpha=0.9, borderpad=0.3, labelspacing=0.25,
+                           handlelength=1.6, handletextpad=0.4, columnspacing=1.0,
+                           borderaxespad=0.0 if bleeds else 0.2,
                            handler_map={tuple: HandlerTuple(ndivide=None)})
         ax.add_artist(ds_leg)
+        if bleeds:
+            rp_legends.append((ax, ds_leg))
 
     # ──────────────────────────────────────────────────────────────────
     # Shared legend for model families (right side) — only when fill color
@@ -3047,6 +3116,19 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
         axes_right[1].legend(handles=fam_handles, loc="lower right",
                              fontsize=13, framealpha=0.9,
                              borderpad=0.8, labelspacing=0.5)
+
+    # One dataset key for the whole figure, along the bottom. It used to sit
+    # inside panel (a); at 9pt it covers a quarter of a 1.4in panel and lands on
+    # the fitted-slope annotation in the opposite corner. The colours are the
+    # same four in all six panels, so one key was always enough — panels (e, f)
+    # keep a legend only because theirs also carries a per-domain $R^2$.
+    fig.legend(
+        handles=[plt.Line2D([0], [0], marker="o", color="w", markersize=12,
+                            markerfacecolor=sd_ds_colors[k]) for k in sd_ds_keys],
+        labels=[sd_ds_labels[k] for k in sd_ds_keys],
+        loc="lower center", ncol=len(sd_ds_keys), fontsize=13, frameon=False,
+        bbox_to_anchor=(0.5, 0.0), handletextpad=0.3, columnspacing=1.6,
+    )
 
     # Vertical dotted separator, in the gap between the two blocks: everything
     # belonging to (e, f), their shared y-axis label included, goes to its right.
@@ -3075,14 +3157,30 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
             ((left_block + right_block) / 2, 0))[0]
         separator.set_xdata([x, x])
 
-    fig.srf_after_style = [place_separator]
+    def place_rp_legends(figure):
+        """Slide each R^2 legend right until its edge reaches the figure's.
+
+        Deferred for the same reason the separator is, plus one of its own: how
+        far right there is to go is the width equal-aspect gave back, and that is
+        not known until the panels have been drawn at their final size. Written
+        as "put the right edge here" rather than a fixed overhang so the legend
+        lands against the canvas edge whatever the panel does — and so it stops
+        there, since past it the save clips rather than widens.
+        """
+        figure.canvas.draw()
+        for axes, legend in rp_legends:
+            box = axes.get_position()            # after apply_aspect, so it is real
+            legend.set_bbox_to_anchor(((0.998 - box.x0) / box.width, 0.0))
+
+    fig.srf_after_style = [place_separator, place_rp_legends]
     place_separator(fig)
+    place_rp_legends(fig)
 
     suffix = "" if ind_metric == "adjusted" else f"_ind-{ind_metric}"
     suffix += "" if regression == "fe" else f"_{regression}"
     suffix += "" if rp_encoding == "domain" else f"_rp-{rp_encoding}"
     path = OUT_DIR / f"quality_heuristic_combined{suffix}.pdf"
-    fig.savefig(path, bbox_inches="tight")
+    fig.savefig(path)                    # the canvas, not a tight crop -- see above
     plt.close()
     print(f"  ✓ Saved: {path}")
     return path
