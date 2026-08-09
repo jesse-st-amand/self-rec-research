@@ -7,7 +7,7 @@ This repo is the experiment workspace. It contains evaluation configs, training 
 | Package | Purpose |
 |---------|---------|
 | [self-rec-framework](https://github.com/MARS-3-0-self-recognition/self-rec-framework) | Evaluation framework — generate data, run recognition evals, analyze results |
-| [SGTR-RL](https://github.com/jesse-st-amand/SGTR-RL) | Training framework — SFT/RL fine-tuning for SGTR with LoRA |
+| [SGTR-SFT](https://github.com/jesse-st-amand/SGTR-SFT) | Training framework — SFT/RL fine-tuning for SGTR with LoRA |
 
 ## Setup
 
@@ -35,19 +35,19 @@ cd self-rec-research
 # Clone companion repos as editable packages
 mkdir -p _external
 git clone https://github.com/MARS-3-0-self-recognition/self-rec-framework.git _external/self-rec-framework
-git clone https://github.com/jesse-st-amand/SGTR-RL.git _external/SGTR-RL
+git clone https://github.com/jesse-st-amand/SGTR-SFT.git _external/SGTR-SFT
 
 # Install everything with editable links
 uv sync
 cp .env.template .env  # fill in API keys
 ```
 
-With this setup, changes to `_external/self-rec-framework/` or `_external/SGTR-RL/` take effect immediately without reinstalling. The `pyproject.toml` uses `[tool.uv.sources]` to point at the local paths:
+With this setup, changes to `_external/self-rec-framework/` or `_external/SGTR-SFT/` take effect immediately without reinstalling. The `pyproject.toml` uses `[tool.uv.sources]` to point at the local paths:
 
 ```toml
 [tool.uv.sources]
 self-rec-framework = { path = "_external/self-rec-framework", editable = true }
-sgtr-rl = { path = "_external/SGTR-RL", editable = true }
+sgtr-rl = { path = "_external/SGTR-SFT", editable = true }
 ```
 
 **How the three repos coordinate:**
@@ -70,7 +70,7 @@ git commit -m "Add score-distance analysis"
 git push origin public
 
 # Commit changes to the training package
-cd _external/SGTR-RL
+cd _external/SGTR-SFT
 git add sgtr_rl/...
 git commit -m "Fix LoRA checkpoint saving"
 git push origin js/local_editable
@@ -78,7 +78,7 @@ git push origin js/local_editable
 
 When a feature spans multiple repos (e.g., adding a new analysis script to the framework and a new bash wrapper in the research repo), commit to both repos. The research repo doesn't track which version of each package it depends on beyond the pip package name — the assumption is that developers on the editable setup keep all three repos on compatible branches.
 
-For Option A users who install from GitHub, the framework and SGTR-RL versions are pinned by `uv.lock`.
+For Option A users who install from GitHub, the framework and SGTR-SFT versions are pinned by `uv.lock`.
 
 ## Environment Variables
 
@@ -105,7 +105,7 @@ You only need the keys for providers you plan to use.
 self-rec-research/
 ├── _external/                     # Companion packages (editable installs)
 │   ├── self-rec-framework/        # Evaluation framework (srf-* commands)
-│   └── SGTR-RL/                   # Training framework (sgtr-* commands)
+│   └── SGTR-SFT/                   # Training framework (sgtr-* commands)
 │
 ├── experiments_eval/              # Evaluation experiment configs
 │   ├── ICML/                      # ICML paper experiments (01-08)

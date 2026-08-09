@@ -601,6 +601,8 @@ def build_capability(_config, args):
 
     label_panels(axes, titles=("Pairwise", "Individual"))
     axes[0].set_xlabel("")               # the panels share an x axis now
+    # The analysis function says "LM Arena"; the paper calls it Arena throughout.
+    axes[1].set_xlabel("Arena Score")
     for ax in axes:
         # One row of four rather than two of two: "BCB (r=0.65)" and its handle
         # come to 1.1in at 9pt, so four of them fit across 5.5in with room over.
@@ -729,6 +731,8 @@ def build_controlled_bar(_config, args):
     # across the panel above's evaluator names.
     label_panels(axes, titles=("Pairwise", "Individual"))
     axes[0].set_xlabel("")           # both panels order evaluators the same way
+    # The analysis function says "LM Arena"; the paper calls it Arena throughout.
+    axes[1].set_xlabel("Evaluator Model (ordered by Arena Score)")
     legend_below(fig, axes[0], "controlled-bar", framealpha=0.9)
     name = "figure_appx_controlled_bar.pdf"
     return [(save_panels(fig, "controlled-bar", name, args.output_dir), name)]
@@ -771,7 +775,7 @@ def build_controlled_scatter(_config, args):
         # is what the panel legends underneath were landing on, and spelling the
         # direction out overhangs the right panel far enough to be cropped off
         # the page — the caption says which way is better.
-        ax.set_xlabel("Evaluator LM Arena Score")
+        ax.set_xlabel("Evaluator Arena Score")
     for ax in (axes[1], axes[3]):
         # The individual panels' own label spells out the self-score averaging,
         # which takes four lines at this width and is in the caption anyway.

@@ -21,7 +21,7 @@
 
 [tool.uv.sources]
 self-rec-framework = { path = "_external/self-rec-framework", editable = true }
-sgtr-rl = { path = "_external/SGTR-RL", editable = true }
+sgtr-rl = { path = "_external/SGTR-SFT", editable = true }
 
 [tool.setuptools.packages.find]
 include = ["scripts*"]

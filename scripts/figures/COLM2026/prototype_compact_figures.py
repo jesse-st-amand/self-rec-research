@@ -2052,11 +2052,17 @@ def fig_boxplot_with_grouped_bar(data):
     # sized for panel (b)'s rotated model names and hspace for panel (a)'s tick
     # labels plus panel (b)'s title; neither can be discovered after the fact
     # once the crop is fixed.
+    #
+    # The margins are set from the rendered ink box rather than by eye: bottom
+    # holds 0.86in for the rotated names ("Gemini Flash Lite" at 45 degrees drops
+    # 0.68in, plus the tick pad), hspace 0.40in for panel (a)'s tick labels and
+    # panel (b)'s title stacked in it, which is 0.37in of text. Both were about
+    # 0.2in wider than that, which is where the height went from 4.9 to 4.5.
     from scripts.figures.COLM2026.make_paper_figures import PAGE_SCALE, PAGE_TEXT_WIDTH_IN
     fig, (ax_top, ax_bot) = plt.subplots(
-        2, 1, figsize=(PAGE_TEXT_WIDTH_IN * PAGE_SCALE, 4.9 * PAGE_SCALE),
-        gridspec_kw={"hspace": 0.32, "height_ratios": [1, 1.25],
-                     "left": 0.105, "right": 0.995, "top": 0.955, "bottom": 0.215})
+        2, 1, figsize=(PAGE_TEXT_WIDTH_IN * PAGE_SCALE, 4.50 * PAGE_SCALE),
+        gridspec_kw={"hspace": 0.26, "height_ratios": [1, 1.25],
+                     "left": 0.105, "right": 0.995, "top": 0.957, "bottom": 0.190})
 
     # ── Panel (a): boxplots ──
     task_labels = list(TASK_INDIVIDUAL.keys())
@@ -2156,9 +2162,10 @@ def fig_boxplot_with_grouped_bar(data):
         "gpt-4.1-mini": "GPT-4.1 Mini", "gpt-4o": "GPT-4o", "gpt-4.1": "GPT-4.1",
         "haiku-3.5": "Haiku 3.5", "sonnet-3.7": "Sonnet 3.7", "sonnet-4.5": "Sonnet 4.5",
         "opus-4.1": "Opus 4.1", "opus-4.1-thinking": "Opus 4.1 (R)",
-        "gemini-2.0-flash-lite": "Flash Lite", "gemini-2.0-flash": "Flash 2.0",
+        "gemini-2.0-flash-lite": "Gemini Flash Lite",
+        "gemini-2.0-flash": "Gemini Flash 2.0",
         "gemini-2.5-pro-thinking": "Gemini Pro (R)",
-        "deepseek-3.1": "DS 3.1", "deepseek-r1-thinking": "DS-R1 (R)",
+        "deepseek-3.1": "DeepSeek 3.1", "deepseek-r1-thinking": "DeepSeek-R1 (R)",
         "kimi-k2": "Kimi K2", "kimi-k2-thinking": "Kimi K2 (R)",
         "gpt-oss-120b-thinking": "GPT-OSS 120B (R)",
     }
@@ -2673,15 +2680,25 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
     # Height is set by panels (e, f): they are aspect="equal" on a 0-1 square, so
     # their height follows their width, and the rest of the figure is fitted
     # around them rather than the other way round.
-    fig = plt.figure(figsize=(PAGE_TEXT_WIDTH_IN * PAGE_SCALE, 3.72 * PAGE_SCALE))
+    fig = plt.figure(figsize=(PAGE_TEXT_WIDTH_IN * PAGE_SCALE, 3.60 * PAGE_SCALE))
     # Outer: 1×2 — left (score-distance 2×2) and right (scatter 2×1). The gap
     # holds the dotted separator and the right block's y-axis label, which is
     # 0.45in of it at 9pt; top and bottom hold a two-line title and an axis
-    # label over its tick labels.
+    # label over its tick labels. The bottom also holds the dataset legend, which
+    # is anchored to the canvas rather than to this box, so it is the one margin
+    # here that cannot be trimmed by shortening the figure.
     outer = GridSpec(1, 2, figure=fig, width_ratios=[2.15, 1], wspace=0.30,
-                     left=0.078, right=0.995, top=0.912, bottom=0.158)
-    gs_left = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0], hspace=0.36, wspace=0.16)
-    gs_right = GridSpecFromSubplotSpec(2, 1, subplot_spec=outer[1], hspace=0.36)
+                     left=0.078, right=0.995, top=0.917, bottom=0.163)
+    # The column gap has to clear the right column's y tick labels ("0.0" etc.),
+    # which sit inside it and at 9pt are wider than the tick marks they belong
+    # to. At 0.16 they came within a hair of the left panels' right spine, and
+    # the left panels' data runs right up to that spine.
+    # hspace: the top row carries no x tick labels, so the row gap holds only the
+    # bottom row's two-line title, 0.30in at 9pt. 0.28 leaves 0.30in exactly and
+    # the title's ascenders touch the row above; 0.32 leaves 0.37in, which is the
+    # smallest that still reads as a gap.
+    gs_left = GridSpecFromSubplotSpec(2, 2, subplot_spec=outer[0], hspace=0.32, wspace=0.26)
+    gs_right = GridSpecFromSubplotSpec(2, 1, subplot_spec=outer[1], hspace=0.32)
 
     axes_left = np.array([
         [fig.add_subplot(gs_left[0, 0]), fig.add_subplot(gs_left[0, 1])],
@@ -2972,7 +2989,7 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
                             fmt="none", ecolor=color, alpha=0.4, capsize=2,
                             capthick=0.5, elinewidth=0.5, zorder=1)
                 ax.scatter(grp["pref"], grp["rec"], c=color, marker=mk,
-                           s=140, alpha=0.7, edgecolors="black", linewidths=0.5, zorder=2)
+                           s=70, alpha=0.7, edgecolors="black", linewidths=0.5, zorder=2)
 
             x_vals = ds_data["pref"].values.astype(float)
             y_vals = ds_data["rec"].values.astype(float)

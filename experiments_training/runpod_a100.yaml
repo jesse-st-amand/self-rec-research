@@ -28,8 +28,8 @@ runpod:
   repo_ref: training
   workspace_subdir: self-rec-research
   editable_deps:
-    - repo_url: https://github.com/jesse-st-amand/SGTR-RL.git
-      path: _external/SGTR-RL
+    - repo_url: https://github.com/jesse-st-amand/SGTR-SFT.git
+      path: _external/SGTR-SFT
     - repo_url: https://github.com/MARS-3-0-self-recognition/self-rec-framework.git
       path: _external/self-rec-framework
   env_passthrough:

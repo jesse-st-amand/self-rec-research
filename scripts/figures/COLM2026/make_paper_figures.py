@@ -28,6 +28,60 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 PAPER_FIGURES = REPO_ROOT / "_external" / "COLM_2026_SGTR" / "figures"
 
 # ============================================================================
+# FONT — the paper's body face, so figure text and page text match
+# ============================================================================
+# colm2026_conference.sty sets the document in Palatino (tgpagella for text,
+# mathpazo for math), so the figures are set in the same face rather than
+# matplotlib's DejaVu Sans. TeX Gyre Pagella is the very font the .sty loads
+# and ships with TeX Live, but matplotlib does not scan the texmf tree, so the
+# four faces are registered by path.
+#
+# This is a global rcParams change made at import, which is what makes it reach
+# every figure: the plotting functions pass explicit fontsize= but never an
+# explicit family, and make_appendix_figures imports from here before it draws
+# anything. A function that does set a family (a monospace annotation, say)
+# still wins, since rcParams only supplies the default.
+#
+# Sizes are untouched -- 9pt is 9pt in any family, and check_figure_text.sh
+# still measures the floor against the rendered PDF. Pagella does set about 7%
+# narrower than DejaVu Sans at the same size, so layouts tuned against the old
+# metrics have slightly more room than they were given, never less.
+
+_PAGELLA_DIR = Path("/usr/share/texmf/fonts/opentype/public/tex-gyre")
+_PAGELLA_FACES = ("regular", "italic", "bold", "bolditalic")
+
+
+def use_paper_font():
+    """Make the paper's body font matplotlib's default. False if unavailable."""
+    import matplotlib.font_manager as fm
+
+    paths = [_PAGELLA_DIR / f"texgyrepagella-{face}.otf" for face in _PAGELLA_FACES]
+    if not all(path.exists() for path in paths):
+        return False
+    for path in paths:
+        fm.fontManager.addfont(str(path))
+
+    matplotlib.rcParams["font.family"] = "serif"
+    matplotlib.rcParams["font.serif"] = (
+        ["TeX Gyre Pagella"] + list(matplotlib.rcParams["font.serif"])
+    )
+    # mathtext gets the text faces rather than a math font: the Pagella math
+    # file is OpenType MATH, which matplotlib cannot read. That covers what the
+    # figures actually set in math mode -- $R^2$, $m$, $\Delta$ -- and matches
+    # mathpazo, whose letters are Palatino as well.
+    matplotlib.rcParams["mathtext.fontset"] = "custom"
+    matplotlib.rcParams["mathtext.rm"] = "TeX Gyre Pagella"
+    matplotlib.rcParams["mathtext.it"] = "TeX Gyre Pagella:italic"
+    matplotlib.rcParams["mathtext.bf"] = "TeX Gyre Pagella:bold"
+    return True
+
+
+PAPER_FONT = use_paper_font()
+if not PAPER_FONT:
+    print(f"  ⚠ TeX Gyre Pagella not found under {_PAGELLA_DIR}; figure text will "
+          f"not match the paper's body font (install the TeX Live tex-gyre fonts)")
+
+# ============================================================================
 # STYLE — edit these while sizing figures for the page.
 # ============================================================================
 # Every value is a font size in points, applied to one role within the figure.
@@ -121,7 +175,7 @@ FIGURE_STYLE = {
         # Panel (a) writes "n=..." below each box, hanging off the bottom of the
         # data range; without the pad it sits on the frame. Wider than it was,
         # since the label is now three times the size it was written for.
-        "margins": {"(a)": {"bottom": 0.10}},
+        "margins": {"(a)": {"bottom": 0.07}},
     },
     # Fig 2: 2x3 scatter grid. Six panels across 5.5in leaves each about 1.7in
     # wide, which is the whole reason the titles wrap and the legends had to come

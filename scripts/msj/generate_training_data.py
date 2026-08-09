@@ -5,7 +5,7 @@ SFT training data from the results:
 - Successful attacks → model learns to refuse (correct response = refusal)
 - Failed attacks → model learns to maintain refusal (positive examples)
 
-Output format matches SGTR-RL's SFT data format for direct integration.
+Output format matches SGTR-SFT's SFT data format for direct integration.
 
 Usage:
     uv run python scripts/msj/generate_training_data.py --config <config.yaml>

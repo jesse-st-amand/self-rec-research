@@ -43,8 +43,8 @@ runpod:
   repo_ref: alpaca_eval
   workspace_subdir: self-rec-research
   editable_deps:
-    - repo_url: https://github.com/jesse-st-amand/SGTR-RL.git
-      path: _external/SGTR-RL
+    - repo_url: https://github.com/jesse-st-amand/SGTR-SFT.git
+      path: _external/SGTR-SFT
       ref: js/local_editable
     - repo_url: https://github.com/MARS-3-0-self-recognition/self-rec-framework.git
       path: _external/self-rec-framework

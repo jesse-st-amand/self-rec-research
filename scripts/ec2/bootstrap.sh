@@ -20,7 +20,7 @@ REPO_URL="${REPO_URL:-https://github.com/jesse-st-amand/self-rec-research.git}"
 REPO_BRANCH="${REPO_BRANCH:-ec2}"
 REPO_DIR="${REPO_DIR:-$HOME/self-rec-research}"
 
-SGTR_RL_URL="${SGTR_RL_URL:-https://github.com/jesse-st-amand/SGTR-RL.git}"
+SGTR_RL_URL="${SGTR_RL_URL:-https://github.com/jesse-st-amand/SGTR-SFT.git}"
 SGTR_RL_BRANCH="${SGTR_RL_BRANCH:-js/local_editable}"
 
 SRF_URL="${SRF_URL:-https://github.com/jesse-st-amand/self-rec-framework.git}"
@@ -81,7 +81,7 @@ clone_or_update() {
     fi
 }
 
-clone_or_update "$SGTR_RL_URL" "$SGTR_RL_BRANCH" "$REPO_DIR/_external/SGTR-RL"
+clone_or_update "$SGTR_RL_URL" "$SGTR_RL_BRANCH" "$REPO_DIR/_external/SGTR-SFT"
 clone_or_update "$SRF_URL"     "$SRF_BRANCH"     "$REPO_DIR/_external/self-rec-framework"
 
 # 5. uv sync (installs Python deps + editable _external/ packages)

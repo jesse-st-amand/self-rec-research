@@ -64,8 +64,9 @@ from scripts.figures.COLM2026.make_paper_figures import (
 # and are the same 9pt expressed in authored points.
 
 TOP_H = 1.92                    # band the dot plots get
-BOTTOM_H = 1.88                 # band the heatmaps get, = the geometry below
-BAND_GAP = 0.06                 # between the two bands
+BOTTOM_H = 1.74                 # band the heatmaps get, = the geometry below
+BAND_GAP = 0.04                 # between the two bands
+TOP_XLABEL_H = 0.232            # under the dot plots: tick labels + axis label
 
 # Margins inside the top band, as a fraction of the whole figure width. The left
 # margin is what the rotated row labels ("UT PW", "S-GPT") hang into -- it has to
@@ -82,8 +83,11 @@ TOP_LEFT, TOP_RIGHT, TOP_WSPACE = 0.115, 0.988, 0.26
 HEATMAP_GEOM = {
     "cell_w": 0.46, "cell_h": 0.36,
     "pad_l": 1.06, "pad_mid": 0.16, "pad_r": 0.14,
-    "pad_top": 0.30, "pad_bot": 0.50,
+    "pad_top": 0.20, "pad_bot": 0.46,
 }
+# pad_top holds the panel titles (0.13in at 9pt) and pad_bot the three stacked
+# lines (0.43in); both were set with room to spare, and BOTTOM_H is their sum
+# with the three 0.36in rows, so trimming them is what shortens the figure.
 # pad_r is wider than the panel needs because the adversarial panel's centred
 # title is wider than its two cells and hangs over both of them.
 
@@ -268,8 +272,11 @@ def build(config, args, output_dir):
 
     # Top band: the two dot-plot panels, side by side across the full width.
     top_bottom = (BAND_GAP + BOTTOM_H) / total_h
+    # In page inches, not a fixed fraction: the band under the dot plots holds
+    # text, so it has to stay the same size when the figure gets shorter.
     gs = fig.add_gridspec(1, 2, left=TOP_LEFT, right=TOP_RIGHT,
-                          bottom=top_bottom + 0.06, top=0.945, wspace=TOP_WSPACE)
+                          bottom=top_bottom + TOP_XLABEL_H / total_h,
+                          top=0.945, wspace=TOP_WSPACE)
     top_axes = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])]
     with draw_into_axes(top_axes):
         try:

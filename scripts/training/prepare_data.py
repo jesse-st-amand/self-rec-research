@@ -1,6 +1,6 @@
 """Extract training data from local .eval files in data/results/.
 
-Thin wrapper around SGTR-RL's prepare_data extraction functions.
+Thin wrapper around SGTR-SFT's prepare_data extraction functions.
 Reads a YAML config specifying source directory, filters, and output location,
 then unzips .eval archives to a temp directory and runs the standard extraction
 pipeline.

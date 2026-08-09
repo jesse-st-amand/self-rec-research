@@ -1,6 +1,6 @@
 """Generic RunPod job dispatch for alpaca_eval pipeline.
 
-Reuses SGTR-RL's RunPodClient for pod lifecycle management.
+Reuses SGTR-SFT's RunPodClient for pod lifecycle management.
 Builds custom startup scripts that run arbitrary commands on a GPU pod
 with the full self-rec-research workspace available.
 

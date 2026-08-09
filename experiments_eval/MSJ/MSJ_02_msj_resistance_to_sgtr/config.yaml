@@ -3,7 +3,7 @@
 #
 # Pipeline:
 # 1. Generate MSJ training data (attacks + refusals)
-# 2. Fine-tune models on MSJ resistance via SGTR-RL SFT pipeline
+# 2. Fine-tune models on MSJ resistance via SGTR-SFT SFT pipeline
 # 3. Evaluate MSJ-resistant models on SGTR benchmarks
 #
 # Step 1 config (generate_training_data.py):
@@ -21,7 +21,7 @@ training_shot_counts: [25, 50, 100, 256]
 
 output_dir: data/msj/training_data/ll-3.1-8b_msj_resistance
 
-# Step 2: Fine-tune using SGTR-RL pipeline (separate config)
+# Step 2: Fine-tune using SGTR-SFT pipeline (separate config)
 # See experiments_training/ for SFT configs
 
 # Step 3: Evaluate on SGTR benchmarks

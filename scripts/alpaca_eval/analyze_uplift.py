@@ -783,7 +783,7 @@ def fig5c_dot_plot_dual_color(rows, output_dir, simple=False):
     fs_xlabel = 12 if simple else 14
     fs_title = 12 if simple else 16
     fs_xtick = 12 if simple else 12
-    dot_size = 25 if simple else 60
+    dot_size = 100 if simple else 240
     fig, (ax_task, ax_ds) = plt.subplots(1, 2, figsize=(12, fig_height),
                                          gridspec_kw={"wspace": wspace})
 
@@ -834,7 +834,7 @@ def fig5c_dot_plot_dual_color(rows, output_dir, simple=False):
         # Trim the default margins so rows are not padded with unused space.
         ax_task.set_ylim(len(TASK_CONDITIONS) - 0.45, -0.55)
     ax_task.set_xlabel("Δ Accuracy (post − pre)", fontsize=fs_xlabel)
-    ax_task.set_title("Evaluation Format Transfer", fontsize=fs_title, fontweight="bold")
+    ax_task.set_title("Format and Target Transfer", fontsize=fs_title, fontweight="bold")
     ax_task.grid(axis="x", alpha=0.3, linestyle="--")
     ax_task.tick_params(axis="x", labelsize=fs_xtick)
     for yi in range(1, len(TASK_CONDITIONS)):

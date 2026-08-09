@@ -14,6 +14,6 @@ cd "$(git rev-parse --show-toplevel)"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG="$SCRIPT_DIR/config.yaml"
-RUNTIME="_external/SGTR-RL/runtimes/local_gpu.yaml"
+RUNTIME="_external/SGTR-SFT/runtimes/local_gpu.yaml"
 
 uv run sgtr-train --config "$CONFIG" --runtime "$RUNTIME"
