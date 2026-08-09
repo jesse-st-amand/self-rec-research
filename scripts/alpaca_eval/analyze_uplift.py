@@ -834,7 +834,7 @@ def fig5c_dot_plot_dual_color(rows, output_dir, simple=False):
         # Trim the default margins so rows are not padded with unused space.
         ax_task.set_ylim(len(TASK_CONDITIONS) - 0.45, -0.55)
     ax_task.set_xlabel("Δ Accuracy (post − pre)", fontsize=fs_xlabel)
-    ax_task.set_title("Format and Target Transfer", fontsize=fs_title, fontweight="bold")
+    ax_task.set_title("Presentation Transfer", fontsize=fs_title, fontweight="bold")
     ax_task.grid(axis="x", alpha=0.3, linestyle="--")
     ax_task.tick_params(axis="x", labelsize=fs_xtick)
     for yi in range(1, len(TASK_CONDITIONS)):

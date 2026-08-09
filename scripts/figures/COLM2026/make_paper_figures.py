@@ -102,6 +102,8 @@ if not PAPER_FONT:
 #                 bold the plotting functions set. Done here rather than in them
 #                 because those functions also draw the standalone analysis
 #                 figures, which keep it. None leaves each artist as drawn.
+#                 An artist whose gid is "keep-fontweight" keeps the weight it
+#                 was drawn with — how fig 1(b)'s model names stay bold.
 #   scale         multiplies every text size after the above are applied,
 #                 including roles left at None. Use to shrink a whole figure
 #                 uniformly without retuning each role.
@@ -329,7 +331,7 @@ def apply_style(fig, style):
             artist.set_fontsize(size)
         if scale != 1.0:
             artist.set_fontsize(artist.get_fontsize() * scale)
-        if weight is not None:
+        if weight is not None and artist.get_gid() != "keep-fontweight":
             artist.set_fontweight(weight)
 
     # Tick label sizes are also set on the axis itself: a tick regenerated

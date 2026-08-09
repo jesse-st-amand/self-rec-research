@@ -2054,15 +2054,15 @@ def fig_boxplot_with_grouped_bar(data):
     # once the crop is fixed.
     #
     # The margins are set from the rendered ink box rather than by eye: bottom
-    # holds 0.86in for the rotated names ("Gemini Flash Lite" at 45 degrees drops
-    # 0.68in, plus the tick pad), hspace 0.40in for panel (a)'s tick labels and
+    # holds 0.91in for the rotated bold names ("Gemini Flash Lite" at 45 degrees
+    # drops 0.73in, plus the tick pad), hspace 0.40in for panel (a)'s tick labels and
     # panel (b)'s title stacked in it, which is 0.37in of text. Both were about
     # 0.2in wider than that, which is where the height went from 4.9 to 4.5.
     from scripts.figures.COLM2026.make_paper_figures import PAGE_SCALE, PAGE_TEXT_WIDTH_IN
     fig, (ax_top, ax_bot) = plt.subplots(
         2, 1, figsize=(PAGE_TEXT_WIDTH_IN * PAGE_SCALE, 4.50 * PAGE_SCALE),
         gridspec_kw={"hspace": 0.26, "height_ratios": [1, 1.25],
-                     "left": 0.105, "right": 0.995, "top": 0.957, "bottom": 0.190})
+                     "left": 0.105, "right": 0.995, "top": 0.957, "bottom": 0.201})
 
     # ── Panel (a): boxplots ──
     task_labels = list(TASK_INDIVIDUAL.keys())
@@ -2225,6 +2225,9 @@ def fig_boxplot_with_grouped_bar(data):
 
     for tick_label, model in zip(ax_bot.get_xticklabels(), sorted_models):
         tick_label.set_color(_darken(get_family_base_color(model)))
+        # The paper restyle strips bold everywhere (FIGURE_STYLE "weight");
+        # this gid opts the family-colored names out — see apply_style.
+        tick_label.set_gid("keep-fontweight")
 
     ax_bot.set_ylabel("Recognition Accuracy", fontsize=16)
     ax_bot.set_title("(b) User-Tag Pairwise Recognition",
@@ -2846,7 +2849,7 @@ def fig_quality_heuristic_combined(data=None, ind_metric="adjusted", regression=
                      else f"$R^2$ = {r * r:.2f}")
             print(f"    [{title}] r = {r:.3f}, R2 = {r * r:.3f}, "
                   f"m = {slope_per_100:.3f} per 100 Elo, n = {len(agg)}")
-            ax.text(0.03, 0.03, f"{label}; m = {slope_per_100:.2f}",
+            ax.text(0.03, 0.03, f"{label}; $m$ = {slope_per_100:.2f}",
                     transform=ax.transAxes, fontsize=18,
                     verticalalignment="bottom",
                     bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
